@@ -28,6 +28,7 @@ import java.awt.event.MouseWheelListener;
 import java.io.IOException;
 import java.nio.CharBuffer;
 import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -44,6 +45,9 @@ final public class FreqDigit extends JSpinner implements MouseWheelListener, Mou
     private long value = 0;
     Color nonZeroColor = new Color(0,192,0);
     Color zeroColor = new Color(0,64,0);
+    // SpinnerNumberModel is set by GUI designer.
+   
+           
 
     public FreqDigit(VfoPrototype proto, long dflt) throws IOException {
         super();
@@ -99,6 +103,7 @@ final public class FreqDigit extends JSpinner implements MouseWheelListener, Mou
         }
     }
 
+    
     @Override
     public Object getNextValue() {
         return super.getNextValue(); //To change body of generated methods, choose Tools | Templates.
@@ -116,6 +121,7 @@ final public class FreqDigit extends JSpinner implements MouseWheelListener, Mou
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
+            // @todo This code is wrong.
             int my = e.getY();
             int cy = getHeight() / 2;
             int inc = (my < cy) ? 1 : -1;
@@ -137,6 +143,11 @@ final public class FreqDigit extends JSpinner implements MouseWheelListener, Mou
 
     @Override
     public void mouseClicked(MouseEvent e) {
+    }
+
+    @Override
+    public void setModel(SpinnerModel model) {
+        super.setModel(model); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**
@@ -166,8 +177,11 @@ class DigitChangeListener implements ChangeListener {
     public void stateChanged(ChangeEvent e) {
         FreqDigit source = (FreqDigit)e.getSource();
         if (source.hasFocus() ) {
-            int digitValue = (int)source.getValue();
-            source.setDigit(digitValue); 
+            Object obj = source.getModel().getValue();
+            String digitStr = obj.toString();
+            System.out.println(digitStr+" DigitChangeListener");
+            source.display.digitsToFrequency(); 
         }
     }
 }
+
