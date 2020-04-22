@@ -34,10 +34,19 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
- *
+ * @Class FreqDigit
+ * 
+ * A digit spinner representing a decade of a multidigit display where increment 
+ * and 
+ * decrement affects the entire display.  So that the displayed sum can be quickly
+ * scrolled to a desired quantity with the arrow keys.
+ * 
+ * @usage Use the CyclingSpinnerNumberModel with this spinner.
+ * 
  * @author coz
  */
-final public class FreqDigit extends JSpinner implements MouseWheelListener, MouseListener, Readable, ChangeListener {
+final public class FreqDigit extends JSpinner 
+        implements MouseWheelListener, MouseListener, Readable, ChangeListener {
 
     VfoDisplayPanel display;
     float fontScale;
@@ -45,34 +54,32 @@ final public class FreqDigit extends JSpinner implements MouseWheelListener, Mou
     private long value = 0;
     Color nonZeroColor = new Color(0,192,0);
     Color zeroColor = new Color(0,64,0);
+    int maxDigits = 10;
     // SpinnerNumberModel is set by GUI designer.
    
            
 
-    public FreqDigit(VfoPrototype proto, long dflt) throws IOException {
+    public FreqDigit(VfoPrototype proto, long decadePowerOfTen) throws IOException {
         super();
-        if (dflt >= 0 && dflt <= 9) {
+        if (decadePowerOfTen >= 0 && decadePowerOfTen <= maxDigits) {
             DigitChangeListener changeListener = new DigitChangeListener();
             addMouseWheelListener(this);
             addMouseListener(this);
             addChangeListener(changeListener);
             display = (VfoDisplayPanel) proto.vfoDisplayPanel;
-            value = dflt;
-            setDigit(dflt);
+            value = decadePowerOfTen;
+            // The UI code will overwrite the spinner model after this construction.
+            setDigit(decadePowerOfTen);
             setForeground(zeroColor);
         }
-        else {
-            removeMouseWheelListener(this);
-            removeMouseListener(this);
-            throw new UnsupportedOperationException("too many digits, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }     
     }
 
     public void setDigit(long v) {
         SpinnerNumberModel  model = (SpinnerNumberModel) this.getModel();
         model.setValue(v);
     }
-
+    
+    // not used, delete
     public void setCarry(FreqDigit fd) {
         carry = fd;
     }
@@ -80,29 +87,10 @@ final public class FreqDigit extends JSpinner implements MouseWheelListener, Mou
     public void setBright(boolean v) {
         setForeground(v?nonZeroColor:zeroColor);
     }
+    
 
-    private void increm(int v) {
-        boolean carried = false;
-        if (value >= 0) {
-            long nv = value + v;
-            setDigit((nv + 10) % 10);
-            if (carry != null) {
-                if (nv > 9) {
-                    carry.increm(1);
-                    carried = true;
-                }
-                if (nv < 0) {
-                    carry.increm(-1);
-                    carried = true;
-                }
-            }
-            // if this is the high digit of the number
-            if (!carried) {
-                display.digitsToFrequency();
-            }
-        }
-    }
-
+ 
+    
     
     @Override
     public Object getNextValue() {
@@ -114,18 +102,16 @@ final public class FreqDigit extends JSpinner implements MouseWheelListener, Mou
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         int v = e.getWheelRotation();
-        int iv = (v < 0) ? 1 : -1;
-        increm(iv);
+        if (v < 0)  this.getNextValue();
+        else        this.getPreviousValue();
+  
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             // @todo This code is wrong.
-            int my = e.getY();
-            int cy = getHeight() / 2;
-            int inc = (my < cy) ? 1 : -1;
-            increm(inc);
+        
         }
     }
 
@@ -145,10 +131,7 @@ final public class FreqDigit extends JSpinner implements MouseWheelListener, Mou
     public void mouseClicked(MouseEvent e) {
     }
 
-    @Override
-    public void setModel(SpinnerModel model) {
-        super.setModel(model); //To change body of generated methods, choose Tools | Templates.
-    }
+ 
 
     /**
      *
@@ -180,8 +163,8 @@ class DigitChangeListener implements ChangeListener {
             Object obj = source.getModel().getValue();
             String digitStr = obj.toString();
             System.out.println(digitStr+" DigitChangeListener");
-            source.display.digitsToFrequency(); 
         }
+           
     }
 }
 

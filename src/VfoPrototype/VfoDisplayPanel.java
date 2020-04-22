@@ -14,8 +14,11 @@ import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import VfoPrototype.VfoPrototype.*;
+import javax.swing.SpinnerModel;
+import VfoPrototype.CyclingSpinnerNumberModel;
 
 /**
  *
@@ -24,13 +27,16 @@ import VfoPrototype.VfoPrototype.*;
 final public class VfoDisplayPanel extends JPanel 
         implements MouseWheelListener, MouseListener {
 
-    ArrayList<FreqDigit> freqDigits = null;
+    protected ArrayList<FreqDigit> freqDigits = null;
     VfoPrototype aFrame;
     long sv_freq;
-    long digitFrequency = 3563000L;
+    long currentFrequency = 3563000L;
     double oldFrequency = 3557000.0;
+    long freqVfoA = 3563000;
+    long freqVfoB = 3557000;
     boolean inhibit = true;
     long modulatedValue = 0;
+    
 
     public VfoDisplayPanel(VfoPrototype frame) {
         aFrame = frame;
@@ -40,54 +46,50 @@ final public class VfoDisplayPanel extends JPanel
         DigitChangeListener digitChangeListener;
 
         freqDigits = new ArrayList<>();
-        FreqDigit digit = (FreqDigit) aFrame.jSpinner1Hertz;
+         
+        addlinkedDigits(aFrame.jSpinner1Hertz, aFrame.jSpinner10Hertz);
+        addlinkedDigits(aFrame.jSpinner10Hertz, aFrame.jSpinner100Hertz);
+        addlinkedDigits(aFrame.jSpinner100Hertz, aFrame.jSpinner1khz);
+        addlinkedDigits(aFrame.jSpinner1khz, aFrame.jSpinner10khz); 
+        addlinkedDigits(aFrame.jSpinner1khz, aFrame.jSpinner100khz);
+        addlinkedDigits(aFrame.jSpinner100khz, aFrame.jSpinner1Mhz);
+        addlinkedDigits(aFrame.jSpinner1Mhz, aFrame.jSpinner10Mhz);
+        addlinkedDigits(aFrame.jSpinner10Mhz, aFrame.jSpinner100Mhz);
+        addlinkedDigits(aFrame.jSpinner100Mhz, aFrame.jSpinner1000Mhz);
+        // Highest decade spinner is not linked.
+        FreqDigit digit;
+        digit = (FreqDigit) aFrame.jSpinner1000Mhz;
         freqDigits.add(digit);
-        digit = (FreqDigit) aFrame.jSpinner10Hertz;
-        freqDigits.add(digit);
-        digit = (FreqDigit) aFrame.jSpinner100Hertz;
-        freqDigits.add(digit);
-        digit = (FreqDigit) aFrame.jSpinner1khz;
-        freqDigits.add(digit);
-        digit = (FreqDigit) aFrame.jSpinner10khz;
-        freqDigits.add(digit);
-        digit = (FreqDigit) aFrame.jSpinner100khz;
-        freqDigits.add(digit);
-        digit = (FreqDigit) aFrame.jSpinner1Mhz;
-        freqDigits.add(digit);
-        digit = (FreqDigit) aFrame.jSpinner10Mhz;
-        freqDigits.add(digit);
-        digit = (FreqDigit) aFrame.jSpinner100Mhz;
-        freqDigits.add(digit);
-        // @todo need one more digit.
-
-        
-        setupDigits(freqDigits);
         inhibit = false;
+        initFrequency();
     }
 
-    private void setupDigits(ArrayList<FreqDigit> digits) {
-        FreqDigit ofd = null;
-        int size = freqDigits.size();
-        for (int i = 0; i < size; i++) {
-            FreqDigit fd = digits.get(i);
-            if (ofd != null) {
-                fd.setCarry(ofd);
-            }
-            ofd = fd;
-        }
+    private void addlinkedDigits(JSpinner low, JSpinner high) {
+        FreqDigit digitLow = (FreqDigit) low;
+        FreqDigit digitHigh = (FreqDigit) high;
+        // Spinner model is set to incorrect class.
+        // Replace model with cycling model.
+        CyclingSpinnerNumberModel lowModel = new CyclingSpinnerNumberModel(0,0,9,1);
+        digitLow.setModel(lowModel);
+        CyclingSpinnerNumberModel highModel = new CyclingSpinnerNumberModel(0,0,9,1);
+        digitHigh.setModel(highModel);
+        // Link the models.        
+        lowModel.setLinkedModel(highModel);
+        // Add the low decade digit to the VFO panel array.
+        freqDigits.add(digitLow);
     }
-
+    
     protected boolean validSetup() {
         return (!inhibit);
     }
 
     public void initFrequency() {
-        frequencyToDigits(digitFrequency);
+        frequencyToDigits(currentFrequency);
     }
 
     public void frequencyToDigits(long v) {
         sv_freq = v;
-        digitFrequency = sv_freq;
+        currentFrequency = sv_freq;
         modulatedValue = v;
         ListIterator<FreqDigit> rev = freqDigits.listIterator(freqDigits.size());
         // Expecting list ordered from LSD to MSD.      
@@ -102,23 +104,31 @@ final public class VfoDisplayPanel extends JPanel
         setFrequency(sv_freq);
     }
     
-    protected long digitsToFrequency() {
+    public long digitsToFrequency() {
         if (validSetup()) {
-            digitFrequency = 0;
+            currentFrequency = 0;
             for (FreqDigit fd : freqDigits) {
                 SpinnerNumberModel  model = (SpinnerNumberModel) fd.getModel();
                 int value = model.getNumber().intValue();
-                digitFrequency = (digitFrequency * 10) + value;
+                currentFrequency = (currentFrequency * 10) + value;
                 // @specification: Leading zeroes are dimmed.
-                fd.setBright(digitFrequency != 0);
+                fd.setBright(currentFrequency != 0);
             }
         }
-        sv_freq = digitFrequency;
+        sv_freq = currentFrequency;
         setFrequency(sv_freq);
-        return digitFrequency;
+        return currentFrequency;
     }
 
+    public void chooseVfoA() {
+        currentFrequency = freqVfoA;
+    }
     
+    public void chooseVfoB() {
+        currentFrequency = freqVfoB;
+    }
+    
+
     /*
      *  @return true when there has been a change in VFO frequency.
     */
