@@ -7,35 +7,25 @@ package VfoPrototype;
 
 
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import VfoPrototype.VfoPrototype.*;
-import javax.swing.SpinnerModel;
-import VfoPrototype.CyclingSpinnerNumberModel;
+
 
 /**
  *
  * @author Coz
  */
-final public class VfoDisplayPanel extends JPanel 
-        implements MouseWheelListener, MouseListener {
+final public class VfoDisplayPanel extends JPanel {
 
     protected ArrayList<FreqDigit> freqDigits = null;
     VfoPrototype aFrame;
     long sv_freq;
     long currentFrequency = 3563000L;
-    double oldFrequency = 3557000.0;
-    long freqVfoA = 3563000;
-    long freqVfoB = 3557000;
-    boolean inhibit = true;
-    long modulatedValue = 0;
+    long oldFrequency = 0;
+    boolean inhibit = true;  // Ignore user interaction with FreqDigits.
+    
     
 
     public VfoDisplayPanel(VfoPrototype frame) {
@@ -43,147 +33,116 @@ final public class VfoDisplayPanel extends JPanel
     }
 
     public void initDigits() {
-        DigitChangeListener digitChangeListener;
+        //DigitChangeListener digitChangeListener; //reomve this line
 
         freqDigits = new ArrayList<>();
-         
-        addlinkedDigits(aFrame.jSpinner1Hertz, aFrame.jSpinner10Hertz);
-        addlinkedDigits(aFrame.jSpinner10Hertz, aFrame.jSpinner100Hertz);
-        addlinkedDigits(aFrame.jSpinner100Hertz, aFrame.jSpinner1khz);
-        addlinkedDigits(aFrame.jSpinner1khz, aFrame.jSpinner10khz); 
-        addlinkedDigits(aFrame.jSpinner1khz, aFrame.jSpinner100khz);
-        addlinkedDigits(aFrame.jSpinner100khz, aFrame.jSpinner1Mhz);
-        addlinkedDigits(aFrame.jSpinner1Mhz, aFrame.jSpinner10Mhz);
-        addlinkedDigits(aFrame.jSpinner10Mhz, aFrame.jSpinner100Mhz);
-        addlinkedDigits(aFrame.jSpinner100Mhz, aFrame.jSpinner1000Mhz);
-        // Highest decade spinner is not linked.
-        FreqDigit digit;
-        digit = (FreqDigit) aFrame.jSpinner1000Mhz;
-        freqDigits.add(digit);
+        freqDigits.add((FreqDigit) aFrame.jSpinner1Hertz);
+        freqDigits.add((FreqDigit) aFrame.jSpinner10Hertz);
+        freqDigits.add((FreqDigit) aFrame.jSpinner100Hertz);
+        freqDigits.add((FreqDigit) aFrame.jSpinner1khz);
+        freqDigits.add((FreqDigit) aFrame.jSpinner10khz);
+        freqDigits.add((FreqDigit) aFrame.jSpinner100khz);
+        freqDigits.add((FreqDigit) aFrame.jSpinner1Mhz);
+        freqDigits.add((FreqDigit) aFrame.jSpinner10Mhz);
+        freqDigits.add((FreqDigit) aFrame.jSpinner100Mhz);
+        freqDigits.add((FreqDigit) aFrame.jSpinner1000Mhz);
+        int index, last;
+        last = freqDigits.size() -1;
+        
+        FreqDigit lowDigit, highDigit;
+         // Highest decade spinner is not linked to another decade.
+        for(index = 0; index < last ; index++) {
+            lowDigit = freqDigits.get(index);
+            highDigit = freqDigits.get(index+1);
+            linkDigits(lowDigit, highDigit);
+        }
         inhibit = false;
-        initFrequency();
+        
+        
     }
 
-    private void addlinkedDigits(JSpinner low, JSpinner high) {
-        FreqDigit digitLow = (FreqDigit) low;
-        FreqDigit digitHigh = (FreqDigit) high;
-        // Spinner model is set to incorrect class.
-        // Replace model with cycling model.
-        CyclingSpinnerNumberModel lowModel = new CyclingSpinnerNumberModel(0,0,9,1);
-        digitLow.setModel(lowModel);
-        CyclingSpinnerNumberModel highModel = new CyclingSpinnerNumberModel(0,0,9,1);
-        digitHigh.setModel(highModel);
-        // Link the models.        
-        lowModel.setLinkedModel(highModel);
-        // Add the low decade digit to the VFO panel array.
-        freqDigits.add(digitLow);
-    }
-    
-    protected boolean validSetup() {
-        return (!inhibit);
+    private void linkDigits(JSpinner low, JSpinner high) {
+        FreqDigit lowDigit;
+        lowDigit = (FreqDigit) low;
+        FreqDigit highDigit;
+        lowDigit = (FreqDigit) high;
+        CyclingSpinnerNumberModel lowModel = (CyclingSpinnerNumberModel) low.getModel();
+        CyclingSpinnerNumberModel highModel = (CyclingSpinnerNumberModel) high.getModel(); 
+        CyclingSpinnerNumberModel.linkModels(lowModel, highModel);
     }
 
-    public void initFrequency() {
-        frequencyToDigits(currentFrequency);
+    public void initFrequency(long v) {
+        frequencyToDigits(v);
     }
 
     public void frequencyToDigits(long v) {
+        if(inhibit) return;
         sv_freq = v;
         currentFrequency = sv_freq;
-        modulatedValue = v;
-        ListIterator<FreqDigit> rev = freqDigits.listIterator(freqDigits.size());
+        long modulatedValue = v;
         // Expecting list ordered from LSD to MSD.      
         int size = freqDigits.size();
         for (int i = 0; i < size; i++) {
             FreqDigit fd = freqDigits.get(i);
-            fd.setDigit(modulatedValue % 10);
-            fd.setBright(modulatedValue != 0);
-            //fd.setBright(v != 0)
+            assert(fd.decade == i);
+            fd.setValue(Integer.valueOf( (int) (modulatedValue % 10)));
             modulatedValue /= 10;
         }         
-        setFrequency(sv_freq);
-    }
-    
-    public long digitsToFrequency() {
-        if (validSetup()) {
-            currentFrequency = 0;
-            for (FreqDigit fd : freqDigits) {
-                SpinnerNumberModel  model = (SpinnerNumberModel) fd.getModel();
-                int value = model.getNumber().intValue();
-                currentFrequency = (currentFrequency * 10) + value;
-                // @specification: Leading zeroes are dimmed.
-                fd.setBright(currentFrequency != 0);
-            }
-        }
-        sv_freq = currentFrequency;
-        setFrequency(sv_freq);
-        return currentFrequency;
+        setRadioFrequency(sv_freq);
     }
 
-    public void chooseVfoA() {
-        currentFrequency = freqVfoA;
-    }
-    
-    public void chooseVfoB() {
-        currentFrequency = freqVfoB;
-    }
-    
 
     /*
+    * @Method digitsToFrequency
+    * @Return the frequency in hertz shown by the collection of FreqDigits.
+    *
+    */    
+    public long digitsToFrequency() {
+        sv_freq = 0;
+        if (!inhibit) {
+            inhibit = true;
+            freqDigits.forEach((dig) -> {
+                CyclingSpinnerNumberModel  model = (CyclingSpinnerNumberModel) dig.getModel();
+                Object value = model.getValue();
+                String digitString = value.toString();
+                Integer digit = Integer.valueOf(digitString);
+                Integer decade = dig.decade;
+                sv_freq =  (long)Math.pow(10, decade) * digit + sv_freq ;
+            });
+        }
+        
+        inhibit = false;
+        setRadioFrequency(sv_freq);
+        return sv_freq;
+    }
+
+    
+
+    /*  When there is a change in the VFO frequency, and the value is valid,
+     *  send the new frequency to the radio.
      *  @return true when there has been a change in VFO frequency.
     */
-    public boolean setFrequency(long v) {
+    public boolean setRadioFrequency(long v) {
+        inhibit = true;
         boolean changed = false;
         try {
-            if (validSetup()) {
+                // Validate v is not negative.
                 if (v < 0) {
                     v = sv_freq;
                 }
                 if (v < 0) {
-                    throw (new Exception("frequency <= 0"));
+                    throw (new Exception("set frequency is negative."));
                 }
-                if (oldFrequency != v) {
-                    
+                if (oldFrequency != v) {   
                     sv_freq = v;
-                    // @todo: Call sendRadioCom  upon change.
+                    aFrame.singletonInstance.sendFreqToRadio(v);
                     oldFrequency = v;
                     changed = true;
-                }
-            }
+                }   
         } catch (Exception e) {
             e.printStackTrace(System.out);
         }
+        inhibit = false;
         return changed;
     }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
 }

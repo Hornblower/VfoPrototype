@@ -34,121 +34,67 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
- * @Class FreqDigit
+ * Class FreqDigit
  * 
- * A digit spinner representing a decade of a multidigit display where increment 
- * and 
- * decrement affects the entire display.  So that the displayed sum can be quickly
- * scrolled to a desired quantity with the arrow keys.
+ * A one digit spinner representing a decade of a multi-digit display where 
+ * increment and decrement can affect the values of the entire display.  
  * 
- * @usage Use the CyclingSpinnerNumberModel with this spinner.
+ * When a digit reaches 9, an increment will wrap around the digit to 0
+ * and the next higher decade is incremented recursively.
+ * When a digit reaches 0, a decrement will wrap around the digit to 9 and the
+ * next higher decade is decremented recursively.
+ * Recursion ends when a digit has no link to a higher decade.
+ * 
+ * The displayed sum/frequency can be quickly scrolled to a desired quantity
+ * with the arrow keys when focus is on a digit.
+ * 
+ * 
+ * @Usage: Use the CyclingSpinnerNumberModel with this spinner.
  * 
  * @author coz
  */
 final public class FreqDigit extends JSpinner 
-        implements MouseWheelListener, MouseListener, Readable, ChangeListener {
+        implements MouseWheelListener, ChangeListener {
 
     VfoDisplayPanel display;
     float fontScale;
     FreqDigit carry = null;
-    private long value = 0;
     Color nonZeroColor = new Color(0,192,0);
     Color zeroColor = new Color(0,64,0);
     int maxDigits = 10;
-    // SpinnerNumberModel is set by GUI designer.
+    int decade = 0;
+    
    
            
 
-    public FreqDigit(VfoPrototype proto, long decadePowerOfTen) throws IOException {
+    public FreqDigit(VfoPrototype proto, int decadePowerOfTen) throws IOException {
         super();
+        decade = decadePowerOfTen;
         if (decadePowerOfTen >= 0 && decadePowerOfTen <= maxDigits) {
             DigitChangeListener changeListener = new DigitChangeListener();
             addMouseWheelListener(this);
-            addMouseListener(this);
             addChangeListener(changeListener);
             display = (VfoDisplayPanel) proto.vfoDisplayPanel;
-            value = decadePowerOfTen;
-            // The UI code will overwrite the spinner model after this construction.
-            setDigit(decadePowerOfTen);
+            // WARNING: By default, SpinnerNumberModel is set by GUI designer automated code.
             setForeground(zeroColor);
         }
     }
-
-    public void setDigit(long v) {
-        SpinnerNumberModel  model = (SpinnerNumberModel) this.getModel();
-        model.setValue(v);
-    }
-    
-    // not used, delete
-    public void setCarry(FreqDigit fd) {
-        carry = fd;
-    }
-    
-    public void setBright(boolean v) {
-        setForeground(v?nonZeroColor:zeroColor);
-    }
-    
-
  
-    
-    
-    @Override
-    public Object getNextValue() {
-        return super.getNextValue(); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    // Do not need to override getValue as it is method of JSpinner.
-
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         int v = e.getWheelRotation();
-        if (v < 0)  this.getNextValue();
-        else        this.getPreviousValue();
+        CyclingSpinnerNumberModel model = (CyclingSpinnerNumberModel) this.getModel();
+        
+        if (v < 0)  model.getNextValue();
+        else        model.getPreviousValue();
   
     }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
-            // @todo This code is wrong.
-        
-        }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-    }
-
- 
-
-    /**
-     *
-     * @param cb
-     * @return
-     * @throws IOException
-     */
-    @Override
-    public int read(CharBuffer cb) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
+    
+    // This method not used.  Compiler needs it.  Why?
     @Override
     public void stateChanged(ChangeEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        FreqDigit source = (FreqDigit)e.getSource();
     }
-
 }
 /*
  * Class DigitChangeListener
@@ -159,12 +105,16 @@ class DigitChangeListener implements ChangeListener {
     @Override
     public void stateChanged(ChangeEvent e) {
         FreqDigit source = (FreqDigit)e.getSource();
-        if (source.hasFocus() ) {
-            Object obj = source.getModel().getValue();
-            String digitStr = obj.toString();
-            System.out.println(digitStr+" DigitChangeListener");
+        Object obj = source.getModel().getValue();
+        String digitStr = obj.toString();
+        String decadeString = Integer.toString(source.decade);
+        System.out.println(digitStr+" for decade: "+decadeString+" in DigitChangeListener");
+        //source.setValue(obj);
+        if( ! source.display.inhibit ) {
+            source.display.currentFrequency = source.display.digitsToFrequency();
+            source.display.aFrame.sendFreqToRadio(source.display.sv_freq);
+ 
         }
-           
     }
 }
 

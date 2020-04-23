@@ -5,61 +5,71 @@
  */
 package VfoPrototype;
 
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
- * Implement carry to higher decade using SpinnerModel.
+ * Implements digit wrap around with recursive
+ * carry to higher decades.  
+ * Subclasses SpinnerNumberModel.
+ * Overrides getNextValue() and getPreviousValue.
+ * 
+ * Use static class method linkModels() to link decades.
+ * 
  * @author Coz
  */
-final public class CyclingSpinnerNumberModel extends SpinnerNumberModel {
-    protected int minValue, maxValue, step, currentValue;
-    CyclingSpinnerNumberModel linkedModel=null;
+final public class CyclingSpinnerNumberModel extends SpinnerNumberModel implements ChangeListener {
+    protected CyclingSpinnerNumberModel linkedModel = null;
+    
+    static public void linkModels(CyclingSpinnerNumberModel lowModel, CyclingSpinnerNumberModel highModel) {  
+        lowModel.setLinkedModel(highModel);
+    }
     
     public CyclingSpinnerNumberModel (int currentVal, int minVal, int maxVal, int stepVal) {
-        super(currentVal, minVal, maxVal, stepVal);
-        minValue = minVal;
-        maxValue = maxVal;
-        step = stepVal;
-        currentValue = currentVal;
-        //SpinnerNumberModel parent = this;
+        super(currentVal, minVal, maxVal, stepVal);        
     }
     
-    public void setLinkedModel(CyclingSpinnerNumberModel aLinkedModel) {
+    private void setLinkedModel(CyclingSpinnerNumberModel aLinkedModel) {
         linkedModel = aLinkedModel; 
     }
-
     
     
     @Override
     public Object getNextValue() {
         Object obj = super.getNextValue();
-        if(obj == null) {
-            int val;
-            //val = Integer.getInteger(obj.toString());
-            val = minValue;
-            if(linkedModel != null) {
-                linkedModel.setValue(linkedModel.getNextValue());
+        if (obj == null) {
+            // The digit wants to go higher than maximum.
+            // Wrap the digit around to minimum.  
+            obj = super.getMinimum();
+            //this.setValue(obj);
+            if (linkedModel != null) {
+                Object linkedModelValue = linkedModel.getNextValue();
+                // @todo limit recursion
+                linkedModel.setValue(linkedModelValue);
             }
         }
-        return obj;       
-     }
+        return obj;
+    }
 
     @Override
     public Object getPreviousValue() {
-        Object obj = super.getNextValue();
+        Object obj = super.getPreviousValue();
         if(obj == null) {
-            int val;
-            //val = Integer.getInteger(obj.toString());
-            val = maxValue;
+            // The digit wants to go lower than minimum.
+            // Wrap the digit around to maximum.
+            obj = super.getMaximum();
+            //this.setValue(obj);
             if(linkedModel != null) {
-                if (linkedModel.getPreviousValue() == null){
-                    // @bug why is this cluge necessary?
-                    linkedModel.setValue(9);
-                }
+                // @todo limit recursion
                 linkedModel.setValue(linkedModel.getPreviousValue());
             }
         }
-         return obj;       
+        return obj;       
     }    
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
