@@ -30,6 +30,8 @@ import VfoPrototype.CyclingSpinnerNumberModel;
 final public class VfoPrototype extends javax.swing.JFrame {
     static public VfoPrototype singletonInstance;
     static public JPanel  displayPanel;
+    static boolean chooseVfoA = true;
+    static boolean chooseVfoB = false;
     
     
     long freqVfoA = 3563000;   // MSN 
@@ -45,7 +47,7 @@ final public class VfoPrototype extends javax.swing.JFrame {
             // Must instantiate components before initialization of VfoDisplayPanel.
             VfoDisplayPanel panel = (VfoDisplayPanel) vfoDisplayPanel;
             panel.initDigits();
-            panel.initFrequency(freqVfoA);
+            panel.frequencyToDigits(freqVfoA); // Vfo A is default.
             sendFreqToRadioVfoB(freqVfoB); // It looks more normal to have a value already.
 
         } catch(Exception e) {
@@ -82,7 +84,24 @@ final public class VfoPrototype extends javax.swing.JFrame {
         return true;
     }
    
-    
+    public boolean loadRadioFrequencyToVfo(boolean isVfoA) {
+        boolean success = true;
+        long freqHertz;
+        String valString;
+        //Simlate read freq from Radio.
+        if ( isVfoA ) {
+            // Read frequency from Radio VFO A.
+            valString = singletonInstance.frequencyVfoA.getText();
+        } else {
+            // Read frequencyl from Radio VFO B.
+            valString = singletonInstance.frequencyVfoB.getText();
+        }
+        double freqMhz = Double.valueOf(valString);
+        freqHertz = (long) (freqMhz * 1.E06) ;
+        VfoDisplayPanel panel = (VfoDisplayPanel) vfoDisplayPanel;
+        panel.frequencyToDigits(freqHertz);
+        return success;
+    }
     
 
  
@@ -173,16 +192,6 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jSpinner1Hertz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner1Hertz, ""));
         jSpinner1Hertz.setName("1 Hertz digit"); // NOI18N
         jSpinner1Hertz.setNextFocusableComponent(jSpinner10Hertz);
-        jSpinner1Hertz.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSpinner1HertzStateChanged(evt);
-            }
-        });
-        jSpinner1Hertz.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                jSpinner1HertzKeyTyped(evt);
-            }
-        });
 
         jSpinner10Hertz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
         jSpinner10Hertz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
@@ -191,11 +200,6 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jSpinner10Hertz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner10Hertz, ""));
         jSpinner10Hertz.setName("10 Hertz digit"); // NOI18N
         jSpinner10Hertz.setNextFocusableComponent(jSpinner100Hertz);
-        jSpinner10Hertz.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                jSpinner10HertzKeyTyped(evt);
-            }
-        });
 
         jSpinner100Hertz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
         jSpinner100Hertz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
@@ -368,11 +372,21 @@ final public class VfoPrototype extends javax.swing.JFrame {
         VfoA.setToolTipText("VFO A ");
         VfoA.setLabel("VFO A");
         VfoA.setNextFocusableComponent(VfoB);
+        VfoA.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                VfoAActionPerformed(evt);
+            }
+        });
 
         VfoSelection.add(VfoB);
         VfoB.setToolTipText("VFO B");
         VfoB.setLabel("VFO B");
         VfoB.setNextFocusableComponent(jSpinner1Hertz);
+        VfoB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                VfoBActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout vfoDisplayPanelLayout = new javax.swing.GroupLayout(vfoDisplayPanel);
         vfoDisplayPanel.setLayout(vfoDisplayPanelLayout);
@@ -406,8 +420,8 @@ final public class VfoPrototype extends javax.swing.JFrame {
         );
 
         jLayeredPaneHertz.getAccessibleContext().setAccessibleName("Hertz VFO group");
-        VfoA.getAccessibleContext().setAccessibleDescription("VFO A select");
-        VfoB.getAccessibleContext().setAccessibleDescription("VFO B select");
+        VfoA.getAccessibleContext().setAccessibleDescription("get VFO A frequency from radio and adjust");
+        VfoB.getAccessibleContext().setAccessibleDescription("Get VFO B frequency from radio and adjust");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -430,11 +444,6 @@ final public class VfoPrototype extends javax.swing.JFrame {
         frequencyVfoA.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
         frequencyVfoA.setName("Read Only VFO A"); // NOI18N
         frequencyVfoA.setNextFocusableComponent(frequencyVfoB);
-        frequencyVfoA.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                frequencyVfoAPropertyChange(evt);
-            }
-        });
 
         frequencyVfoB.setEditable(false);
         frequencyVfoB.setBorder(javax.swing.BorderFactory.createTitledBorder("RADIO VFO B Frequency Mhz"));
@@ -498,34 +507,13 @@ final public class VfoPrototype extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jSpinner1HertzStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinner1HertzStateChanged
-        // TODO add your handling code here:
-        System.out.println(" 1 Hertz Spinner State change");
-    }//GEN-LAST:event_jSpinner1HertzStateChanged
+    private void VfoBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VfoBActionPerformed
+        loadRadioFrequencyToVfo(chooseVfoB);
+    }//GEN-LAST:event_VfoBActionPerformed
 
-    private void jSpinner1HertzKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jSpinner1HertzKeyTyped
-        // TODO add your handling code here:
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER){
-            System.out.println("Enter key was typed in 1 Hertz VFO spinner.");
-        }
-        if (evt.getKeyCode() == KeyEvent.VK_DOWN){
-            System.out.println("Down arrow key was typed in 1 Hertz VFO spinner.");
-            jSpinner1Hertz.getPreviousValue();
-        }
-        if (evt.getKeyCode() == KeyEvent.VK_UP){
-            System.out.println("Up arrow key was typed in 1 Hertz VFO spinner.");
-            jSpinner1Hertz.getNextValue();
-        }
-    }//GEN-LAST:event_jSpinner1HertzKeyTyped
-
-    private void jSpinner10HertzKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jSpinner10HertzKeyTyped
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jSpinner10HertzKeyTyped
-
-    private void frequencyVfoAPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_frequencyVfoAPropertyChange
-        // TODO add your handling code here:
-        // TODO Announce current frequency.
-    }//GEN-LAST:event_frequencyVfoAPropertyChange
+    private void VfoAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VfoAActionPerformed
+        loadRadioFrequencyToVfo(chooseVfoA);
+    }//GEN-LAST:event_VfoAActionPerformed
     
     /**
      * @param args the command line arguments
