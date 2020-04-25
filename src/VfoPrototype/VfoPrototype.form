@@ -53,12 +53,13 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="jPanel1" max="32767" attributes="0"/>
                   <Component id="vfoDisplayPanel" max="32767" attributes="0"/>
+                  <Component id="jPanel1" max="32767" attributes="0"/>
               </Group>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -67,7 +68,8 @@
           <Group type="102" attributes="0">
               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="vfoDisplayPanel" min="-2" max="-2" attributes="0"/>
+              <Component id="vfoDisplayPanel" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -80,7 +82,14 @@
             <TitledBorder title="TestingPrototypeDebugInfo"/>
           </Border>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Software Test Panel with simulated Radio"/>
+        <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="frequencyVfoA"/>
+        </Property>
       </Properties>
+      <AccessibilityProperties>
+        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Testing Panel with Radio Frequencies"/>
+      </AccessibilityProperties>
 
       <Layout>
         <DimensionLayout dim="0">
@@ -88,7 +97,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="frequencyVfoA" min="-2" pref="351" max="-2" attributes="0"/>
-                  <EmptySpace pref="72" max="32767" attributes="0"/>
+                  <EmptySpace pref="74" max="32767" attributes="0"/>
                   <Component id="frequencyVfoB" min="-2" pref="333" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -99,8 +108,8 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="frequencyVfoB" alignment="3" min="-2" pref="84" max="-2" attributes="0"/>
-                      <Component id="frequencyVfoA" alignment="3" min="-2" pref="84" max="-2" attributes="0"/>
+                      <Component id="frequencyVfoB" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="frequencyVfoA" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="19" max="32767" attributes="0"/>
               </Group>
@@ -146,7 +155,7 @@
               <Font name="Lucida Grande" size="36" style="0"/>
             </Property>
             <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-              <ComponentRef name="VfoA"/>
+              <ComponentRef name="vfoDisplayPanel"/>
             </Property>
           </Properties>
           <AccessibilityProperties>
@@ -163,14 +172,14 @@
             <TitledBorder title="VFO"/>
           </Border>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="V F O use arrow keys or type frequency"/>
+        <Property name="toolTipText" type="java.lang.String" value="V F O use arrow keys "/>
         <Property name="name" type="java.lang.String" value="VFO Display Panel" noResource="true"/>
         <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jSpinner1Hertz"/>
         </Property>
       </Properties>
       <AccessibilityProperties>
-        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="V F O"/>
+        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="V F O  Display"/>
       </AccessibilityProperties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new VfoDisplayPanel(singletonInstance);"/>
@@ -181,42 +190,37 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace max="32767" attributes="0"/>
-                          <Component id="jLayeredPaneMegahertz" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                          <Component id="jLayeredPaneKilohertz" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="140" max="-2" attributes="0"/>
-                          <Component id="VfoA" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="VfoB" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLayeredPaneHertz" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <EmptySpace min="-2" pref="142" max="-2" attributes="0"/>
+                  <Component id="VfoA" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="VfoB" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="127" max="-2" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
+                  <Component id="jLayeredPaneMegahertz" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="jLayeredPaneKilohertz" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="jLayeredPaneHertz" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="VfoA" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="VfoB" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="18" max="32767" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="jLayeredPaneHertz" max="32767" attributes="0"/>
-                      <Component id="jLayeredPaneMegahertz" alignment="0" max="32767" attributes="0"/>
-                      <Component id="jLayeredPaneKilohertz" alignment="0" max="32767" attributes="0"/>
+                  <EmptySpace pref="14" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jLayeredPaneHertz" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLayeredPaneKilohertz" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLayeredPaneMegahertz" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+                  <EmptySpace pref="14" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -280,21 +284,21 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace pref="17" max="32767" attributes="0"/>
                       <Component id="jSpinner100Hertz" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jSpinner10Hertz" min="-2" pref="59" max="-2" attributes="0"/>
+                      <Component id="jSpinner10Hertz" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jSpinner1Hertz" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jSpinner100Hertz" max="32767" attributes="0"/>
-                  <Component id="jSpinner10Hertz" max="32767" attributes="0"/>
+                  <Component id="jSpinner10Hertz" pref="114" max="32767" attributes="0"/>
                   <Component id="jSpinner1Hertz" alignment="1" max="32767" attributes="0"/>
+                  <Component id="jSpinner100Hertz" alignment="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
@@ -321,9 +325,6 @@
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 1 Hertz steps"/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 0);&#xa;"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {&#xa;    e.printStackTrace();&#xa;}"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
@@ -350,9 +351,6 @@
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 10 hertz step"/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 1);"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {&#xa;    e.printStackTrace();&#xa;}"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
@@ -379,9 +377,6 @@
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 100 Hertz step."/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 2);"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {    e.printStackTrace(); }"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
@@ -406,13 +401,13 @@
                       <Component id="jSpinner10khz" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jSpinner1khz" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="18" max="32767" attributes="0"/>
+                      <EmptySpace pref="12" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jSpinner100khz" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jSpinner100khz" alignment="0" pref="114" max="32767" attributes="0"/>
                   <Component id="jSpinner10khz" alignment="0" max="32767" attributes="0"/>
                   <Component id="jSpinner1khz" alignment="0" max="32767" attributes="0"/>
               </Group>
@@ -437,13 +432,10 @@
                 </Property>
               </Properties>
               <AccessibilityProperties>
-                <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="one kilohertz VFO digit  "/>
+                <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="1 kilohertz VFO digit  "/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 1 kilohertz "/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 3);"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {    e.printStackTrace(); }"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
@@ -469,9 +461,6 @@
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=" Change VFO by 10 Kilohertz steps"/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 4);"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {&#xa;    e.printStackTrace();&#xa;}"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
@@ -497,9 +486,6 @@
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 100 Kilohertz step"/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 5);"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {&#xa;    e.printStackTrace();&#xa;}"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
@@ -533,15 +519,10 @@
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="jSpinner100Mhz" pref="114" max="32767" attributes="0"/>
-                          <Component id="jSpinner10Mhz" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jSpinner1Mhz" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jSpinner1000Mhz" alignment="0" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="jSpinner100Mhz" alignment="1" pref="114" max="32767" attributes="0"/>
+                  <Component id="jSpinner10Mhz" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jSpinner1000Mhz" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jSpinner1Mhz" alignment="1" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
@@ -569,9 +550,6 @@
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 1 Megahertz step"/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 6);"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {&#xa;    e.printStackTrace();&#xa;}"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
@@ -597,9 +575,6 @@
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 10 Megahertz step"/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 7);"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {&#xa;    e.printStackTrace();&#xa;}"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
@@ -623,9 +598,6 @@
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 100 Megahertz steps"/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 8);"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {&#xa;    e.printStackTrace();&#xa;}"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
@@ -652,9 +624,6 @@
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 1000 Megahertz step"/>
               </AccessibilityProperties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FreqDigit(singletonInstance, 9);"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="} catch(Exception e) {&#xa;    e.printStackTrace();&#xa;}"/>
-                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="try {"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
