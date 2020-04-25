@@ -5,6 +5,7 @@
  */
 package VfoPrototype;
 
+import javax.accessibility.Accessible.*;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -34,7 +35,9 @@ final public class CyclingSpinnerNumberModel extends SpinnerNumberModel implemen
         linkedModel = aLinkedModel; 
     }
     
+    //pubic void accessibilityIncrement() 
     
+        
     @Override
     public Object getNextValue() {
         Object obj = super.getNextValue();
@@ -47,6 +50,12 @@ final public class CyclingSpinnerNumberModel extends SpinnerNumberModel implemen
                 Object linkedModelValue = linkedModel.getNextValue();
                 // @todo limit recursion
                 linkedModel.setValue(linkedModelValue);
+            } else {
+                // @TODO Coz , debug this. It does not work right.
+                // Highest decade is maxed out.
+                // End the recursion.  Set the max. freq.
+                VfoDisplayPanel panel = ( VfoDisplayPanel) VfoPrototype.singletonInstance.displayPanel;  
+                panel.frequencyToDigits(9999999999L);
             }
         }
         return obj;
@@ -61,8 +70,13 @@ final public class CyclingSpinnerNumberModel extends SpinnerNumberModel implemen
             obj = super.getMaximum();
             //this.setValue(obj);
             if(linkedModel != null) {
-                // @todo limit recursion
                 linkedModel.setValue(linkedModel.getPreviousValue());
+            } else {
+                // Coz, debug this.  It does not work right.
+                // we got to the highest decade, but the VFO frequency
+                // should NOT wrap around. Set it to zero.
+                VfoDisplayPanel panel = ( VfoDisplayPanel) VfoPrototype.singletonInstance.displayPanel;  
+                panel.frequencyToDigits(0L);
             }
         }
         return obj;       

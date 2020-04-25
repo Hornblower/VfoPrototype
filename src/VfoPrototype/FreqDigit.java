@@ -21,15 +21,11 @@
 package VfoPrototype;
 
 import java.awt.Color;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.IOException;
-import java.nio.CharBuffer;
+import java.util.EventListener;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -78,6 +74,25 @@ final public class FreqDigit extends JSpinner
             // WARNING: By default, SpinnerNumberModel is set by GUI designer automated code.
             setForeground(zeroColor);
         }
+        
+        String decadeStr = String.valueOf(decade);
+        String name = String.valueOf("VFO "+ decadeStr +" hertz decade spinner");
+        super.getAccessibleContext().setAccessibleName(name);
+        String desc = String.valueOf(
+            "Use up down arrows to change value. Use left right arrows to change decade");
+        super.getAccessibleContext().setAccessibleDescription(desc);
+        Integer qtyActions = super.getAccessibleContext().getAccessibleAction().getAccessibleActionCount();
+        if ( qtyActions != null){
+            for(int i=0; i<qtyActions; i++) {
+                String description;
+                description = super.getAccessibleContext().getAccessibleAction().getAccessibleActionDescription(i);
+                System.out.println("FreqDigit "+String.valueOf(i)+" "+ description);
+            }
+        } else {
+            // Add accessible increment and decrement actions.
+        }
+      
+
     }
  
     @Override

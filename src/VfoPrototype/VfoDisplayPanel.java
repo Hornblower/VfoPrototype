@@ -7,8 +7,10 @@ package VfoPrototype;
 
 
 
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.ListIterator;
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
@@ -52,7 +54,7 @@ final public class VfoDisplayPanel extends JPanel {
         FreqDigit lowDigit, highDigit;
          // Highest decade spinner is not linked to another decade.
         for(index = 0; index < last ; index++) {
-            lowDigit = freqDigits.get(index);
+            lowDigit = (freqDigits.get(index));
             highDigit = freqDigits.get(index+1);
             linkDigits(lowDigit, highDigit);
         }
@@ -144,5 +146,17 @@ final public class VfoDisplayPanel extends JPanel {
         }
         inhibit = false;
         return changed;
+    }
+}
+// Not used..
+class VfoAction extends AbstractAction {
+    public VfoAction(String text, ImageIcon icon, String desc, Integer mnemonic) {
+        super(text, icon);
+        putValue(SHORT_DESCRIPTION, desc);
+        putValue(MNEMONIC_KEY, mnemonic);
+    }
+    public void actionPerformed(ActionEvent e) {
+        System.out.println("Action for Vfo radio button " + e.getSource().toString());
+       
     }
 }
