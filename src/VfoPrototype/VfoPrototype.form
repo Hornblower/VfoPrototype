@@ -54,13 +54,11 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
-              <EmptySpace max="32767" attributes="0"/>
-              <Component id="vfoDisplayPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
-          </Group>
-          <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jPanel1" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jPanel1" max="32767" attributes="0"/>
+                  <Component id="vfoDisplayPanel" max="32767" attributes="0"/>
+              </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -69,9 +67,9 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="vfoDisplayPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="23" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -84,7 +82,7 @@
             <TitledBorder title="VFO DIAL"/>
           </Border>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="V F O Dial.  Uuse arrow keys "/>
+        <Property name="toolTipText" type="java.lang.String" value="V F O Dial.  Use arrow keys "/>
         <Property name="name" type="java.lang.String" value="VFO Display Panel" noResource="true"/>
         <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jSpinner1Hertz"/>
@@ -102,21 +100,24 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLayeredPaneMegahertz" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="jLayeredPaneKilohertz" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="jLayeredPaneHertz" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="20" max="32767" attributes="0"/>
+                  <EmptySpace pref="10" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jLayeredPaneHertz" min="-2" max="-2" attributes="0"/>
-              <Component id="jLayeredPaneKilohertz" min="-2" max="-2" attributes="0"/>
-              <Component id="jLayeredPaneMegahertz" min="-2" max="-2" attributes="0"/>
+              <Component id="jLayeredPaneMegahertz" alignment="0" max="32767" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="jLayeredPaneHertz" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="0" pref="29" max="32767" attributes="0"/>
+              </Group>
+              <Component id="jLayeredPaneKilohertz" alignment="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -142,20 +143,20 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace pref="17" max="32767" attributes="0"/>
-                      <Component id="jSpinner100Hertz" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="11" max="32767" attributes="0"/>
+                      <Component id="jSpinner100Hertz" min="-2" pref="58" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jSpinner10Hertz" min="-2" max="-2" attributes="0"/>
+                      <Component id="jSpinner10Hertz" min="-2" pref="58" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jSpinner1Hertz" min="-2" pref="58" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jSpinner1Hertz" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jSpinner10Hertz" pref="114" max="32767" attributes="0"/>
-                  <Component id="jSpinner1Hertz" alignment="1" max="32767" attributes="0"/>
+                  <Component id="jSpinner10Hertz" pref="64" max="32767" attributes="0"/>
+                  <Component id="jSpinner1Hertz" alignment="0" max="32767" attributes="0"/>
                   <Component id="jSpinner100Hertz" alignment="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
@@ -182,6 +183,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="1 Hertz VFO digit"/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 1 Hertz steps"/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner1HertzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -209,6 +213,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="10 Hertz VFO Digit"/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 10 hertz step"/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner10HertzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -236,6 +243,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="100 Hertz VFO Digit"/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 100 Hertz step."/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner100HertzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -256,19 +266,19 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jSpinner100khz" min="-2" max="-2" attributes="0"/>
+                      <Component id="jSpinner100khz" min="-2" pref="64" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jSpinner10khz" min="-2" max="-2" attributes="0"/>
+                      <Component id="jSpinner10khz" min="-2" pref="64" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jSpinner1khz" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="12" max="32767" attributes="0"/>
+                      <Component id="jSpinner1khz" min="-2" pref="58" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jSpinner100khz" alignment="0" pref="114" max="32767" attributes="0"/>
-                  <Component id="jSpinner10khz" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jSpinner100khz" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jSpinner10khz" max="32767" attributes="0"/>
                   <Component id="jSpinner1khz" alignment="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
@@ -296,6 +306,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="1 kilohertz VFO digit  "/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 1 kilohertz "/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner1khzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -322,6 +335,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="10Khz VFO digit "/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=" Change VFO by 10 Kilohertz steps"/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner10khzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -348,6 +364,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="100khz VFO digit"/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 100 Kilohertz step"/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner100khzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -367,22 +386,22 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace max="32767" attributes="0"/>
-                      <Component id="jSpinner1000Mhz" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jSpinner100Mhz" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jSpinner10Mhz" min="-2" max="-2" attributes="0"/>
+                      <Component id="jSpinner1000Mhz" min="-2" pref="60" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jSpinner1Mhz" min="-2" max="-2" attributes="0"/>
+                      <Component id="jSpinner100Mhz" min="-2" pref="60" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jSpinner10Mhz" min="-2" pref="55" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jSpinner1Mhz" pref="61" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jSpinner100Mhz" alignment="1" pref="114" max="32767" attributes="0"/>
+                  <Component id="jSpinner100Mhz" alignment="1" max="32767" attributes="0"/>
                   <Component id="jSpinner10Mhz" alignment="0" max="32767" attributes="0"/>
                   <Component id="jSpinner1000Mhz" alignment="0" max="32767" attributes="0"/>
                   <Component id="jSpinner1Mhz" alignment="1" max="32767" attributes="0"/>
@@ -413,6 +432,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="1 Mhz VFO digit"/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 1 Megahertz step"/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner1MhzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -439,6 +461,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="10 Mhz VFO digit "/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 10 Megahertz step"/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner10MhzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -463,6 +488,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="100 Mhz VFO digit"/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 100 Megahertz steps"/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner100MhzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -490,6 +518,9 @@
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="1000 MHZ VFO digit"/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Change VFO by 1000 Megahertz step"/>
               </AccessibilityProperties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner1000MhzStateChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -518,85 +549,57 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
-                  <Component id="frequencyVfoA" min="-2" pref="283" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="VfoB" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="VfoA" alignment="1" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="60" max="-2" attributes="0"/>
-                  <Component id="frequencyVfoB" min="-2" pref="279" max="-2" attributes="0"/>
+                  <Component id="frequencyVfoA" min="-2" pref="271" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="VfoA" min="-2" max="-2" attributes="0"/>
+                      <Component id="VfoB" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="frequencyVfoB" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace pref="11" max="32767" attributes="0"/>
-                  <Group type="103" groupAlignment="1" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="frequencyVfoB" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="VfoB" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="frequencyVfoA" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Component id="VfoA" min="-2" pref="33" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="VfoB" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" alignment="1" attributes="0">
-                          <Component id="VfoA" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="frequencyVfoA" max="32767" attributes="0"/>
+                              <Component id="frequencyVfoB" max="32767" attributes="0"/>
+                          </Group>
                       </Group>
                   </Group>
+                  <EmptySpace min="0" pref="12" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JFormattedTextField" name="frequencyVfoA">
+        <Component class="javax.swing.JTextField" name="frequencyVfoA">
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Lucida Grande" size="36" style="0"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="5446200000"/>
+            <Property name="toolTipText" type="java.lang.String" value="VFO A Frequency Mhz"/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                 <TitledBorder title="RADIO VFO A Frequency Mhz"/>
               </Border>
             </Property>
-            <Property name="text" type="java.lang.String" value="0466.000000"/>
-            <Property name="toolTipText" type="java.lang.String" value="Radio VFO  A"/>
-            <Property name="focusCycleRoot" type="boolean" value="true"/>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Lucida Grande" size="36" style="0"/>
-            </Property>
-            <Property name="name" type="java.lang.String" value="Read Only VFO A" noResource="true"/>
-            <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-              <ComponentRef name="frequencyVfoB"/>
-            </Property>
-            <Property name="requestFocusEnabled" type="boolean" value="false"/>
           </Properties>
           <AccessibilityProperties>
-            <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Radio VFO A frequency MHZ"/>
-            <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Read Only Radio VFO A "/>
-          </AccessibilityProperties>
-        </Component>
-        <Component class="javax.swing.JFormattedTextField" name="frequencyVfoB">
-          <Properties>
-            <Property name="editable" type="boolean" value="false"/>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="RADIO VFO B Frequency Mhz"/>
-              </Border>
-            </Property>
-            <Property name="text" type="java.lang.String" value="0145.330000"/>
-            <Property name="toolTipText" type="java.lang.String" value="Radio VFO B Mhz"/>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Lucida Grande" size="36" style="0"/>
-            </Property>
-            <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-              <ComponentRef name="vfoDisplayPanel"/>
-            </Property>
-            <Property name="requestFocusEnabled" type="boolean" value="false"/>
-          </Properties>
-          <AccessibilityProperties>
-            <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="RADIO VFO B Frequency MHZ"/>
-            <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Read Only Radio VFO B "/>
+            <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Frequency of VFO A Mhz"/>
+            <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Simulates Radio VFO A Display"/>
           </AccessibilityProperties>
         </Component>
         <Component class="javax.swing.JRadioButton" name="VfoA">
@@ -636,6 +639,25 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="VfoBActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JTextField" name="frequencyVfoB">
+          <Properties>
+            <Property name="editable" type="boolean" value="false"/>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Lucida Grande" size="36" style="0"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="1296100000"/>
+            <Property name="toolTipText" type="java.lang.String" value="VFO B Frequency Mhz"/>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                <TitledBorder title="RADIO VFO B Frequency Mhz"/>
+              </Border>
+            </Property>
+          </Properties>
+          <AccessibilityProperties>
+            <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Frequency of VFO B Mhz"/>
+            <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Simulates Radio VFO B Display"/>
+          </AccessibilityProperties>
         </Component>
       </SubComponents>
     </Container>
