@@ -5,13 +5,10 @@
  */
 package VfoPrototype;
 
-import javax.accessibility.Accessible.*;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 /**
- * Implements digit wrap around with recursive
+ * Implements a one digit wrap around spinner with recursive
  * carry to higher decades.  
  * Subclasses SpinnerNumberModel.
  * Overrides getNextValue() and getPreviousValue.
@@ -20,13 +17,13 @@ import javax.swing.event.ChangeListener;
  * 
  * @author Coz
  */
-final public class CyclingSpinnerNumberModel extends SpinnerNumberModel implements ChangeListener {
+final public class CyclingSpinnerNumberModel extends SpinnerNumberModel {
     protected CyclingSpinnerNumberModel linkedModel = null;
     
     static public void linkModels(CyclingSpinnerNumberModel lowModel, CyclingSpinnerNumberModel highModel) {  
         lowModel.setLinkedModel(highModel);
     }
-    
+    private int decade;
     public CyclingSpinnerNumberModel (int currentVal, int minVal, int maxVal, int stepVal) {
         super(currentVal, minVal, maxVal, stepVal);        
     }
@@ -35,9 +32,17 @@ final public class CyclingSpinnerNumberModel extends SpinnerNumberModel implemen
         linkedModel = aLinkedModel; 
     }
     
-    //pubic void accessibilityIncrement() 
     
-        
+    protected void setDecade(int n) {
+        decade = n;
+    }
+    protected int getDecade() {
+        return decade;
+    }
+    
+    /*
+     * Implement digit wrap around and decade recursive increment.
+    */
     @Override
     public Object getNextValue() {
         Object obj = super.getNextValue();
@@ -79,11 +84,7 @@ final public class CyclingSpinnerNumberModel extends SpinnerNumberModel implemen
                 panel.frequencyToDigits(0L);
             }
         }
+       
         return obj;       
     }    
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }
