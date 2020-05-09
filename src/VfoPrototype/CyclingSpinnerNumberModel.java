@@ -8,6 +8,8 @@ package VfoPrototype;
 import javax.swing.SpinnerNumberModel;
 
 /**
+ * See DecadeSpinnerModel and DecadeSpinner for current implementation.
+ * DEPRECATED: 
  * Implements a one digit wrap around spinner with recursive
  * carry to higher decades.  
  * Subclasses SpinnerNumberModel.
