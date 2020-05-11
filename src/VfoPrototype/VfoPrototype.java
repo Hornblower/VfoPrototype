@@ -139,6 +139,16 @@ final public class VfoPrototype extends javax.swing.JFrame {
     private void initComponents() {
 
         VfoSelection = new javax.swing.ButtonGroup();
+        jInternalFrame2 = new javax.swing.JInternalFrame();
+        jInternalFrame3 = new javax.swing.JInternalFrame();
+        frequencyVfoA = new javax.swing.JTextField();
+        VfoA = new javax.swing.JRadioButton();
+        jLabel1 = new javax.swing.JLabel();
+        jInternalFrame4 = new javax.swing.JInternalFrame();
+        VfoB = new javax.swing.JRadioButton();
+        frequencyVfoB = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jInternalFrame1 = new javax.swing.JInternalFrame();
         vfoDisplayPanel = new VfoDisplayPanel(singletonInstance);
         jLayeredPaneHertz = new javax.swing.JLayeredPane();
         jSpinner1Hertz = new javax.swing.JSpinner();
@@ -153,24 +163,163 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jSpinner10Mhz = new javax.swing.JSpinner();
         jSpinner100Mhz = new javax.swing.JSpinner();
         jSpinner1000Mhz = new javax.swing.JSpinner();
-        jPanel1 = new javax.swing.JPanel();
-        frequencyVfoA = new javax.swing.JTextField();
-        VfoA = new javax.swing.JRadioButton();
-        VfoB = new javax.swing.JRadioButton();
-        frequencyVfoB = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("VFO Display Prototype");
+        setFocusTraversalPolicyProvider(true);
+        setFocusable(false);
 
-        vfoDisplayPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("VFO DIAL"));
-        vfoDisplayPanel.setToolTipText("V F O Dial.  Use arrow keys ");
+        jInternalFrame2.setBorder(javax.swing.BorderFactory.createTitledBorder("TestingPrototypeDebugInfo"));
+        jInternalFrame2.setTitle("Debug Info");
+        jInternalFrame2.setToolTipText("Choose VFO A or VFO B");
+        jInternalFrame2.setNextFocusableComponent(jInternalFrame1);
+        jInternalFrame2.setVisible(true);
+
+        jInternalFrame3.setBorder(javax.swing.BorderFactory.createTitledBorder("VFO A"));
+        jInternalFrame3.setVisible(true);
+
+        frequencyVfoA.setEditable(false);
+        frequencyVfoA.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
+        frequencyVfoA.setText("5446200000");
+        frequencyVfoA.setToolTipText("VFO A Frequency Mhz");
+        frequencyVfoA.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        frequencyVfoA.setNextFocusableComponent(VfoA);
+
+        VfoSelection.add(VfoA);
+        VfoA.setSelected(true);
+        VfoA.setText("Connect VFO DIAL to  VFO A ");
+        VfoA.setToolTipText("copies VFO A to  dial");
+        VfoA.setNextFocusableComponent(VfoB);
+        VfoA.setRequestFocusEnabled(false);
+        VfoA.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                VfoAActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel1.setText("Radio VFO readOnly current frequency Mhz");
+
+        javax.swing.GroupLayout jInternalFrame3Layout = new javax.swing.GroupLayout(jInternalFrame3.getContentPane());
+        jInternalFrame3.getContentPane().setLayout(jInternalFrame3Layout);
+        jInternalFrame3Layout.setHorizontalGroup(
+            jInternalFrame3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jInternalFrame3Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jInternalFrame3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jInternalFrame3Layout.createSequentialGroup()
+                        .addGroup(jInternalFrame3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(frequencyVfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(VfoA))
+                        .addGap(0, 22, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jInternalFrame3Layout.setVerticalGroup(
+            jInternalFrame3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jInternalFrame3Layout.createSequentialGroup()
+                .addContainerGap(18, Short.MAX_VALUE)
+                .addComponent(VfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(frequencyVfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        frequencyVfoA.getAccessibleContext().setAccessibleName("Frequency of VFO A Mhz");
+        frequencyVfoA.getAccessibleContext().setAccessibleDescription("Simulates Radio VFO A Display");
+        VfoA.getAccessibleContext().setAccessibleDescription("get VFO A frequency from radio and adjust");
+
+        jInternalFrame4.setBorder(javax.swing.BorderFactory.createTitledBorder("VFO B"));
+        jInternalFrame4.setVisible(true);
+
+        VfoSelection.add(VfoB);
+        VfoB.setText("Connect Radio VFO B to Dial");
+        VfoB.setToolTipText("copies VFO B to dial");
+        VfoB.setNextFocusableComponent(frequencyVfoB);
+        VfoB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                VfoBActionPerformed(evt);
+            }
+        });
+
+        frequencyVfoB.setEditable(false);
+        frequencyVfoB.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
+        frequencyVfoB.setText("1296100000");
+        frequencyVfoB.setToolTipText("VFO B Frequency Mhz");
+        frequencyVfoB.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        frequencyVfoB.setNextFocusableComponent(jInternalFrame1);
+
+        jLabel2.setText("Radio VFO readOnly current frequency Mhz");
+
+        javax.swing.GroupLayout jInternalFrame4Layout = new javax.swing.GroupLayout(jInternalFrame4.getContentPane());
+        jInternalFrame4.getContentPane().setLayout(jInternalFrame4Layout);
+        jInternalFrame4Layout.setHorizontalGroup(
+            jInternalFrame4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jInternalFrame4Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jInternalFrame4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(VfoB))
+                .addContainerGap(37, Short.MAX_VALUE))
+        );
+        jInternalFrame4Layout.setVerticalGroup(
+            jInternalFrame4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jInternalFrame4Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(VfoB)
+                .addGap(30, 30, 30)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        VfoB.getAccessibleContext().setAccessibleDescription("Get VFO B frequency from radio and adjust");
+        frequencyVfoB.getAccessibleContext().setAccessibleName("Frequency of VFO B Mhz");
+        frequencyVfoB.getAccessibleContext().setAccessibleDescription("Simulates Radio VFO B Display");
+
+        javax.swing.GroupLayout jInternalFrame2Layout = new javax.swing.GroupLayout(jInternalFrame2.getContentPane());
+        jInternalFrame2.getContentPane().setLayout(jInternalFrame2Layout);
+        jInternalFrame2Layout.setHorizontalGroup(
+            jInternalFrame2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jInternalFrame2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jInternalFrame3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(43, 43, 43)
+                .addComponent(jInternalFrame4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(16, Short.MAX_VALUE))
+        );
+        jInternalFrame2Layout.setVerticalGroup(
+            jInternalFrame2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jInternalFrame2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jInternalFrame2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jInternalFrame4, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jInternalFrame2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jInternalFrame3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+        );
+
+        jInternalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "VFO DIAL", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 1, 18))); // NOI18N
+        jInternalFrame1.setTitle("VFO DIAL");
+        jInternalFrame1.setToolTipText("Use arrow keys to change value or traverse digits");
+        jInternalFrame1.setNextFocusableComponent(jSpinner1Hertz);
+        jInternalFrame1.setOpaque(true);
+        jInternalFrame1.setVisible(true);
+
+        vfoDisplayPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        vfoDisplayPanel.setToolTipText("");
         vfoDisplayPanel.setName("VFO Display Panel"); // NOI18N
         vfoDisplayPanel.setNextFocusableComponent(jSpinner1Hertz);
 
-        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder("Hertz"));
+        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
         jLayeredPaneHertz.setToolTipText("VFO Hertz digits");
         jLayeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
         jLayeredPaneHertz.setNextFocusableComponent(jSpinner1Hertz);
+        jLayeredPaneHertz.setOpaque(true);
 
         jSpinner1Hertz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
         jSpinner1Hertz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
@@ -222,7 +371,7 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jLayeredPaneHertzLayout.setHorizontalGroup(
             jLayeredPaneHertzLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jLayeredPaneHertzLayout.createSequentialGroup()
-                .addContainerGap(11, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jSpinner100Hertz, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSpinner10Hertz, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -232,7 +381,7 @@ final public class VfoPrototype extends javax.swing.JFrame {
         );
         jLayeredPaneHertzLayout.setVerticalGroup(
             jLayeredPaneHertzLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSpinner10Hertz, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE)
+            .addComponent(jSpinner10Hertz)
             .addComponent(jSpinner1Hertz)
             .addComponent(jSpinner100Hertz)
         );
@@ -244,7 +393,8 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jSpinner100Hertz.getAccessibleContext().setAccessibleName("100 Hertz VFO Digit");
         jSpinner100Hertz.getAccessibleContext().setAccessibleDescription("Change VFO by 100 Hertz step.");
 
-        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder("Kilohertz"));
+        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jLayeredPaneKilohertz.setOpaque(true);
 
         jSpinner1khz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
         jSpinner1khz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
@@ -316,8 +466,10 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jSpinner100khz.getAccessibleContext().setAccessibleName("100khz VFO digit");
         jSpinner100khz.getAccessibleContext().setAccessibleDescription("Change VFO by 100 Kilohertz step");
 
-        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder("Megahertz"));
+        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jLayeredPaneMegahertz.setForeground(new java.awt.Color(255, 255, 255));
         jLayeredPaneMegahertz.setToolTipText("");
+        jLayeredPaneMegahertz.setOpaque(true);
 
         jSpinner1Mhz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
         jSpinner1Mhz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
@@ -365,7 +517,7 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jSpinner1000Mhz.setAutoscrolls(true);
         jSpinner1000Mhz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner1000Mhz, ""));
         jSpinner1000Mhz.setName("1000 Megahertz digit"); // NOI18N
-        jSpinner1000Mhz.setNextFocusableComponent(frequencyVfoA);
+        jSpinner1000Mhz.setNextFocusableComponent(jInternalFrame1);
         jSpinner1000Mhz.setRequestFocusEnabled(false);
         jSpinner1000Mhz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -390,15 +542,17 @@ final public class VfoPrototype extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSpinner10Mhz, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSpinner1Mhz, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+                .addComponent(jSpinner1Mhz, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jLayeredPaneMegahertzLayout.setVerticalGroup(
             jLayeredPaneMegahertzLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSpinner100Mhz, javax.swing.GroupLayout.Alignment.TRAILING)
-            .addComponent(jSpinner10Mhz)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jLayeredPaneMegahertzLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jSpinner100Mhz, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(jSpinner1000Mhz)
             .addComponent(jSpinner1Mhz, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(jSpinner10Mhz, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         jSpinner1Mhz.getAccessibleContext().setAccessibleName("1 Mhz VFO digit");
@@ -417,9 +571,9 @@ final public class VfoPrototype extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, vfoDisplayPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLayeredPaneMegahertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLayeredPaneKilohertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLayeredPaneHertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -427,111 +581,60 @@ final public class VfoPrototype extends javax.swing.JFrame {
             vfoDisplayPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLayeredPaneMegahertz)
             .addGroup(vfoDisplayPanelLayout.createSequentialGroup()
-                .addComponent(jLayeredPaneHertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 29, Short.MAX_VALUE))
+                .addComponent(jLayeredPaneHertz)
+                .addGap(0, 0, Short.MAX_VALUE))
             .addComponent(jLayeredPaneKilohertz)
         );
 
-        jLayeredPaneHertz.getAccessibleContext().setAccessibleName("Hertz VFO group");
+        jLayeredPaneHertz.getAccessibleContext().setAccessibleName("Hertz VFO panel");
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("TestingPrototypeDebugInfo"));
-        jPanel1.setToolTipText("Software Test Panel with simulated Radio");
-        jPanel1.setNextFocusableComponent(frequencyVfoA);
-
-        frequencyVfoA.setEditable(false);
-        frequencyVfoA.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        frequencyVfoA.setText("5446200000");
-        frequencyVfoA.setToolTipText("VFO A Frequency Mhz");
-        frequencyVfoA.setBorder(javax.swing.BorderFactory.createTitledBorder("RADIO VFO A Frequency Mhz"));
-
-        VfoSelection.add(VfoA);
-        VfoA.setSelected(true);
-        VfoA.setText("Connect Radio VFO A to Dial");
-        VfoA.setToolTipText("copies VFO A to  dial");
-        VfoA.setNextFocusableComponent(VfoB);
-        VfoA.setRequestFocusEnabled(false);
-        VfoA.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                VfoAActionPerformed(evt);
-            }
-        });
-
-        VfoSelection.add(VfoB);
-        VfoB.setText("Connect Radio VFO B to Dial");
-        VfoB.setToolTipText("copies VFO B to dial");
-        VfoB.setNextFocusableComponent(jSpinner1Hertz);
-        VfoB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                VfoBActionPerformed(evt);
-            }
-        });
-
-        frequencyVfoB.setEditable(false);
-        frequencyVfoB.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        frequencyVfoB.setText("1296100000");
-        frequencyVfoB.setToolTipText("VFO B Frequency Mhz");
-        frequencyVfoB.setBorder(javax.swing.BorderFactory.createTitledBorder("RADIO VFO B Frequency Mhz"));
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(frequencyVfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(VfoA)
-                    .addComponent(VfoB))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(frequencyVfoB))
+        javax.swing.GroupLayout jInternalFrame1Layout = new javax.swing.GroupLayout(jInternalFrame1.getContentPane());
+        jInternalFrame1.getContentPane().setLayout(jInternalFrame1Layout);
+        jInternalFrame1Layout.setHorizontalGroup(
+            jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jInternalFrame1Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(vfoDisplayPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(VfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(VfoB))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(frequencyVfoA)
-                            .addComponent(frequencyVfoB))))
-                .addGap(0, 12, Short.MAX_VALUE))
+        jInternalFrame1Layout.setVerticalGroup(
+            jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 135, Short.MAX_VALUE)
+            .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jInternalFrame1Layout.createSequentialGroup()
+                    .addGap(7, 7, 7)
+                    .addComponent(vfoDisplayPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(7, Short.MAX_VALUE)))
         );
 
-        frequencyVfoA.getAccessibleContext().setAccessibleName("Frequency of VFO A Mhz");
-        frequencyVfoA.getAccessibleContext().setAccessibleDescription("Simulates Radio VFO A Display");
-        VfoA.getAccessibleContext().setAccessibleDescription("get VFO A frequency from radio and adjust");
-        VfoB.getAccessibleContext().setAccessibleDescription("Get VFO B frequency from radio and adjust");
-        frequencyVfoB.getAccessibleContext().setAccessibleName("Frequency of VFO B Mhz");
-        frequencyVfoB.getAccessibleContext().setAccessibleDescription("Simulates Radio VFO B Display");
+        vfoDisplayPanel.getAccessibleContext().setAccessibleName("");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(vfoDisplayPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jInternalFrame1)
+                    .addComponent(jInternalFrame2))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(vfoDisplayPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(33, 33, 33)
+                .addComponent(jInternalFrame2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jInternalFrame1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        vfoDisplayPanel.getAccessibleContext().setAccessibleName("V F O  Display");
-        jPanel1.getAccessibleContext().setAccessibleName("Testing Panel with Radio Frequencies");
+        jInternalFrame2.getAccessibleContext().setAccessibleName("Debug Information");
 
-        getAccessibleContext().setAccessibleName("VFO Display prototype ");
+        getAccessibleContext().setAccessibleName("VFO Display prototype App");
         getAccessibleContext().setAccessibleDescription("Each VFO digit is a spinner responding to up down arrows.");
 
         pack();
@@ -630,10 +733,15 @@ final public class VfoPrototype extends javax.swing.JFrame {
     public javax.swing.ButtonGroup VfoSelection;
     public javax.swing.JTextField frequencyVfoA;
     public javax.swing.JTextField frequencyVfoB;
+    public javax.swing.JInternalFrame jInternalFrame1;
+    public javax.swing.JInternalFrame jInternalFrame2;
+    public javax.swing.JInternalFrame jInternalFrame3;
+    public javax.swing.JInternalFrame jInternalFrame4;
+    public javax.swing.JLabel jLabel1;
+    public javax.swing.JLabel jLabel2;
     public javax.swing.JLayeredPane jLayeredPaneHertz;
     public javax.swing.JLayeredPane jLayeredPaneKilohertz;
     public javax.swing.JLayeredPane jLayeredPaneMegahertz;
-    public javax.swing.JPanel jPanel1;
     public javax.swing.JSpinner jSpinner1000Mhz;
     public javax.swing.JSpinner jSpinner100Hertz;
     public javax.swing.JSpinner jSpinner100Mhz;
