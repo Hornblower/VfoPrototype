@@ -33,7 +33,8 @@ import javax.swing.UIManager;
  */
 final public class VfoDisplayPanel extends JPanel {
 
-    protected ArrayList<JSpinner> freqDigits = null;
+    protected ArrayList<DecadeSpinner> freqDigits = null;
+    final int QUANTITY_DIGITS = 10;
     VfoPrototype aFrame;
     long sv_freq;
     long currentFrequency = 3563000L;
@@ -47,109 +48,80 @@ final public class VfoDisplayPanel extends JPanel {
     }
 
     public void initDigits() {
-        //DigitChangeListener digitChangeListener; //reomve this line
 
         freqDigits = new ArrayList<>();
-        freqDigits.add( aFrame.jSpinner1Hertz);
-        freqDigits.add( aFrame.jSpinner10Hertz);
-        freqDigits.add( aFrame.jSpinner100Hertz);
-        freqDigits.add( aFrame.jSpinner1khz);
-        freqDigits.add( aFrame.jSpinner10khz);
-        freqDigits.add( aFrame.jSpinner100khz);
-        freqDigits.add( aFrame.jSpinner1Mhz);
-        freqDigits.add( aFrame.jSpinner10Mhz);
-        freqDigits.add( aFrame.jSpinner100Mhz);
-        freqDigits.add( aFrame.jSpinner1000Mhz);
-
-        int index, last;
-        last = freqDigits.size();
+        freqDigits.add((DecadeSpinner)(aFrame.jSpinner1Hertz));
         
-        JPanel lowDigit, highDigit;
-         // Highest decade spinner is not linked to another decade.
-        for(index = 0; index < last ; index++) {
-            JSpinner low = freqDigits.get(index);
-            if (index < (last-1)) {
-                JSpinner high = freqDigits.get(index+1);
-                linkDigits(low, high);
-            }
-            CyclingSpinnerNumberModel lowCycModel; 
-            lowCycModel = (CyclingSpinnerNumberModel) low.getModel();
-            lowCycModel.setDecade(index);
-            // Use AccessibleEditor.
-            AccessibleEditor ed = new AccessibleEditor(low);
-            low.setEditor(ed);
-            String desc = low.getToolTipText();
-            System.out.println(desc);
-            low.setToolTipText(desc + " To increment, use up arrow.");
-            
-            // Useful accessible items:
-            AccessibleContext context = low.getAccessibleContext();
-            AccessibleAction action = context.getAccessibleAction();
-            int qty = action.getAccessibleActionCount();
-            if (qty >= 2) {
-                // action[0] is increment
-                String actstr = action.getAccessibleActionDescription(0);
-                System.out.println("action 0 description: "+ actstr);
-                // action[1] is decrement
-                actstr = action.getAccessibleActionDescription(1);
-                System.out.println("action 1 description: "+ actstr);
-                
-            }
-            AccessibleValue accVal =  context.getAccessibleValue();
-            Number currentVal = accVal.getCurrentAccessibleValue();
-            System.out.println(" original currentAccessibleValue: "+ currentVal.toString());
-            Number wildNumber = 6;
-            boolean success =  accVal.setCurrentAccessibleValue(wildNumber);
-            if (success) {
-                currentVal = accVal.getCurrentAccessibleValue();
-                System.out.println(" modified currentAccessibleValue: "+ currentVal.toString());
-            }
-            success = action.doAccessibleAction(0);
-            if (success) {
-                currentVal = lowCycModel.getNumber();
-                System.out.println(" after accessibleAction INCREMENT  model value: "+ currentVal.toString());
-                currentVal = accVal.getCurrentAccessibleValue();
-                System.out.println(" after accessibleAction INCREMENT  currentAccessibleValue: "+ currentVal.toString());    
-            }
-            AccessibleText  accText =  context.getAccessibleText();
-            String sentenceStr = accText.getAtIndex(WORD, 0);
-            System.out.println(" accessibleText WORD at index 0 :   "+ sentenceStr);
-            
-            // Here is another good reason to have a DecadeDigit class.
-            // Add focus traverse keys left and right arrow.
-            low.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
-            low.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
-    
-            Set set = new HashSet( low.getFocusTraversalKeys(
-                KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
-            set.add( KeyStroke.getKeyStroke( "RIGHT" ) );
-            low.setFocusTraversalKeys(
-                KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set );
-
-            set = new HashSet( low.getFocusTraversalKeys(
-                KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
-            set.add( KeyStroke.getKeyStroke( "LEFT" ) );
-            low.setFocusTraversalKeys(
-                KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, set );
-            
-            // Set foreground color Green and background color black.
-            Component ftf = low.getEditor().getComponent(0);
-            ftf.setForeground(Color.GREEN);
-            
-            //ftf.setBackground(Color.DARK_GRAY); // Does nothing.
-        }
+        freqDigits.add((DecadeSpinner)aFrame.jSpinner10Hertz);
+        freqDigits.get(0).linkToNextHigherDecade(freqDigits.get(1));
         
+        freqDigits.add((DecadeSpinner)aFrame.jSpinner100Hertz);
+        freqDigits.get(1).linkToNextHigherDecade(freqDigits.get(2));
+        
+        freqDigits.add((DecadeSpinner)aFrame.jSpinner1khz);
+        freqDigits.get(2).linkToNextHigherDecade(freqDigits.get(3));
+        
+        freqDigits.add((DecadeSpinner)aFrame.jSpinner10khz);
+        freqDigits.get(3).linkToNextHigherDecade(freqDigits.get(4));
+        
+        freqDigits.add((DecadeSpinner)aFrame.jSpinner100khz);
+        freqDigits.get(4).linkToNextHigherDecade(freqDigits.get(5));
+        
+        freqDigits.add((DecadeSpinner)aFrame.jSpinner1Mhz);
+        freqDigits.get(5).linkToNextHigherDecade(freqDigits.get(6));
+        
+        freqDigits.add((DecadeSpinner)aFrame.jSpinner10Mhz);    
+        freqDigits.get(6).linkToNextHigherDecade(freqDigits.get(7));
+        
+        freqDigits.add((DecadeSpinner)aFrame.jSpinner100Mhz);
+        freqDigits.get(7).linkToNextHigherDecade(freqDigits.get(8));
+        
+        freqDigits.add((DecadeSpinner)aFrame.jSpinner1000Mhz);
+        freqDigits.get(8).linkToNextHigherDecade(freqDigits.get(9));
+     
+        assert(freqDigits.size() == QUANTITY_DIGITS);
         inhibit = false;
-        
-        
     }
+    
+    public void debugSpinner(DecadeSpinner spinner) {
+        
+        DecadeSpinnerModel model = (DecadeSpinnerModel)spinner.getModel();
+        // Useful accessible items:
+        AccessibleContext context = spinner.getAccessibleContext();
+        AccessibleAction action = context.getAccessibleAction();
+        int qty = action.getAccessibleActionCount();
+        if (qty >= 2) {
+            // action[0] is increment
+            String actstr = action.getAccessibleActionDescription(0);
+            System.out.println("action 0 description: "+ actstr);
+            // action[1] is decrement
+            actstr = action.getAccessibleActionDescription(1);
+            System.out.println("action 1 description: "+ actstr);
 
-    private void linkDigits(JSpinner low, JSpinner high) {
-        CyclingSpinnerNumberModel lowModel = (CyclingSpinnerNumberModel) low.getModel();
-        CyclingSpinnerNumberModel highModel = (CyclingSpinnerNumberModel) high.getModel(); 
-        CyclingSpinnerNumberModel.linkModels(lowModel, highModel);
-    }
+        }
+        AccessibleValue accVal =  context.getAccessibleValue();
+        Number currentVal = accVal.getCurrentAccessibleValue();
+        System.out.println(" original spinner currentAccessibleValue: "+ currentVal.toString());
+        Number wildNumber = 6;
+        boolean success =  accVal.setCurrentAccessibleValue(wildNumber);
+        if (success) {
+            currentVal = accVal.getCurrentAccessibleValue();
+            System.out.println(" modified currentAccessibleValue: "+ currentVal.toString());
+        }
+        success = action.doAccessibleAction(0);
+        if (success) {
+            currentVal = Integer.getInteger( spinner.getModel().getValue().toString());
+            System.out.println(" after accessibleAction INCREMENT  model value: "+ currentVal.toString());
+            currentVal = accVal.getCurrentAccessibleValue();
+            System.out.println(" after accessibleAction INCREMENT  currentAccessibleValue: "+ currentVal.toString());    
+        }
+        AccessibleText  accText =  context.getAccessibleText();
+        String sentenceStr = accText.getAtIndex(WORD, 0);
+        System.out.println(" accessibleText WORD at index 0 :   "+ sentenceStr);
 
+        //ftf.setBackground(Color.DARK_GRAY); // Does nothing.
+    }        
+    
     public void initFrequency(long v) {
         frequencyToDigits(v);
     }
@@ -162,7 +134,7 @@ final public class VfoDisplayPanel extends JPanel {
         // Expecting list ordered from LSD to MSD.      
         int size = freqDigits.size();
         for (int i = 0; i < size; i++) {
-            JSpinner fd = freqDigits.get(i);
+            DecadeSpinner fd = freqDigits.get(i);
             fd.setValue( (int) (modulatedValue % 10));
             modulatedValue /= 10;
         }         
@@ -181,7 +153,7 @@ final public class VfoDisplayPanel extends JPanel {
         if (!inhibit) {
             inhibit = true;
             freqDigits.forEach((dig) -> {
-                CyclingSpinnerNumberModel  model = (CyclingSpinnerNumberModel) dig.getModel();
+                DecadeSpinnerModel  model = (DecadeSpinnerModel) dig.getModel();
                 Object value = model.getValue();
                 String digitString = value.toString();
                 Integer digit = Integer.valueOf(digitString);
