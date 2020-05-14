@@ -22,17 +22,29 @@ package VfoPrototype;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.JPanel;
 import java.text.DecimalFormat;
 import javax.accessibility.AccessibleContext;
-import javax.accessibility.AccessibleText;
-import static javax.accessibility.AccessibleText.WORD;
 import javax.accessibility.AccessibleValue;
+import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
 import javax.swing.UIManager;
+import java.awt.KeyboardFocusManager;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
+import javax.swing.KeyStroke;
+import javax.swing.SpinnerModel;
 
 
-
+/**
+ * Implements a prototype replacement for the JRX app VFO control to enhance the
+ * accessibility adding frequency updates as the digits are manipulated.
+ * 
+ * @author Coz
+ */
 final public class VfoPrototype extends javax.swing.JFrame {
     static public VfoPrototype singletonInstance;
     static public JPanel  displayPanel;
@@ -50,16 +62,70 @@ final public class VfoPrototype extends javax.swing.JFrame {
         singletonInstance = this;    
         try {
             initComponents();
-            // Must instantiate components before initialization of VfoDisplayPanel.
-            VfoDisplayPanel panel = (VfoDisplayPanel) vfoDisplayPanel;
-            panel.initDigits();
-            panel.frequencyToDigits(freqVfoA); // Vfo A is default.
-            sendFreqToRadioVfoB(freqVfoB); // It looks more normal to have a value already.
-            UIManager.put("FormattedTextField.background", Color.RED);
         } catch(Exception e) {
             e.printStackTrace();
         }      
     }
+    
+    public void setUpVfoComponents() {
+        // Must instantiate components before initialization of VfoDisplayControl.
+        VfoDisplayControl panel = (VfoDisplayControl) vfoDisplayPanel;
+        panel.initDigits();
+        panel.frequencyToDigits(freqVfoA); // Vfo A is default.
+        sendFreqToRadioVfoB(freqVfoB); // It looks more normal to have a value already.
+        // The following statement does not work.
+        UIManager.put("FormattedTextField.background", Color.RED);
+
+        //Make jSpinner1Hertz textField get the focus whenever frame is activated.
+        JSpinner spinner = (JSpinner)jSpinner1Hertz;
+        JFormattedTextField textField;
+        textField = (JFormattedTextField)spinner.getEditor().getComponent(0);
+        // Cause the ftf to get the focus when the JFrame gets focus.        
+        this.addWindowFocusListener(new WindowAdapter() {
+            public void windowGainedFocus(WindowEvent e) {
+                textField.requestFocusInWindow();
+            }
+        });
+
+        // @todo Coz, make VFO panel extend JInternalFrame instead.
+        // Make sure that the VfoControlFrame is focus manager.
+        VfoControlFrame.setFocusCycleRoot(true);
+
+        VfoDigitTraversalPolicy policy; 
+        Vector<Component> order = panel.getTraversalOrder();
+        policy = new VfoDigitTraversalPolicy(order);
+        VfoControlFrame.setFocusTraversalPolicy(policy);
+        VfoControlFrame.setFocusTraversalPolicyProvider(true);
+        VfoControlFrame.setFocusable(true);
+
+        VfoControlFrame.setVisible(true);
+        // Add focus traverse keys left and right arrow.
+        // In this case, FORWARD is to the left.
+        VfoControlFrame.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
+        VfoControlFrame.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+        Set set = new HashSet( getFocusTraversalKeys(
+            KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
+        set.add( KeyStroke.getKeyStroke( "LEFT" ) );
+        VfoControlFrame.setFocusTraversalKeys(
+            KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set );
+
+        set = new HashSet( getFocusTraversalKeys(
+            KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
+        set.add( KeyStroke.getKeyStroke( "RIGHT" ) );
+        VfoControlFrame.setFocusTraversalKeys(
+            KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, set );
+        VfoControlFrame.setFocusTraversalKeysEnabled(true);
+
+        if (!VfoControlFrame.areFocusTraversalKeysSet(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS) ) {
+             System.out.println("Coz, why aren't the FORWARD_TRAVERSAL_KEYS set?");
+        }
+
+        assert( VfoControlFrame.getFocusTraversalPolicy() != null);
+        assert( VfoControlFrame.isFocusCycleRoot());
+        VfoControlFrame.setEnabled(true);       
+    }
+    
+    
     /*
      * @Return true when frequency successfully communicated to radio.
     */
@@ -104,28 +170,59 @@ final public class VfoPrototype extends javax.swing.JFrame {
         }
         double freqMhz = Double.valueOf(valString);
         freqHertz = (long) (freqMhz * 1.E06) ;
-        VfoDisplayPanel panel = (VfoDisplayPanel) vfoDisplayPanel;
+        VfoDisplayControl panel = (VfoDisplayControl) vfoDisplayPanel;
         panel.frequencyToDigits(freqHertz);
         return success;
     }
     
     private void handleChangeEvent(javax.swing.event.ChangeEvent evt) {
-        JSpinner source = (JSpinner)evt.getSource();
+        DecadeSpinner source = (DecadeSpinner)evt.getSource();
         Component ftf = source.getEditor().getComponent(0);
         ftf.setForeground(Color.GREEN);
         ftf.setBackground(Color.BLACK); // Does nothing?
          System.out.println("ftf at changeEvent background color is " + ftf.getBackground().toString());
         int value = (int) source.getModel().getValue();
-        VfoDisplayPanel panel = (VfoDisplayPanel) singletonInstance.vfoDisplayPanel;
-        long freq = panel.digitsToFrequency();
         AccessibleContext context = source.getAccessibleContext();
         AccessibleValue accVal =  context.getAccessibleValue();
-        Number currentVal = accVal.getCurrentAccessibleValue();
-        AccessibleText  accText =  context.getAccessibleText();
-        String wordStr = accText.getAtIndex(WORD, 0);
+        Number currentVal = accVal.getCurrentAccessibleValue();        
+       
+        // Execute commit so that spinner and model values agree.
+        try {
+            source.commitEdit();
+        } catch (Exception e)  {
+            System.out.println(e);
+        }
+        
+        // Update this ftf description with new frequency and decade name.
+        // Update the debug panel frequency. 
+        AccessibleEditor editor = (AccessibleEditor) source.getEditor();    
+        DecadeSpinner decadeSpinner = editor.mySpinner;
+        SpinnerModel model = decadeSpinner.getModel();
+        DecadeSpinnerModel decadeModel = (DecadeSpinnerModel)model;
+        int decade = decadeModel.getDecade();
+        // Change the field description so voiceOver will announce it.
+        VfoDisplayControl panel = (VfoDisplayControl) singletonInstance.vfoDisplayPanel;
+        long freq = panel.digitsToFrequency();
         System.out.println("handleChangeEvent - model value: "+ String.valueOf(value));
         System.out.println("handleChangeEvent - currentAccessibleValue: "+ currentVal.toString());
-        System.out.println("handleChangeEvent - currentAccessibleText WORD at index 0 : "+ wordStr);
+     
+        // Set all the ftf accessible context since VoiceOver only announces ones digit????? 
+        Vector<Component> order = ((VfoDisplayControl) vfoDisplayPanel).getTraversalOrder();
+        for ( int iii=0; iii<VfoDisplayControl.QUANTITY_DIGITS; iii++) {
+            StringBuilder freqString = new StringBuilder("");
+            freqString.append("VFO Frequency "+Double.toString(((double)freq)/1000000.)+" Mhz; ");
+            Component comp = order.get(iii);
+            JFormattedTextField ftfield = (JFormattedTextField)comp;
+            freqString.append(ftfield.getAccessibleContext().getAccessibleName());
+            ftfield.getAccessibleContext().setAccessibleDescription(freqString.toString());
+        }
+        // Print out just this field's name and description.
+        String ftfName = ftf.getAccessibleContext().getAccessibleName();
+        System.out.println("ftf accessible name :"+ftfName);
+        String ftfDesc = ftf.getAccessibleContext().getAccessibleDescription();
+        System.out.println("ftf accessible description :"+ftfDesc);    
+        
+         //JOptionPane.showMessageDialog(null,freqString );     
     }
 
  
@@ -139,47 +236,53 @@ final public class VfoPrototype extends javax.swing.JFrame {
     private void initComponents() {
 
         VfoSelection = new javax.swing.ButtonGroup();
-        jInternalFrame2 = new javax.swing.JInternalFrame();
-        jInternalFrame3 = new javax.swing.JInternalFrame();
+        TestingInfoFrame = new javax.swing.JInternalFrame();
+        VfoAFrame = new javax.swing.JInternalFrame();
         frequencyVfoA = new javax.swing.JTextField();
         VfoA = new javax.swing.JRadioButton();
         jLabel1 = new javax.swing.JLabel();
-        jInternalFrame4 = new javax.swing.JInternalFrame();
+        VfoBFrame = new javax.swing.JInternalFrame();
         VfoB = new javax.swing.JRadioButton();
         frequencyVfoB = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jInternalFrame1 = new javax.swing.JInternalFrame();
-        vfoDisplayPanel = new VfoDisplayPanel(singletonInstance);
+        VfoControlFrame = new javax.swing.JInternalFrame();
+        vfoDisplayPanel = new VfoDisplayControl(singletonInstance);
         jLayeredPaneHertz = new javax.swing.JLayeredPane();
-        jSpinner1Hertz = new javax.swing.JSpinner();
-        jSpinner10Hertz = new javax.swing.JSpinner();
-        jSpinner100Hertz = new javax.swing.JSpinner();
+        jSpinner1Hertz = new DecadeSpinner();
+        jSpinner10Hertz = new DecadeSpinner();
+        jSpinner100Hertz = new DecadeSpinner();
         jLayeredPaneKilohertz = new javax.swing.JLayeredPane();
-        jSpinner1khz = new javax.swing.JSpinner();
-        jSpinner10khz = new javax.swing.JSpinner();
-        jSpinner100khz = new javax.swing.JSpinner();
+        jSpinner1khz = new DecadeSpinner();
+        jSpinner10khz = new DecadeSpinner();
+        jSpinner100khz = new DecadeSpinner();
         jLayeredPaneMegahertz = new javax.swing.JLayeredPane();
-        jSpinner1Mhz = new javax.swing.JSpinner();
-        jSpinner10Mhz = new javax.swing.JSpinner();
-        jSpinner100Mhz = new javax.swing.JSpinner();
-        jSpinner1000Mhz = new javax.swing.JSpinner();
+        jSpinner1Mhz = new DecadeSpinner();
+        jSpinner10Mhz = new DecadeSpinner();
+        jSpinner100Mhz = new DecadeSpinner();
+        jSpinner1000Mhz = new DecadeSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("VFO Display Prototype");
         setFocusTraversalPolicyProvider(true);
         setFocusable(false);
 
-        jInternalFrame2.setBorder(javax.swing.BorderFactory.createTitledBorder("TestingPrototypeDebugInfo"));
-        jInternalFrame2.setTitle("Debug Info");
-        jInternalFrame2.setToolTipText("Choose VFO A or VFO B");
-        jInternalFrame2.setNextFocusableComponent(jInternalFrame1);
-        jInternalFrame2.setVisible(true);
+        TestingInfoFrame.setBorder(javax.swing.BorderFactory.createTitledBorder("TestingPrototypeDebugInfo"));
+        TestingInfoFrame.setTitle("Debug Info");
+        TestingInfoFrame.setToolTipText("Choose VFO A or VFO B");
+        TestingInfoFrame.setNextFocusableComponent(VfoControlFrame);
+        TestingInfoFrame.setVisible(true);
 
-        jInternalFrame3.setBorder(javax.swing.BorderFactory.createTitledBorder("VFO A"));
-        jInternalFrame3.setVisible(true);
+        VfoAFrame.setBorder(javax.swing.BorderFactory.createTitledBorder("VFO A"));
+        VfoAFrame.setTitle("Radio VFO A, Simulation");
+        VfoAFrame.setToolTipText("Contains simulated Radio VFO A, frequency");
+        VfoAFrame.setFocusTraversalPolicyProvider(true);
+        VfoAFrame.setName("VFO A Group"); // NOI18N
+        VfoAFrame.setNextFocusableComponent(VfoBFrame);
+        VfoAFrame.setVisible(true);
 
         frequencyVfoA.setEditable(false);
         frequencyVfoA.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
+        frequencyVfoA.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         frequencyVfoA.setText("5446200000");
         frequencyVfoA.setToolTipText("VFO A Frequency Mhz");
         frequencyVfoA.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -200,24 +303,24 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel1.setText("Radio VFO readOnly current frequency Mhz");
 
-        javax.swing.GroupLayout jInternalFrame3Layout = new javax.swing.GroupLayout(jInternalFrame3.getContentPane());
-        jInternalFrame3.getContentPane().setLayout(jInternalFrame3Layout);
-        jInternalFrame3Layout.setHorizontalGroup(
-            jInternalFrame3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jInternalFrame3Layout.createSequentialGroup()
+        javax.swing.GroupLayout VfoAFrameLayout = new javax.swing.GroupLayout(VfoAFrame.getContentPane());
+        VfoAFrame.getContentPane().setLayout(VfoAFrameLayout);
+        VfoAFrameLayout.setHorizontalGroup(
+            VfoAFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(VfoAFrameLayout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addGroup(jInternalFrame3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(VfoAFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jInternalFrame3Layout.createSequentialGroup()
-                        .addGroup(jInternalFrame3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(VfoAFrameLayout.createSequentialGroup()
+                        .addGroup(VfoAFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(frequencyVfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(VfoA))
                         .addGap(0, 22, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-        jInternalFrame3Layout.setVerticalGroup(
-            jInternalFrame3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jInternalFrame3Layout.createSequentialGroup()
+        VfoAFrameLayout.setVerticalGroup(
+            VfoAFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(VfoAFrameLayout.createSequentialGroup()
                 .addContainerGap(18, Short.MAX_VALUE)
                 .addComponent(VfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(24, 24, 24)
@@ -231,8 +334,13 @@ final public class VfoPrototype extends javax.swing.JFrame {
         frequencyVfoA.getAccessibleContext().setAccessibleDescription("Simulates Radio VFO A Display");
         VfoA.getAccessibleContext().setAccessibleDescription("get VFO A frequency from radio and adjust");
 
-        jInternalFrame4.setBorder(javax.swing.BorderFactory.createTitledBorder("VFO B"));
-        jInternalFrame4.setVisible(true);
+        VfoBFrame.setBorder(javax.swing.BorderFactory.createTitledBorder("VFO B"));
+        VfoBFrame.setTitle("Radio VFO B, simulation ");
+        VfoBFrame.setToolTipText("Contains simulated radio VFO B frequency");
+        VfoBFrame.setFocusTraversalPolicyProvider(true);
+        VfoBFrame.setName("VFO B Group"); // NOI18N
+        VfoBFrame.setNextFocusableComponent(TestingInfoFrame);
+        VfoBFrame.setVisible(true);
 
         VfoSelection.add(VfoB);
         VfoB.setText("Connect Radio VFO B to Dial");
@@ -246,28 +354,29 @@ final public class VfoPrototype extends javax.swing.JFrame {
 
         frequencyVfoB.setEditable(false);
         frequencyVfoB.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
+        frequencyVfoB.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         frequencyVfoB.setText("1296100000");
         frequencyVfoB.setToolTipText("VFO B Frequency Mhz");
         frequencyVfoB.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        frequencyVfoB.setNextFocusableComponent(jInternalFrame1);
+        frequencyVfoB.setNextFocusableComponent(VfoControlFrame);
 
         jLabel2.setText("Radio VFO readOnly current frequency Mhz");
 
-        javax.swing.GroupLayout jInternalFrame4Layout = new javax.swing.GroupLayout(jInternalFrame4.getContentPane());
-        jInternalFrame4.getContentPane().setLayout(jInternalFrame4Layout);
-        jInternalFrame4Layout.setHorizontalGroup(
-            jInternalFrame4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jInternalFrame4Layout.createSequentialGroup()
+        javax.swing.GroupLayout VfoBFrameLayout = new javax.swing.GroupLayout(VfoBFrame.getContentPane());
+        VfoBFrame.getContentPane().setLayout(VfoBFrameLayout);
+        VfoBFrameLayout.setHorizontalGroup(
+            VfoBFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(VfoBFrameLayout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addGroup(jInternalFrame4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(VfoBFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(VfoB))
                 .addContainerGap(37, Short.MAX_VALUE))
         );
-        jInternalFrame4Layout.setVerticalGroup(
-            jInternalFrame4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jInternalFrame4Layout.createSequentialGroup()
+        VfoBFrameLayout.setVerticalGroup(
+            VfoBFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(VfoBFrameLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(VfoB)
                 .addGap(30, 30, 30)
@@ -281,37 +390,40 @@ final public class VfoPrototype extends javax.swing.JFrame {
         frequencyVfoB.getAccessibleContext().setAccessibleName("Frequency of VFO B Mhz");
         frequencyVfoB.getAccessibleContext().setAccessibleDescription("Simulates Radio VFO B Display");
 
-        javax.swing.GroupLayout jInternalFrame2Layout = new javax.swing.GroupLayout(jInternalFrame2.getContentPane());
-        jInternalFrame2.getContentPane().setLayout(jInternalFrame2Layout);
-        jInternalFrame2Layout.setHorizontalGroup(
-            jInternalFrame2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jInternalFrame2Layout.createSequentialGroup()
+        javax.swing.GroupLayout TestingInfoFrameLayout = new javax.swing.GroupLayout(TestingInfoFrame.getContentPane());
+        TestingInfoFrame.getContentPane().setLayout(TestingInfoFrameLayout);
+        TestingInfoFrameLayout.setHorizontalGroup(
+            TestingInfoFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TestingInfoFrameLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jInternalFrame3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(VfoAFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(43, 43, 43)
-                .addComponent(jInternalFrame4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addComponent(VfoBFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(28, Short.MAX_VALUE))
         );
-        jInternalFrame2Layout.setVerticalGroup(
-            jInternalFrame2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jInternalFrame2Layout.createSequentialGroup()
+        TestingInfoFrameLayout.setVerticalGroup(
+            TestingInfoFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TestingInfoFrameLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jInternalFrame2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jInternalFrame4, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jInternalFrame2Layout.createSequentialGroup()
+                .addGroup(TestingInfoFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(VfoBFrame, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, TestingInfoFrameLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jInternalFrame3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(VfoAFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
 
-        jInternalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "VFO DIAL", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 1, 18))); // NOI18N
-        jInternalFrame1.setTitle("VFO DIAL");
-        jInternalFrame1.setToolTipText("Use arrow keys to change value or traverse digits");
-        jInternalFrame1.setNextFocusableComponent(jSpinner1Hertz);
-        jInternalFrame1.setOpaque(true);
-        jInternalFrame1.setVisible(true);
+        VfoControlFrame.setTitle("VFO Control Prototype");
+        VfoControlFrame.setToolTipText("Use arrow keys to change value or traverse digits");
+        VfoControlFrame.setFocusTraversalPolicy(VfoControlFrame.getFocusTraversalPolicy());
+        VfoControlFrame.setFocusTraversalPolicyProvider(true);
+        VfoControlFrame.setNextFocusableComponent(jSpinner1Hertz.getEditor());
+        VfoControlFrame.setVisible(true);
 
         vfoDisplayPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         vfoDisplayPanel.setToolTipText("");
+        vfoDisplayPanel.setFocusTraversalPolicy(vfoDisplayPanel.getFocusTraversalPolicy());
+        vfoDisplayPanel.setFocusTraversalPolicyProvider(true);
+        vfoDisplayPanel.setFocusable(false);
         vfoDisplayPanel.setName("VFO Display Panel"); // NOI18N
         vfoDisplayPanel.setNextFocusableComponent(jSpinner1Hertz);
 
@@ -322,12 +434,12 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jLayeredPaneHertz.setOpaque(true);
 
         jSpinner1Hertz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner1Hertz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner1Hertz.setModel(jSpinner1Hertz.getModel());
         jSpinner1Hertz.setToolTipText("1 hertz vfo digit");
         jSpinner1Hertz.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jSpinner1Hertz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner1Hertz, "#"));
+        jSpinner1Hertz.setEditor(jSpinner1Hertz.getEditor());
+        jSpinner1Hertz.setFocusTraversalKeysEnabled(jSpinner1Hertz.getFocusTraversalKeysEnabled());
         jSpinner1Hertz.setName("1 Hertz digit"); // NOI18N
-        jSpinner1Hertz.setNextFocusableComponent(jSpinner10Hertz);
         jSpinner1Hertz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jSpinner1HertzStateChanged(evt);
@@ -335,12 +447,11 @@ final public class VfoPrototype extends javax.swing.JFrame {
         });
 
         jSpinner10Hertz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner10Hertz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner10Hertz.setModel(jSpinner10Hertz.getModel());
         jSpinner10Hertz.setToolTipText("10 hertz digit");
         jSpinner10Hertz.setAutoscrolls(true);
-        jSpinner10Hertz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner10Hertz, ""));
+        jSpinner10Hertz.setEditor(jSpinner10Hertz.getEditor());
         jSpinner10Hertz.setName("10 Hertz digit"); // NOI18N
-        jSpinner10Hertz.setNextFocusableComponent(jSpinner100Hertz);
         jSpinner10Hertz.setRequestFocusEnabled(false);
         jSpinner10Hertz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -349,12 +460,11 @@ final public class VfoPrototype extends javax.swing.JFrame {
         });
 
         jSpinner100Hertz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner100Hertz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner100Hertz.setModel(jSpinner100Hertz.getModel());
         jSpinner100Hertz.setToolTipText("100 hertz digit");
         jSpinner100Hertz.setAutoscrolls(true);
-        jSpinner100Hertz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner100Hertz, ""));
+        jSpinner100Hertz.setEditor(jSpinner100Hertz.getEditor());
         jSpinner100Hertz.setName("100 Hertz digit"); // NOI18N
-        jSpinner100Hertz.setNextFocusableComponent(jSpinner1khz);
         jSpinner100Hertz.setRequestFocusEnabled(false);
         jSpinner100Hertz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -381,27 +491,30 @@ final public class VfoPrototype extends javax.swing.JFrame {
         );
         jLayeredPaneHertzLayout.setVerticalGroup(
             jLayeredPaneHertzLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSpinner10Hertz)
+            .addComponent(jSpinner10Hertz, javax.swing.GroupLayout.DEFAULT_SIZE, 93, Short.MAX_VALUE)
             .addComponent(jSpinner1Hertz)
             .addComponent(jSpinner100Hertz)
         );
 
-        jSpinner1Hertz.getAccessibleContext().setAccessibleName("1 Hertz VFO digit");
-        jSpinner1Hertz.getAccessibleContext().setAccessibleDescription("Change VFO by 1 Hertz steps");
-        jSpinner10Hertz.getAccessibleContext().setAccessibleName("10 Hertz VFO Digit");
-        jSpinner10Hertz.getAccessibleContext().setAccessibleDescription("Change VFO by 10 hertz step");
-        jSpinner100Hertz.getAccessibleContext().setAccessibleName("100 Hertz VFO Digit");
-        jSpinner100Hertz.getAccessibleContext().setAccessibleDescription("Change VFO by 100 Hertz step.");
+        jSpinner1Hertz.getAccessibleContext().setAccessibleName("");
+        jSpinner1Hertz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner1Hertz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
+        jSpinner10Hertz.getAccessibleContext().setAccessibleName("");
+        jSpinner10Hertz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner10Hertz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
+        jSpinner100Hertz.getAccessibleContext().setAccessibleName("");
+        jSpinner100Hertz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner100Hertz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
 
         jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
         jLayeredPaneKilohertz.setOpaque(true);
 
         jSpinner1khz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner1khz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner1khz.setModel(jSpinner1khz.getModel());
         jSpinner1khz.setToolTipText("1 Kilohertz digit");
-        jSpinner1khz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner1khz, ""));
+        jSpinner1khz.setEditor(jSpinner1khz.getEditor());
         jSpinner1khz.setName("1 Kilohertz digit"); // NOI18N
-        jSpinner1khz.setNextFocusableComponent(jSpinner10khz);
+        jSpinner1khz.setNextFocusableComponent(jSpinner10khz.getEditor());
         jSpinner1khz.setRequestFocusEnabled(false);
         jSpinner1khz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -410,11 +523,11 @@ final public class VfoPrototype extends javax.swing.JFrame {
         });
 
         jSpinner10khz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner10khz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner10khz.setModel(jSpinner10khz.getModel());
         jSpinner10khz.setToolTipText("10 Kilohertz digit");
-        jSpinner10khz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner10khz, ""));
+        jSpinner10khz.setEditor(jSpinner10khz.getEditor());
         jSpinner10khz.setName("10 Kilohertz digit"); // NOI18N
-        jSpinner10khz.setNextFocusableComponent(jSpinner100khz);
+        jSpinner10khz.setNextFocusableComponent(jSpinner100khz.getEditor());
         jSpinner10khz.setRequestFocusEnabled(false);
         jSpinner10khz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -423,11 +536,11 @@ final public class VfoPrototype extends javax.swing.JFrame {
         });
 
         jSpinner100khz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner100khz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner100khz.setModel(jSpinner100khz.getModel());
         jSpinner100khz.setToolTipText("100 Kilohertz digit");
-        jSpinner100khz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner100khz, ""));
+        jSpinner100khz.setEditor(jSpinner100khz.getEditor());
         jSpinner100khz.setName("100 Kilohertz digit"); // NOI18N
-        jSpinner100khz.setNextFocusableComponent(jSpinner1Mhz);
+        jSpinner100khz.setNextFocusableComponent(jSpinner1Mhz.getEditor());
         jSpinner100khz.setRequestFocusEnabled(false);
         jSpinner100khz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -459,12 +572,15 @@ final public class VfoPrototype extends javax.swing.JFrame {
             .addComponent(jSpinner1khz)
         );
 
-        jSpinner1khz.getAccessibleContext().setAccessibleName("1 kilohertz VFO digit  ");
-        jSpinner1khz.getAccessibleContext().setAccessibleDescription("Change VFO by 1 kilohertz ");
-        jSpinner10khz.getAccessibleContext().setAccessibleName("10Khz VFO digit ");
-        jSpinner10khz.getAccessibleContext().setAccessibleDescription(" Change VFO by 10 Kilohertz steps");
-        jSpinner100khz.getAccessibleContext().setAccessibleName("100khz VFO digit");
-        jSpinner100khz.getAccessibleContext().setAccessibleDescription("Change VFO by 100 Kilohertz step");
+        jSpinner1khz.getAccessibleContext().setAccessibleName("");
+        jSpinner1khz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner1khz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
+        jSpinner10khz.getAccessibleContext().setAccessibleName("");
+        jSpinner10khz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner10khz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
+        jSpinner100khz.getAccessibleContext().setAccessibleName("");
+        jSpinner100khz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner100khz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
 
         jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
         jLayeredPaneMegahertz.setForeground(new java.awt.Color(255, 255, 255));
@@ -472,12 +588,12 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jLayeredPaneMegahertz.setOpaque(true);
 
         jSpinner1Mhz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner1Mhz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner1Mhz.setModel(jSpinner1Mhz.getModel());
         jSpinner1Mhz.setToolTipText("1 Megahertz digit");
         jSpinner1Mhz.setAutoscrolls(true);
-        jSpinner1Mhz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner1Mhz, ""));
+        jSpinner1Mhz.setEditor(jSpinner1Mhz.getEditor());
         jSpinner1Mhz.setName("1 Megahertz digit"); // NOI18N
-        jSpinner1Mhz.setNextFocusableComponent(jSpinner10Mhz);
+        jSpinner1Mhz.setNextFocusableComponent(jSpinner10Mhz.getEditor());
         jSpinner1Mhz.setRequestFocusEnabled(false);
         jSpinner1Mhz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -486,11 +602,11 @@ final public class VfoPrototype extends javax.swing.JFrame {
         });
 
         jSpinner10Mhz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner10Mhz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner10Mhz.setModel(jSpinner10Mhz.getModel());
         jSpinner10Mhz.setToolTipText("10 Megahertz digit");
-        jSpinner10Mhz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner10Mhz, ""));
+        jSpinner10Mhz.setEditor(jSpinner10Mhz.getEditor());
         jSpinner10Mhz.setName("10 megahertz digit"); // NOI18N
-        jSpinner10Mhz.setNextFocusableComponent(jSpinner100Mhz);
+        jSpinner10Mhz.setNextFocusableComponent(jSpinner100Mhz.getEditor());
         jSpinner10Mhz.setRequestFocusEnabled(false);
         jSpinner10Mhz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -499,11 +615,12 @@ final public class VfoPrototype extends javax.swing.JFrame {
         });
 
         jSpinner100Mhz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner100Mhz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner100Mhz.setModel(jSpinner100Mhz.getModel());
         jSpinner100Mhz.setToolTipText("100 Megahertz digit");
         jSpinner100Mhz.setAutoscrolls(true);
+        jSpinner100Mhz.setEditor(jSpinner100Mhz.getEditor());
         jSpinner100Mhz.setName("100 Megahertz digit"); // NOI18N
-        jSpinner100Mhz.setNextFocusableComponent(jSpinner1000Mhz);
+        jSpinner100Mhz.setNextFocusableComponent(jSpinner1000Mhz.getEditor());
         jSpinner100Mhz.setRequestFocusEnabled(false);
         jSpinner100Mhz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -512,12 +629,12 @@ final public class VfoPrototype extends javax.swing.JFrame {
         });
 
         jSpinner1000Mhz.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
-        jSpinner1000Mhz.setModel(new CyclingSpinnerNumberModel(0,0,9,1));
+        jSpinner1000Mhz.setModel(jSpinner1000Mhz.getModel());
         jSpinner1000Mhz.setToolTipText("1000 Megahertz digit");
         jSpinner1000Mhz.setAutoscrolls(true);
-        jSpinner1000Mhz.setEditor(new javax.swing.JSpinner.NumberEditor(jSpinner1000Mhz, ""));
+        jSpinner1000Mhz.setEditor(jSpinner1000Mhz.getEditor());
         jSpinner1000Mhz.setName("1000 Megahertz digit"); // NOI18N
-        jSpinner1000Mhz.setNextFocusableComponent(jInternalFrame1);
+        jSpinner1000Mhz.setNextFocusableComponent(jSpinner1Hertz.getEditor());
         jSpinner1000Mhz.setRequestFocusEnabled(false);
         jSpinner1000Mhz.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -555,14 +672,18 @@ final public class VfoPrototype extends javax.swing.JFrame {
             .addComponent(jSpinner10Mhz, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
-        jSpinner1Mhz.getAccessibleContext().setAccessibleName("1 Mhz VFO digit");
-        jSpinner1Mhz.getAccessibleContext().setAccessibleDescription("Change VFO by 1 Megahertz step");
-        jSpinner10Mhz.getAccessibleContext().setAccessibleName("10 Mhz VFO digit ");
-        jSpinner10Mhz.getAccessibleContext().setAccessibleDescription("Change VFO by 10 Megahertz step");
-        jSpinner100Mhz.getAccessibleContext().setAccessibleName("100 Mhz VFO digit");
-        jSpinner100Mhz.getAccessibleContext().setAccessibleDescription("Change VFO by 100 Megahertz steps");
-        jSpinner1000Mhz.getAccessibleContext().setAccessibleName("1000 MHZ VFO digit");
-        jSpinner1000Mhz.getAccessibleContext().setAccessibleDescription("Change VFO by 1000 Megahertz step");
+        jSpinner1Mhz.getAccessibleContext().setAccessibleName("");
+        jSpinner1Mhz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner1Mhz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
+        jSpinner10Mhz.getAccessibleContext().setAccessibleName("");
+        jSpinner10Mhz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner10Mhz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
+        jSpinner100Mhz.getAccessibleContext().setAccessibleName("");
+        jSpinner100Mhz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner100Mhz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
+        jSpinner1000Mhz.getAccessibleContext().setAccessibleName("");
+        jSpinner1000Mhz.getAccessibleContext().setAccessibleDescription("");
+        jSpinner1000Mhz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
 
         javax.swing.GroupLayout vfoDisplayPanelLayout = new javax.swing.GroupLayout(vfoDisplayPanel);
         vfoDisplayPanel.setLayout(vfoDisplayPanelLayout);
@@ -580,33 +701,32 @@ final public class VfoPrototype extends javax.swing.JFrame {
         vfoDisplayPanelLayout.setVerticalGroup(
             vfoDisplayPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLayeredPaneMegahertz)
-            .addGroup(vfoDisplayPanelLayout.createSequentialGroup()
-                .addComponent(jLayeredPaneHertz)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jLayeredPaneHertz)
             .addComponent(jLayeredPaneKilohertz)
         );
 
         jLayeredPaneHertz.getAccessibleContext().setAccessibleName("Hertz VFO panel");
+        jLayeredPaneHertz.getAccessibleContext().setAccessibleParent(VfoControlFrame);
 
-        javax.swing.GroupLayout jInternalFrame1Layout = new javax.swing.GroupLayout(jInternalFrame1.getContentPane());
-        jInternalFrame1.getContentPane().setLayout(jInternalFrame1Layout);
-        jInternalFrame1Layout.setHorizontalGroup(
-            jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout VfoControlFrameLayout = new javax.swing.GroupLayout(VfoControlFrame.getContentPane());
+        VfoControlFrame.getContentPane().setLayout(VfoControlFrameLayout);
+        VfoControlFrameLayout.setHorizontalGroup(
+            VfoControlFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
-            .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jInternalFrame1Layout.createSequentialGroup()
+            .addGroup(VfoControlFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(VfoControlFrameLayout.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(vfoDisplayPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
-        jInternalFrame1Layout.setVerticalGroup(
-            jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 135, Short.MAX_VALUE)
-            .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jInternalFrame1Layout.createSequentialGroup()
+        VfoControlFrameLayout.setVerticalGroup(
+            VfoControlFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 134, Short.MAX_VALUE)
+            .addGroup(VfoControlFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(VfoControlFrameLayout.createSequentialGroup()
                     .addGap(7, 7, 7)
                     .addComponent(vfoDisplayPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(7, Short.MAX_VALUE)))
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         vfoDisplayPanel.getAccessibleContext().setAccessibleName("");
@@ -618,21 +738,21 @@ final public class VfoPrototype extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jInternalFrame1)
-                    .addComponent(jInternalFrame2))
+                    .addComponent(VfoControlFrame)
+                    .addComponent(TestingInfoFrame))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(33, 33, 33)
-                .addComponent(jInternalFrame2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(TestingInfoFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jInternalFrame1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(VfoControlFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jInternalFrame2.getAccessibleContext().setAccessibleName("Debug Information");
+        TestingInfoFrame.getAccessibleContext().setAccessibleName("Debug Information");
 
         getAccessibleContext().setAccessibleName("VFO Display prototype App");
         getAccessibleContext().setAccessibleDescription("Each VFO digit is a spinner responding to up down arrows.");
@@ -721,22 +841,24 @@ final public class VfoPrototype extends javax.swing.JFrame {
             public void run() {
                 
                 VfoPrototype frame = new VfoPrototype();
-                frame.jSpinner1Hertz.requestFocusInWindow();
+                frame.setUpVfoComponents();
+                // Give the spinner ftf focus upon opening window.
+                frame.jSpinner1Hertz.getEditor().getComponent(0).requestFocusInWindow();
                 frame.setVisible(true);
             }
         });
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public javax.swing.JInternalFrame TestingInfoFrame;
     public javax.swing.JRadioButton VfoA;
+    public javax.swing.JInternalFrame VfoAFrame;
     public javax.swing.JRadioButton VfoB;
+    public javax.swing.JInternalFrame VfoBFrame;
+    public javax.swing.JInternalFrame VfoControlFrame;
     public javax.swing.ButtonGroup VfoSelection;
     public javax.swing.JTextField frequencyVfoA;
     public javax.swing.JTextField frequencyVfoB;
-    public javax.swing.JInternalFrame jInternalFrame1;
-    public javax.swing.JInternalFrame jInternalFrame2;
-    public javax.swing.JInternalFrame jInternalFrame3;
-    public javax.swing.JInternalFrame jInternalFrame4;
     public javax.swing.JLabel jLabel1;
     public javax.swing.JLabel jLabel2;
     public javax.swing.JLayeredPane jLayeredPaneHertz;
