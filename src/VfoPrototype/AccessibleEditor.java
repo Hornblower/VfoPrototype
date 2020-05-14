@@ -1,5 +1,6 @@
 package VfoPrototype;
 
+import static VfoPrototype.VfoPrototype.singletonInstance;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -8,15 +9,18 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.ParseException;
+import java.util.Vector;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JSpinner.NumberEditor;
+import javax.swing.SpinnerModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.FontUIResource;
@@ -30,7 +34,8 @@ import javax.swing.text.MaskFormatter;
  */
 
 /**
- *
+ * Implements a replacement of the JSpinner.DefaultEditor which is protected.
+ * *
  * @author Coz
  * 
  * Copied this code from JSpinner.
@@ -40,13 +45,13 @@ import javax.swing.text.MaskFormatter;
  */
 
 public class AccessibleEditor extends JPanel
-    implements ChangeListener, PropertyChangeListener, LayoutManager
+    implements ChangeListener, PropertyChangeListener, LayoutManager, FocusListener
 {
      private final Action INCREMENT_ACTION = new IncrementAction();
      private final Action DECREMENT_ACTION = new DecrementAction();
      private static final String INCREMENT = "increment";
      private static final String DECREMENT = "decrement";
-     protected JSpinner mySpinner;
+     protected DecadeSpinner mySpinner;
      
      /**
      * Constructs an editor component for the specified <code>JSpinner</code>.
@@ -60,26 +65,19 @@ public class AccessibleEditor extends JPanel
      * @see #getTextField
      * @see JSpinner#addChangeListener
      */
-    public AccessibleEditor(JSpinner spinner) {
+    public AccessibleEditor(DecadeSpinner spinner) {
         super(null);
         mySpinner = spinner;
-
         System.out.println("JSpinner ToolTipText :" + mySpinner.getToolTipText()) ;
-        // mySpinner.setToolTipText("Lou, this is the new spinner tool tip text.  Use the force!");
+        // Create a one digit wide field.
         JFormattedTextField ftf = new JFormattedTextField(createFormatter("#"));
         ftf.setName("Spinner.formattedTextField");
-        Font f = new Font(spinner.getFont().getName(), spinner.getFont().getStyle(), 
-                spinner.getFont().getSize() + 4);
-        
-        ftf.setFont(f);
+        ftf.setFont( new Font("Lucida Grande", Font.PLAIN, 36));
         ftf.setForeground(Color.GREEN);
-        NumberEditor numEd = (NumberEditor)mySpinner.getEditor();
-        numEd.getTextField().setBackground(Color.BLACK); 
-
-        
         System.out.println("ftf background color is " + ftf.getBackground().toString());
         ftf.setValue(spinner.getValue());
         ftf.addPropertyChangeListener(this);
+        ftf.addFocusListener(this);
         ftf.setEditable(true); // VoiceOver expects that editor is editable.
         ftf.setInheritsPopupMenu(false);
         // When just the ftf has focus, you CAN use up and down arrows etc as below.
@@ -87,26 +85,25 @@ public class AccessibleEditor extends JPanel
         if (toolTipText != null) {
             ftf.setToolTipText(toolTipText);
         }
-
-        add(ftf);
-
-        setLayout(this);
-        
+        this.add(ftf,0);
+        System.out.println("Added editor component 0 : "+ this.getComponent(0).getName());
+        setLayout(this);       
         System.out.println("ftf after setLayout background color is " + ftf.getBackground().toString());
         spinner.addChangeListener(this);
-
         // We want the spinner's increment/decrement actions to be
         // active and also those of the JFormattedTextField. 
         ActionMap ftfMap = ftf.getActionMap();
-
         if (ftfMap != null) {
             ftfMap.put(INCREMENT, INCREMENT_ACTION);
             ftfMap.put(DECREMENT, DECREMENT_ACTION);
-
         }
     }
 
-
+    /**
+     * Make the Formatter based on the given string s.
+     * @param s
+     * @return MaskFormater
+     */
     protected MaskFormatter createFormatter(String s) {
         MaskFormatter formatter = null;
         try {
@@ -126,7 +123,7 @@ public class AccessibleEditor extends JPanel
      * @param spinner the <code>JSpinner</code> to disconnect this
      *    editor from; the same spinner as was passed to the constructor.
      */
-    public void dismiss(JSpinner spinner) {
+    public void dismiss(DecadeSpinner spinner) {
         spinner.removeChangeListener(this);
     }
 
@@ -145,15 +142,15 @@ public class AccessibleEditor extends JPanel
      *
      * @see JSpinner#createEditor
      */
-    public JSpinner getSpinner() {
+
+    public DecadeSpinner getSpinner() {
         for (Component c = this; c != null; c = c.getParent()) {
-            if (c instanceof JSpinner) {
-                return (JSpinner)c;
+            if (c instanceof DecadeSpinner) {
+                return (DecadeSpinner)c;
             }
         }
         return null;
     }
-
 
     /**
      * Returns the <code>JFormattedTextField</code> child of this
@@ -163,12 +160,11 @@ public class AccessibleEditor extends JPanel
      * @return the <code>JFormattedTextField</code> that gives the user
      *     access to the <code>SpinnerDateModel's</code> value.
      * @see #getSpinner
-     * @see #getModel
+     * 
      */
     public JFormattedTextField getTextField() {
         return (JFormattedTextField)getComponent(0);
     }
-
 
     /**
      * This method is called when the spinner's model's state changes.
@@ -184,7 +180,6 @@ public class AccessibleEditor extends JPanel
         JSpinner spinner = (JSpinner)(e.getSource());
         getTextField().setValue(spinner.getValue());
     }
-
 
     /**
      * Called by the <code>JFormattedTextField</code>
@@ -203,7 +198,7 @@ public class AccessibleEditor extends JPanel
      */
     public void propertyChange(PropertyChangeEvent e)
     {
-        JSpinner spinner = getSpinner();
+        DecadeSpinner spinner = (DecadeSpinner) getSpinner();
 
         if (spinner == null) {
             // Indicates we aren't installed anywhere.
@@ -376,6 +371,42 @@ public class AccessibleEditor extends JPanel
      */
     public Component.BaselineResizeBehavior getBaselineResizeBehavior() {
         return getComponent(0).getBaselineResizeBehavior();
+    }
+
+    /**
+     * Handle focusGained on the FormatedTextField in the spinner Editor
+     * so that the description contains the current VFO frequency and the
+     * decade description string.
+     * 
+     * @param e 
+     */
+    @Override
+    public void focusGained(FocusEvent e) {
+        Component comp = e.getComponent();
+        JFormattedTextField field = (JFormattedTextField)comp;
+        // Need the decade of this field.
+        Container parent = field.getParent();
+        AccessibleEditor editor = (AccessibleEditor) parent;    
+        DecadeSpinner decadeSpinner = editor.mySpinner;
+        SpinnerModel model = decadeSpinner.getModel();
+        DecadeSpinnerModel decadeModel = (DecadeSpinnerModel)model;
+        int decade = decadeModel.getDecade();
+        
+        // Change the field description so voiceOver will announce it.
+        // Apparently, voiceOver will announce accessible info that has changed.
+        VfoDisplayControl panel = (VfoDisplayControl) singletonInstance.vfoDisplayPanel;
+        long freq = panel.digitsToFrequency();
+        StringBuilder freqString = new StringBuilder("");
+        freqString.append( "VFO Frequency "+Double.toString(((double)freq)/1000000.)+" Mhz, ");
+        freqString.append( DecadeSpinner.getSpinnerName(decade)+ " textField");
+        field.getAccessibleContext().setAccessibleName(DecadeSpinner.getSpinnerName(decade)+" textField");
+        field.getAccessibleContext().setAccessibleDescription(freqString.toString());
+        System.out.println("focusGained handler: Description updated to :" + freqString.toString());
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {
+        // Do nothing.
     }
     
     
