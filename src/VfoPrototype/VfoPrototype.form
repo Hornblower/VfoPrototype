@@ -64,7 +64,7 @@
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jLabel1" pref="293" max="32767" attributes="0"/>
+                          <Component id="jLabel1" max="32767" attributes="0"/>
                           <Component id="frequencyVfoA" max="32767" attributes="0"/>
                           <Component id="VfoA" min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -171,9 +171,6 @@
           </Properties>
           <AccessibilityProperties>
             <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Hertz VFO panel"/>
-            <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-              <ComponentRef name="default"/>
-            </Property>
           </AccessibilityProperties>
 
           <Layout>
@@ -222,9 +219,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner1HertzStateChanged"/>
@@ -253,9 +247,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner10HertzStateChanged"/>
@@ -284,9 +275,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner100HertzStateChanged"/>
@@ -352,9 +340,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner1khzStateChanged"/>
@@ -385,9 +370,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner10khzStateChanged"/>
@@ -418,9 +400,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner100khzStateChanged"/>
@@ -497,9 +476,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner1MhzStateChanged"/>
@@ -530,9 +506,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner10MhzStateChanged"/>
@@ -564,9 +537,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner100MhzStateChanged"/>
@@ -598,9 +568,6 @@
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
                 <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
-                <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
               </AccessibilityProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinner1000MhzStateChanged"/>
@@ -619,13 +586,9 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="VfoSelection"/>
         </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="Connect VFO Control to  radio VFO A "/>
-        <Property name="toolTipText" type="java.lang.String" value="copies VFO A to control digits"/>
-        <Property name="actionCommand" type="java.lang.String" value="Connect VFO Control to  radio VFO A "/>
-        <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="VfoB"/>
-        </Property>
+        <Property name="mnemonic" type="int" value="65"/>
+        <Property name="text" type="java.lang.String" value="VFO A is controlled by VFO Display Control"/>
+        <Property name="toolTipText" type="java.lang.String" value="copies radio VFO A to control digits"/>
         <Property name="requestFocusEnabled" type="boolean" value="false"/>
       </Properties>
       <AccessibilityProperties>
@@ -640,12 +603,11 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="VfoSelection"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Connect VFO Control to radio VFO B "/>
-        <Property name="toolTipText" type="java.lang.String" value="copies VFO B to control digits"/>
+        <Property name="mnemonic" type="int" value="66"/>
+        <Property name="text" type="java.lang.String" value="VFO B is controlled by VFO Display Control"/>
+        <Property name="toolTipText" type="java.lang.String" value="copies radio VFO B to control digits"/>
         <Property name="actionCommand" type="java.lang.String" value="Connect VFO Control to radio VFO B "/>
-        <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="frequencyVfoB"/>
-        </Property>
+        <Property name="requestFocusEnabled" type="boolean" value="false"/>
       </Properties>
       <AccessibilityProperties>
         <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Get VFO B frequency from radio and adjust"/>
@@ -664,8 +626,8 @@
         <Property name="text" type="java.lang.String" value="5446200000"/>
         <Property name="toolTipText" type="java.lang.String" value="VFO A Frequency Mhz"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder/>
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
           </Border>
         </Property>
         <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
@@ -693,12 +655,9 @@
         <Property name="text" type="java.lang.String" value="1296100000"/>
         <Property name="toolTipText" type="java.lang.String" value="VFO B Frequency Mhz"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder/>
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
           </Border>
-        </Property>
-        <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="default"/>
         </Property>
       </Properties>
       <AccessibilityProperties>

@@ -26,24 +26,19 @@ import java.awt.ContainerOrderFocusTraversalPolicy;
 import java.awt.DefaultFocusTraversalPolicy;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JPanel;
-import java.text.DecimalFormat;
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleValue;
 import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.InputMap;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerModel;
 
@@ -55,11 +50,14 @@ import javax.swing.SpinnerModel;
  * @author Coz
  */
 final public class VfoPrototype extends javax.swing.JFrame {
+    public static String version = "Version 1.0.0";
+    public boolean silentChange = true;  //Inhibits the change listener loop.
     static public VfoPrototype singletonInstance;
-    static public JPanel  displayPanel;
+    static boolean wasVfoA = true;
     static boolean chooseVfoA = true;
     static boolean chooseVfoB = false;
-    
+    VfoDisplayControl panel;
+    public VfoSelectStateMachine vfoState;
     
     long freqVfoA = 3563000;   // MSN 
     long freqVfoB = 145330000; // Shawsville Repeater
@@ -77,12 +75,16 @@ final public class VfoPrototype extends javax.swing.JFrame {
     }
     
     public void setUpVfoComponents() {
+        singletonInstance.setTitle("VFO Prototype Display Control "+version);
         // Must instantiate components before initialization of VfoDisplayControl.
-        VfoDisplayControl panel = (VfoDisplayControl) vfoDisplayPanel;
+        panel = (VfoDisplayControl) vfoDisplayPanel;
         panel.initDigits();
-        panel.frequencyToDigits(freqVfoA); // Vfo A is default.
-        sendFreqToRadioVfoB(freqVfoB); // It looks more normal to have a value already.
-
+        panel.frequencyToDigits(freqVfoA); // Vfo A is arbitrary default.
+        vfoState = new VfoSelectStateMachine(VfoSelection);
+        vfoState.setVfoASelected(); // Vfo A is arbitrary default, later will persist.
+        vfoState.writeFrequencyToRadioVfoA(freqVfoA);
+        vfoState.writeFrequencyToRadioVfoB(freqVfoB);
+        
         //Make jSpinner1Hertz textField get the focus whenever frame is activated.
         JSpinner spinner = (JSpinner)jSpinner1Hertz;
         JFormattedTextField textField;
@@ -111,13 +113,13 @@ final public class VfoPrototype extends javax.swing.JFrame {
         singletonInstance.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
         Set set = new HashSet( getFocusTraversalKeys(
             KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
-        set.add( KeyStroke.getKeyStroke( "LEFT" ) );
+        set.add( KeyStroke.getKeyStroke( "RIGHT" ) );
         singletonInstance.setFocusTraversalKeys(
             KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set );
 
         set = new HashSet( getFocusTraversalKeys(
             KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
-        set.add( KeyStroke.getKeyStroke( "RIGHT" ) );
+        set.add( KeyStroke.getKeyStroke( "LEFT" ) );
         singletonInstance.setFocusTraversalKeys(
             KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, set );
         singletonInstance.setFocusTraversalKeysEnabled(true);
@@ -155,65 +157,79 @@ final public class VfoPrototype extends javax.swing.JFrame {
          //requestFocusInWindow(boolean temporary)
         assert( singletonInstance.getFocusTraversalPolicy() != null);
         assert( singletonInstance.isFocusCycleRoot());
-        singletonInstance.setEnabled(true);       
+        singletonInstance.setEnabled(true);
+        
+        if (false) {  // This code does not work.  Why?
+        
+            // Register shortcut keys for radio buttons with JFrame.rootPane
+            KeyStroke strokeA = KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.ALT_MASK);
+            rootPane.registerKeyboardAction( new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        vfoState.setVfoASelected();
+                        loadRadioFrequencyToVfo(chooseVfoA);
+                    }
+                }, strokeA, JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+            KeyStroke strokeB = KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.ALT_MASK);
+            rootPane.registerKeyboardAction( new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        vfoState.setVfoBSelected();
+                        loadRadioFrequencyToVfo(chooseVfoB);
+                    }
+                }, strokeB, JComponent.WHEN_IN_FOCUSED_WINDOW);   
+        }
+        silentChange = false;
+        
     }
     
     
-    /*
-     * @Return true when frequency successfully communicated to radio.
-    */
-    public boolean sendFreqToRadio(long frequencyHertz) {
-        // Simulate sending freq value to Radio for testing.
-        // Update the radio frequency display.
-        // Announce the frequency in Megahertz.
-        double mhz = (double) frequencyHertz;
-        mhz = mhz / 1000000.0;
-        DecimalFormat decimalFormat = new DecimalFormat("#.000000");
-        String numberAsString = decimalFormat.format(mhz);
-        if (singletonInstance.VfoA.isSelected())
-            singletonInstance.frequencyVfoA.setText(numberAsString);
-        else
-            singletonInstance.frequencyVfoB.setText(numberAsString);
-        return true;
-    }
-    
-    private boolean sendFreqToRadioVfoB(long frequencyHertz) {
-        // Simulate sending freq value to Radio for testing.
-        // Update the radio frequency display.
-        // Announce the frequency in Megahertz.
-        double mhz = (double) frequencyHertz;
-        mhz = mhz / 1000000.0;
-        DecimalFormat decimalFormat = new DecimalFormat("#.000000");
-        String numberAsString = decimalFormat.format(mhz);
-        singletonInstance.frequencyVfoB.setText(numberAsString);
-        return true;
-    }
-   
+    /**
+     * Method called when the vfo radio button changes the VFO selection with
+     * the requirement to update the VFO display control with the
+     * frequency read from the radio VFO.
+     * 
+     * Need to turn off the VFO change handler while this
+     * update takes place.
+     * 
+     * @param isVfoA
+     * @return 
+     */
     public boolean loadRadioFrequencyToVfo(boolean isVfoA) {
+        silentChange = true;
+        
         boolean success = true;
         long freqHertz;
         String valString;
-        //Simlate read freq from Radio.
-        if ( isVfoA ) {
+        // Change radio button state.
+        // Simlate read freq from Radio.
+        if ( isVfoA && !wasVfoA) {
+            // Only take action when Vfo selection has changed.
             // Read frequency from Radio VFO A.
-            valString = singletonInstance.frequencyVfoA.getText();
-        } else {
+            freqHertz = vfoState.getVfoAFrequency();
+            VfoDisplayControl panel = (VfoDisplayControl) vfoDisplayPanel;
+            panel.frequencyToDigits(freqHertz);
+            wasVfoA = true;
+        } else if (!isVfoA && wasVfoA) {
+            // Only take action when Vfo selection has changed.
             // Read frequencyl from Radio VFO B.
-            valString = singletonInstance.frequencyVfoB.getText();
+            freqHertz = vfoState.getVfoBFrequency();
+            VfoDisplayControl panel = (VfoDisplayControl) vfoDisplayPanel;
+            panel.frequencyToDigits(freqHertz);
+            wasVfoA = false;
         }
-        double freqMhz = Double.valueOf(valString);
-        freqHertz = (long) (freqMhz * 1.E06) ;
-        VfoDisplayControl panel = (VfoDisplayControl) vfoDisplayPanel;
-        panel.frequencyToDigits(freqHertz);
+        
+        silentChange = false;
+        
         return success;
     }
     
     private void handleChangeEvent(javax.swing.event.ChangeEvent evt) {
+        if (silentChange) return;
         DecadeSpinner source = (DecadeSpinner)evt.getSource();
         Component ftf = source.getEditor().getComponent(0);
         ftf.setForeground(Color.GREEN);
-        ftf.setBackground(Color.BLACK); // Does nothing?
-         System.out.println("ftf at changeEvent background color is " + ftf.getBackground().toString());
+        // ftf.setBackground(Color.BLACK); // Does nothing?
+        // System.out.println("ftf at changeEvent background color is " + ftf.getBackground().toString());
         int value = (int) source.getModel().getValue();
         AccessibleContext context = source.getAccessibleContext();
         AccessibleValue accVal =  context.getAccessibleValue();
@@ -236,6 +252,11 @@ final public class VfoPrototype extends javax.swing.JFrame {
         // Change the field description so voiceOver will announce it.
         VfoDisplayControl panel = (VfoDisplayControl) singletonInstance.vfoDisplayPanel;
         long freq = panel.digitsToFrequency();
+        if( vfoState == null) {
+            // We are in the contruction process. Too early.
+            return;
+        }
+        vfoState.writeFrequencyToRadioSelectedVfo(freq);
         System.out.println("handleChangeEvent - model value: "+ String.valueOf(value));
         System.out.println("handleChangeEvent - currentAccessibleValue: "+ currentVal.toString());
      
@@ -253,9 +274,7 @@ final public class VfoPrototype extends javax.swing.JFrame {
         String ftfName = ftf.getAccessibleContext().getAccessibleName();
         System.out.println("ftf accessible name :"+ftfName);
         String ftfDesc = ftf.getAccessibleContext().getAccessibleDescription();
-        System.out.println("ftf accessible description :"+ftfDesc);    
-        
-         //JOptionPane.showMessageDialog(null,freqString );     
+        System.out.println("ftf accessible description :"+ftfDesc);       
     }
 
  
@@ -574,11 +593,9 @@ final public class VfoPrototype extends javax.swing.JFrame {
         jLayeredPaneHertz.getAccessibleContext().setAccessibleName("Hertz VFO panel");
 
         VfoSelection.add(VfoA);
-        VfoA.setSelected(true);
-        VfoA.setText("Connect VFO Control to  radio VFO A ");
-        VfoA.setToolTipText("copies VFO A to control digits");
-        VfoA.setActionCommand("Connect VFO Control to  radio VFO A ");
-        VfoA.setNextFocusableComponent(VfoB);
+        VfoA.setMnemonic('A');
+        VfoA.setText("VFO A is controlled by VFO Display Control");
+        VfoA.setToolTipText("copies radio VFO A to control digits");
         VfoA.setRequestFocusEnabled(false);
         VfoA.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -587,10 +604,11 @@ final public class VfoPrototype extends javax.swing.JFrame {
         });
 
         VfoSelection.add(VfoB);
-        VfoB.setText("Connect VFO Control to radio VFO B ");
-        VfoB.setToolTipText("copies VFO B to control digits");
+        VfoB.setMnemonic('B');
+        VfoB.setText("VFO B is controlled by VFO Display Control");
+        VfoB.setToolTipText("copies radio VFO B to control digits");
         VfoB.setActionCommand("Connect VFO Control to radio VFO B ");
-        VfoB.setNextFocusableComponent(frequencyVfoB);
+        VfoB.setRequestFocusEnabled(false);
         VfoB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 VfoBActionPerformed(evt);
@@ -602,7 +620,7 @@ final public class VfoPrototype extends javax.swing.JFrame {
         frequencyVfoA.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         frequencyVfoA.setText("5446200000");
         frequencyVfoA.setToolTipText("VFO A Frequency Mhz");
-        frequencyVfoA.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        frequencyVfoA.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         frequencyVfoA.setNextFocusableComponent(VfoA);
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -613,7 +631,7 @@ final public class VfoPrototype extends javax.swing.JFrame {
         frequencyVfoB.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         frequencyVfoB.setText("1296100000");
         frequencyVfoB.setToolTipText("VFO B Frequency Mhz");
-        frequencyVfoB.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        frequencyVfoB.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel2.setText("Radio VFO B, readOnly current frequency Mhz");
 
@@ -629,7 +647,7 @@ final public class VfoPrototype extends javax.swing.JFrame {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(frequencyVfoA)
                             .addComponent(VfoA))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
