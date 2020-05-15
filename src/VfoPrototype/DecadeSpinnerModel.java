@@ -8,8 +8,6 @@ package VfoPrototype;
 import javax.swing.SpinnerNumberModel;
 
 /**
- * See DecadeSpinnerModel and DecadeSpinner for current implementation.
- * DEPRECATED: 
  * Implements a one digit wrap around spinner with recursive
  * carry to higher decades.  
  * Subclasses SpinnerNumberModel.
@@ -19,29 +17,30 @@ import javax.swing.SpinnerNumberModel;
  * 
  * @author Coz
  */
-final public class CyclingSpinnerNumberModel extends SpinnerNumberModel {
-    protected CyclingSpinnerNumberModel linkedModel = null;
+final public class DecadeSpinnerModel extends SpinnerNumberModel {
+    protected DecadeSpinnerModel linkedModel = null;
+    private int decade;   
     
-    static public void linkModels(CyclingSpinnerNumberModel lowModel, CyclingSpinnerNumberModel highModel) {  
-        lowModel.setLinkedModel(highModel);
-    }
-    private int decade;
-    public CyclingSpinnerNumberModel (int currentVal, int minVal, int maxVal, int stepVal) {
-        super(currentVal, minVal, maxVal, stepVal);        
+    public DecadeSpinnerModel() {
+        super(0,0,9,1);
+        decade = 0;  // Default to zero decade.
     }
     
-    private void setLinkedModel(CyclingSpinnerNumberModel aLinkedModel) {
+    public DecadeSpinnerModel(int aPowerOfTen) {
+        super(0,0,9,1);
+        decade = aPowerOfTen;
+    }
+
+    public void setLinkedModel(DecadeSpinnerModel aLinkedModel) {
         linkedModel = aLinkedModel; 
     }
-    
-    
+        
     protected void setDecade(int n) {
         decade = n;
     }
     protected int getDecade() {
         return decade;
-    }
-    
+    }    
     /*
      * Implement digit wrap around and decade recursive increment.
     */
@@ -58,11 +57,13 @@ final public class CyclingSpinnerNumberModel extends SpinnerNumberModel {
                 // @todo limit recursion
                 linkedModel.setValue(linkedModelValue);
             } else {
-                // @TODO Coz , debug this. It does not work right.
+                // The VfoDisplayPanel needs to know that the limit has been reached.
+                fireStateChanged();
+                // @TODO Coz , fix this.
                 // Highest decade is maxed out.
                 // End the recursion.  Set the max. freq.
-                VfoDisplayPanel panel = ( VfoDisplayPanel) VfoPrototype.singletonInstance.displayPanel;  
-                panel.frequencyToDigits(9999999999L);
+                //VfoDisplayPanel panel = ( VfoDisplayPanel) VfoPrototype.singletonInstance.displayPanel;  
+                //panel.frequencyToDigits(9999999999L);
             }
         }
         return obj;
@@ -79,14 +80,15 @@ final public class CyclingSpinnerNumberModel extends SpinnerNumberModel {
             if(linkedModel != null) {
                 linkedModel.setValue(linkedModel.getPreviousValue());
             } else {
-                // Coz, debug this.  It does not work right.
+                 // The VfoDisplayPanel needs to know that the limit has been reached.
+                fireStateChanged();
+                // @todo Coz, fix this.  It does not work right.
                 // we got to the highest decade, but the VFO frequency
                 // should NOT wrap around. Set it to zero.
-                VfoDisplayPanel panel = ( VfoDisplayPanel) VfoPrototype.singletonInstance.displayPanel;  
-                panel.frequencyToDigits(0L);
+                //VfoDisplayPanel panel = ( VfoDisplayPanel) VfoPrototype.singletonInstance.displayPanel;  
+                //panel.frequencyToDigits(0L);
             }
-        }
-       
+        }  
         return obj;       
     }    
 }

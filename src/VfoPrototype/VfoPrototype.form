@@ -325,7 +325,7 @@
     <Container class="javax.swing.JInternalFrame" name="VfoControlFrame">
       <Properties>
         <Property name="title" type="java.lang.String" value="VFO Control Prototype"/>
-        <Property name="toolTipText" type="java.lang.String" value="Use arrow keys to change value or traverse digits"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enter group with RIGHT ARROW KEY"/>
         <Property name="focusTraversalPolicy" type="java.awt.FocusTraversalPolicy" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection component="VfoControlFrame" name="focusTraversalPolicy" type="property"/>
         </Property>

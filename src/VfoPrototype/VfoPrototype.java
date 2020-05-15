@@ -22,6 +22,8 @@ package VfoPrototype;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.ContainerOrderFocusTraversalPolicy;
+import java.awt.DefaultFocusTraversalPolicy;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JPanel;
@@ -32,9 +34,16 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
 import javax.swing.UIManager;
 import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerModel;
 
@@ -89,15 +98,14 @@ final public class VfoPrototype extends javax.swing.JFrame {
 
         // @todo Coz, make VFO panel extend JInternalFrame instead.
         // Make sure that the VfoControlFrame is focus manager.
+        // It appears that voiceOver StepInto is ignoring focus manager.
         VfoControlFrame.setFocusCycleRoot(true);
-
         VfoDigitTraversalPolicy policy; 
         Vector<Component> order = panel.getTraversalOrder();
         policy = new VfoDigitTraversalPolicy(order);
         VfoControlFrame.setFocusTraversalPolicy(policy);
         VfoControlFrame.setFocusTraversalPolicyProvider(true);
         VfoControlFrame.setFocusable(true);
-
         VfoControlFrame.setVisible(true);
         // Add focus traverse keys left and right arrow.
         // In this case, FORWARD is to the left.
@@ -119,7 +127,66 @@ final public class VfoPrototype extends javax.swing.JFrame {
         if (!VfoControlFrame.areFocusTraversalKeysSet(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS) ) {
              System.out.println("Coz, why aren't the FORWARD_TRAVERSAL_KEYS set?");
         }
-
+        // The JFrame is the root of all the traversal.  Add up and down to it.
+        // Add the focus traversal keys for up cycle and down cycle.
+        // Use Option UpArrow for up cycle and Option DownArrow for down cycle.
+        // I guess that ALT and OPT are the same thing....
+        singletonInstance.setFocusTraversalKeys(
+                KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, null);
+        singletonInstance.setFocusTraversalKeys(
+                KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS, null);
+        set = new HashSet( getFocusTraversalKeys(
+            KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS ) );
+        set.add( KeyStroke.getKeyStroke( KeyEvent.VK_UP, InputEvent.ALT_MASK) );
+        singletonInstance.setFocusTraversalKeys(
+                 KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, set);
+        
+        set = new HashSet( getFocusTraversalKeys(
+            KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS ) );
+        set.add( KeyStroke.getKeyStroke( KeyEvent.VK_DOWN, InputEvent.ALT_MASK) );
+        singletonInstance.setFocusTraversalKeys(
+                 KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS, set);
+        
+        
+        // Hold onto your hats, we're takin over the reins.
+        singletonInstance.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() );
+        ContainerOrderFocusTraversalPolicy fPolicy = (ContainerOrderFocusTraversalPolicy) singletonInstance.getFocusTraversalPolicy();
+        
+        // ContainerOrderFocusTraversalPolicy fPolicy = (ContainerOrderFocusTraversalPolicy) singletonInstance.getFocusTraversalPolicy();
+        // Docs say that if you provide up/down traversal, you must do this:
+        fPolicy.setImplicitDownCycleTraversal(false);
+        
+        
+        
+        // Now set which component is to receive focus on downward focus.
+        // May have to do this in a focusGained event handler.
+        // Modify the input map to handle shift-control-option-downArrow to
+        // put focus on the ones digit ftf.  Hopefully someone does not swallow
+        // the voice over key combo first.
+        // Nothing below was able to overcome voiceOver's bad conduct.
+        // If you stop voiceOver and restart it while on a spinner, it's
+        // behavior goes back to "good boy".  As soon as you leave the VFO group
+        // its back to "bad boy" until you restart voiceOver.  WHAT?
+        //
+        InputMap inputMap = VfoControlFrame.getInputMap( JComponent.WHEN_FOCUSED);
+        //KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.ALT_MASK | InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK);
+        //KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0);
+        KeyStroke stroke = KeyStroke.getKeyStroke("F2");
+        if (stroke != null) {
+            inputMap.put(stroke,"OnesDigitTftFocus");
+            Component onesFtf = panel.getTraversalOrder().get(0);
+            Action focusFieldAction = new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    onesFtf.requestFocusInWindow();
+                    System.out.print(e);
+                    System.out.println(" Executed focusFieldAction");
+               }
+            };
+            VfoControlFrame.getActionMap().put("OnesDigitTftFocus",focusFieldAction);
+        }
+        
+        
+        //requestFocusInWindow(boolean temporary)
         assert( VfoControlFrame.getFocusTraversalPolicy() != null);
         assert( VfoControlFrame.isFocusCycleRoot());
         VfoControlFrame.setEnabled(true);       
@@ -413,7 +480,7 @@ final public class VfoPrototype extends javax.swing.JFrame {
         );
 
         VfoControlFrame.setTitle("VFO Control Prototype");
-        VfoControlFrame.setToolTipText("Use arrow keys to change value or traverse digits");
+        VfoControlFrame.setToolTipText("Enter group with RIGHT ARROW KEY");
         VfoControlFrame.setFocusTraversalPolicy(VfoControlFrame.getFocusTraversalPolicy());
         VfoControlFrame.setFocusTraversalPolicyProvider(true);
         VfoControlFrame.setNextFocusableComponent(jSpinner1Hertz.getEditor());

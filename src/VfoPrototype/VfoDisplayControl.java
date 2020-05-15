@@ -7,13 +7,12 @@ package VfoPrototype;
 
 
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.KeyboardFocusManager;
+import java.awt.Container;
+import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Vector;
 import javax.accessibility.AccessibleAction;
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleText;
@@ -22,28 +21,28 @@ import javax.accessibility.AccessibleValue;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.KeyStroke;
-import javax.swing.UIManager;
 
 
 /**
- *
+ * Implements a ten digit integer display/control where each digit can be 
+ * manipulated, wraps around and carries to the next digit appropriately.
+ * 
  * @author Coz
  */
-final public class VfoDisplayPanel extends JPanel {
+final public class VfoDisplayControl extends JPanel {
 
     protected ArrayList<DecadeSpinner> freqDigits = null;
-    final int QUANTITY_DIGITS = 10;
+    public final static int QUANTITY_DIGITS = 10;
     VfoPrototype aFrame;
     long sv_freq;
     long currentFrequency = 3563000L;
     long oldFrequency = 0;
     boolean inhibit = true;  // Ignore user interaction with FreqDigits.
+    Vector<Component> order;
     
     
 
-    public VfoDisplayPanel(VfoPrototype frame) {
+    public VfoDisplayControl(VfoPrototype frame) {
         aFrame = frame;
     }
 
@@ -80,8 +79,20 @@ final public class VfoDisplayPanel extends JPanel {
         freqDigits.get(8).linkToNextHigherDecade(freqDigits.get(9));
      
         assert(freqDigits.size() == QUANTITY_DIGITS);
+        
+        order = new Vector<Component>(QUANTITY_DIGITS);
+        for (int iii=0; iii<QUANTITY_DIGITS; iii++) {
+            // The order vector contains the spinner editor formated text fields.
+            Component ftf = freqDigits.get(iii).getEditor().getComponent(0);
+            order.add(ftf);
+        }   
         inhibit = false;
     }
+    
+    public Vector<Component> getTraversalOrder() {
+        return order;
+    }
+        
     
     public void debugSpinner(DecadeSpinner spinner) {
         
