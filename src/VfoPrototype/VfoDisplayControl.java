@@ -37,7 +37,7 @@ final public class VfoDisplayControl extends JPanel {
     long sv_freq;
     long currentFrequency = 3563000L;
     long oldFrequency = 0;
-    boolean inhibit = true;  // Ignore user interaction with FreqDigits.
+    boolean inhibit = true;  // @todo implement a Lock if necessary.
     Vector<Component> order;
     
     
@@ -136,7 +136,14 @@ final public class VfoDisplayControl extends JPanel {
     public void initFrequency(long v) {
         frequencyToDigits(v);
     }
-
+    
+    
+    /**
+     * Given a long representation of a frequency in hertz, set the spinner
+     * digits to display that frequency.
+     * 
+     * @param v 
+     */
     public void frequencyToDigits(long v) {
         if(inhibit) return;
         sv_freq = v;
@@ -149,16 +156,17 @@ final public class VfoDisplayControl extends JPanel {
             fd.setValue( (int) (modulatedValue % 10));
             modulatedValue /= 10;
         }         
-        setRadioFrequency(sv_freq);
     }
 
 
-    /*
+    /**
+    * From the currently displayed digits in the VfoDisplayControl construct a
+    * base ten representation and return it as a long.
+    * 
     * @Method digitsToFrequency
+    *
     * @Return the frequency in hertz shown by the collection of JSpinner digits.
-    * @TODO  use right ƒoption V key  to read out vfo frequency 
     */    
-    
     public long digitsToFrequency() {
         sv_freq = 0;
         if (!inhibit) {
@@ -172,42 +180,13 @@ final public class VfoDisplayControl extends JPanel {
                 sv_freq =  (long)Math.pow(10, decade) * digit + sv_freq ;
             });
         }
-        
         inhibit = false;
-        setRadioFrequency(sv_freq);
         return sv_freq;
     }
-
+}
     
 
-    /*  When there is a change in the VFO frequency, and the value is valid,
-     *  send the new frequency to the radio.
-     *  @return true when there has been a change in VFO frequency.
-    */
-    public boolean setRadioFrequency(long v) {
-        inhibit = true;
-        boolean changed = false;
-        try {
-                // Validate v is not negative.
-                if (v < 0) {
-                    v = sv_freq;
-                }
-                if (v < 0) {
-                    throw (new Exception("set frequency is negative."));
-                }
-                if (oldFrequency != v) {   
-                    sv_freq = v;
-                    aFrame.singletonInstance.sendFreqToRadio(v);
-                    oldFrequency = v;
-                    changed = true;
-                }   
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-        }
-        inhibit = false;
-        return changed;
-    }
-}
+
 // Not used..
 class VfoAction extends AbstractAction {
     public VfoAction(String text, ImageIcon icon, String desc, Integer mnemonic) {

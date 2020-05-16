@@ -68,27 +68,23 @@ public class AccessibleEditor extends JPanel
     public AccessibleEditor(DecadeSpinner spinner) {
         super(null);
         mySpinner = spinner;
-        System.out.println("JSpinner ToolTipText :" + mySpinner.getToolTipText()) ;
         // Create a one digit wide field.
         JFormattedTextField ftf = new JFormattedTextField(createFormatter("#"));
         ftf.setName("Spinner.formattedTextField");
         ftf.setFont( new Font("Lucida Grande", Font.PLAIN, 36));
         ftf.setForeground(Color.GREEN);
-        System.out.println("ftf background color is " + ftf.getBackground().toString());
         ftf.setValue(spinner.getValue());
         ftf.addPropertyChangeListener(this);
         ftf.addFocusListener(this);
         ftf.setEditable(true); // VoiceOver expects that editor is editable.
         ftf.setInheritsPopupMenu(false);
         // When just the ftf has focus, you CAN use up and down arrows etc as below.
-        String toolTipText = "Lou, you can use up and down arrows to change value. Use left and right to traverse digits. ";
+        String toolTipText = "Up and down arrows change value. Left and right arrows traverse digits.";
         if (toolTipText != null) {
             ftf.setToolTipText(toolTipText);
         }
         this.add(ftf,0);
-        System.out.println("Added editor component 0 : "+ this.getComponent(0).getName());
         setLayout(this);       
-        System.out.println("ftf after setLayout background color is " + ftf.getBackground().toString());
         spinner.addChangeListener(this);
         // We want the spinner's increment/decrement actions to be
         // active and also those of the JFormattedTextField. 
