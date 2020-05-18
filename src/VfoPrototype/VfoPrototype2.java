@@ -48,8 +48,7 @@ import javax.swing.KeyStroke;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame {
-    public static String version = "Version 1.0.0";
-    public boolean silentChange = true;  //Inhibits the change listener loop.
+    public static String version = "Version 2.0.0";
     static public VfoPrototype2 singletonInstance;
     static boolean wasVfoA = true;
     static boolean chooseVfoA = true;
@@ -176,7 +175,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
                     }
                 }, strokeB, JComponent.WHEN_IN_FOCUSED_WINDOW);   
         }
-        silentChange = false;
+
         
     }
     
@@ -192,9 +191,9 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
      * @param isVfoA
      * @return 
      */
-    public boolean loadRadioFrequencyToVfo(boolean isVfoA) {
-        silentChange = true;
-        
+    public boolean loadRadioFrequencyToVfo(boolean isVfoA) {       
+        VfoDisplayControl vfoGroup = (VfoDisplayControl) digitsParent;
+        vfoGroup.setSilent(true);
         boolean success = true;
         long freqHertz;
         String valString;
@@ -204,82 +203,21 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
             // Only take action when Vfo selection has changed.
             // Read frequency from Radio VFO A.
             freqHertz = vfoState.getVfoAFrequency();
-            VfoDisplayControl vfoGroup = (VfoDisplayControl) digitsParent;
+            
             vfoGroup.frequencyToDigits(freqHertz);
             wasVfoA = true;
         } else if (!isVfoA && wasVfoA) {
             // Only take action when Vfo selection has changed.
             // Read frequencyl from Radio VFO B.
             freqHertz = vfoState.getVfoBFrequency();
-            VfoDisplayControl panel = (VfoDisplayControl) digitsParent;
-            panel.frequencyToDigits(freqHertz);
+            vfoGroup.frequencyToDigits(freqHertz);
             wasVfoA = false;
         }
-        
-        silentChange = false;
-        
+        vfoGroup.getTraversalOrder().get(0).requestFocus();
+        vfoGroup.setSilent(false);       
         return success;
     }
     
-    private void handleChangeEvent(javax.swing.event.ChangeEvent evt) {
-        if (silentChange) return;
-        DecadeDigit source = (DecadeDigit)evt.getSource();
-        Component ftf = source;
-        // ftf.setForeground(Color.GREEN);
-        // ftf.setBackground(Color.BLACK);
-        
-        
-        // Execute commit so that text field value is set. 
-        try {
-            source.commitEdit();
-        } catch (Exception e)  {
-            System.out.println(e);
-        }
-        int value = (int) source.getModel().getValue();
-        System.out.println("ftf model value is " + String.valueOf(value));
-        AccessibleContext context = source.getAccessibleContext();
-        AccessibleValue accVal =  context.getAccessibleValue();
-        String currentValString = accVal.getCurrentAccessibleValue().toString(); 
-        System.out.println("ftf currentAccessibleValue is :" + currentValString);
-        
-        // Set model value to text field value.
-        source.getModel().setValue(Integer.getInteger(currentValString));
-   
-        // Update this ftf description with new frequency and decade name.
-        // Update the debug panel frequency. 
-          
-        DecadeModel model = source.getModel();
-        DecadeModel decadeModel = (DecadeModel)model;
-        int decade = decadeModel.getDecade();
-        // Change the field description so voiceOver will announce it.
-        VfoDisplayControl panel = (VfoDisplayControl) digitsParent;
-        long freq = panel.digitsToFrequency();
-        if( vfoState == null) {
-            // We are in the contruction process. Too early.
-            return;
-        }
-        vfoState.writeFrequencyToRadioSelectedVfo(freq);
-        System.out.println("handleChangeEvent - model value: "+ String.valueOf(value));
-        System.out.println("handleChangeEvent - currentAccessibleValue: "+ currentValString);
-     
-        // Set all the ftf accessible context since VoiceOver only announces ones digit????? 
-        Vector<Component> order = ((VfoDisplayControl) digitsParent).getTraversalOrder();
-        for ( int iii=0; iii<VfoDisplayControl.QUANTITY_DIGITS; iii++) {
-            StringBuilder freqString = new StringBuilder("");
-            freqString.append("VFO Frequency "+Double.toString(((double)freq)/1000000.)+" Mhz; ");
-            Component comp = order.get(iii);
-            JFormattedTextField ftfield = (JFormattedTextField)comp;
-            freqString.append(ftfield.getAccessibleContext().getAccessibleName());
-            ftfield.getAccessibleContext().setAccessibleDescription(freqString.toString());
-        }
-        // Print out just this field's name and description.
-        String ftfName = ftf.getAccessibleContext().getAccessibleName();
-        System.out.println("ftf accessible name :"+ftfName);
-        String ftfDesc = ftf.getAccessibleContext().getAccessibleDescription();
-        System.out.println("ftf accessible description :"+ftfDesc);       
-    }
-
- 
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -366,11 +304,10 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         digitsParent.setVisible(true);
         digitsParent.getContentPane().setLayout(new java.awt.FlowLayout());
 
-        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP));
         jLayeredPaneMegahertz.setToolTipText("");
-        jLayeredPaneMegahertz.setAlignmentX(0.0F);
         jLayeredPaneMegahertz.setOpaque(true);
-        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(270, 150));
+        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(270, 130));
         jLayeredPaneMegahertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -381,9 +318,9 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         jLayeredPaneMegahertz.setLayout(new java.awt.FlowLayout());
         digitsParent.getContentPane().add(jLayeredPaneMegahertz);
 
-        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP));
         jLayeredPaneKilohertz.setOpaque(true);
-        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(210, 150));
+        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(200, 130));
         jLayeredPaneKilohertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -394,12 +331,11 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         jLayeredPaneKilohertz.setLayout(new java.awt.FlowLayout());
         digitsParent.getContentPane().add(jLayeredPaneKilohertz);
 
-        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP));
         jLayeredPaneHertz.setToolTipText("VFO Hertz digits");
-        jLayeredPaneHertz.setAlignmentX(1.0F);
         jLayeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
         jLayeredPaneHertz.setOpaque(true);
-        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(168, 150));
+        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(168, 130));
         jLayeredPaneHertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -429,7 +365,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
                 .addGap(17, 17, 17))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(digitsParent, javax.swing.GroupLayout.DEFAULT_SIZE, 701, Short.MAX_VALUE))
+                .addComponent(digitsParent))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -446,9 +382,8 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(VfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(VfoB))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
-                .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         VfoA.getAccessibleContext().setAccessibleDescription("get VFO A frequency from radio and adjust");
