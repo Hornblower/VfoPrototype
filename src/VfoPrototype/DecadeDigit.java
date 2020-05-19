@@ -154,9 +154,11 @@ public class DecadeDigit extends JFormattedTextField
      */
     @Override
     public void setValue(Object obj) {
+        int oldValue = (Integer)getValue();
         int value = (Integer) obj;
         this.getModel().setValue(value);
         super.setValue(obj);
+        this.firePropertyChange(VALUE_CHANGE, oldValue, value );
     }
     
     /**
@@ -188,12 +190,12 @@ public class DecadeDigit extends JFormattedTextField
 
     @Override
     public void focusGained(FocusEvent e) {
-        System.out.println("DecadeDigit :"+ getName() + " received focus.");       
+        System.out.println("DecadeDigit :"+ getName() + " received focus.");
     }
 
     @Override
     public void focusLost(FocusEvent e) {
-        // Do nothing.
+        
     }
     
     @Override
@@ -208,7 +210,7 @@ public class DecadeDigit extends JFormattedTextField
             newInt = model.getNextValue();
         }
         this.setValue((Integer)newInt);
-        firePropertyChange(VALUE_CHANGE, oldInt, newInt);
+        //firePropertyChange(VALUE_CHANGE, oldInt, newInt);
     }
 
     @Override
@@ -225,7 +227,7 @@ public class DecadeDigit extends JFormattedTextField
                 newInt = model.getPreviousValue();
             }
             this.setValue((Integer)newInt);
-            firePropertyChange(VALUE_CHANGE, oldInt, newInt);       
+            //firePropertyChange(VALUE_CHANGE, oldInt, newInt);       
         }
     }
 
@@ -258,13 +260,13 @@ public class DecadeDigit extends JFormattedTextField
             int newInt = model.getNextValue();
             Object obj = (Integer)newInt;
             this.setValue(obj);
-            firePropertyChange(VALUE_CHANGE, oldInt, newInt);
+            //firePropertyChange(VALUE_CHANGE, oldInt, newInt);
         }
         if (key == KeyEvent.VK_DOWN) {
             int newInt = model.getPreviousValue();
             Object obj = (Integer)newInt;
             this.setValue(obj);
-            firePropertyChange(VALUE_CHANGE, oldInt, newInt);
+            //firePropertyChange(VALUE_CHANGE, oldInt, newInt);
         }
     }
 
