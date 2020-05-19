@@ -13,7 +13,8 @@ import java.util.Vector;
 
 /**
  * Implements a focus traversal policy for the VfoDisplayPanel frame where each
- * digit may be traversed in order of decades.
+ * digit may be traversed in order of decades which makes more sense when it
+ * is right to left.
  * 
 * This code stolen from Oracle example FocusTraversalDemo.java
 */       

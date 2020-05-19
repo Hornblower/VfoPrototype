@@ -74,46 +74,51 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <EmptySpace min="16" pref="16" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="jLabel1" max="32767" attributes="0"/>
-                  <Component id="frequencyVfoA" max="32767" attributes="0"/>
-                  <Component id="VfoA" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="jLabel1" min="-2" pref="303" max="-2" attributes="0"/>
+                          <Component id="frequencyVfoA" min="-2" pref="303" max="-2" attributes="0"/>
+                          <Component id="VfoA" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="frequencyVfoB" min="-2" pref="300" max="-2" attributes="0"/>
+                          <Component id="jLabel2" min="-2" pref="294" max="-2" attributes="0"/>
+                          <Component id="VfoB" min="-2" pref="301" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="digitsParent" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel2" min="-2" pref="294" max="-2" attributes="0"/>
-                  <Component id="frequencyVfoB" min="-2" pref="300" max="-2" attributes="0"/>
-                  <Component id="VfoB" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
-          </Group>
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="digitsParent" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="frequencyVfoB" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
                   <Component id="frequencyVfoA" alignment="3" min="-2" pref="45" max="-2" attributes="0"/>
+                  <Component id="frequencyVfoB" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel1" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="VfoB" alignment="3" min="-2" pref="28" max="-2" attributes="0"/>
                   <Component id="VfoA" alignment="3" min="-2" pref="33" max="-2" attributes="0"/>
-                  <Component id="VfoB" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="38" max="32767" attributes="0"/>
-              <Component id="digitsParent" min="-2" pref="228" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="digitsParent" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -132,9 +137,6 @@
       <AccessibilityProperties>
         <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="get VFO A frequency from radio and adjust"/>
       </AccessibilityProperties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="VfoAActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JRadioButton" name="VfoB">
       <Properties>
@@ -144,15 +146,11 @@
         <Property name="mnemonic" type="int" value="66"/>
         <Property name="text" type="java.lang.String" value="VFO B is controlled by VFO Display Control"/>
         <Property name="toolTipText" type="java.lang.String" value="copies radio VFO B to control digits"/>
-        <Property name="actionCommand" type="java.lang.String" value="Connect VFO Control to radio VFO B "/>
         <Property name="requestFocusEnabled" type="boolean" value="false"/>
       </Properties>
       <AccessibilityProperties>
         <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Get VFO B frequency from radio and adjust"/>
       </AccessibilityProperties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="VfoBActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="frequencyVfoA">
       <Properties>
@@ -210,6 +208,9 @@
     </Component>
     <Container class="javax.swing.JInternalFrame" name="digitsParent">
       <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="null"/>
+        </Property>
         <Property name="visible" type="boolean" value="true"/>
       </Properties>
       <AuxValues>
@@ -221,18 +222,14 @@
         <Container class="javax.swing.JLayeredPane" name="jLayeredPaneMegahertz">
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder justification="2" position="3" title="Megahertz">
-                  <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
-                    <EtchetBorder/>
-                  </Border>
-                </TitledBorder>
+              <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
+                <LineBorder/>
               </Border>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value=""/>
             <Property name="opaque" type="boolean" value="true"/>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[270, 130]"/>
+              <Dimension value="[270, 120]"/>
             </Property>
           </Properties>
           <Events>
@@ -244,13 +241,13 @@
         <Container class="javax.swing.JLayeredPane" name="jLayeredPaneKilohertz">
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder justification="2" position="3" title="Kilohertz"/>
+              <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
+                <LineBorder/>
               </Border>
             </Property>
             <Property name="opaque" type="boolean" value="true"/>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[200, 130]"/>
+              <Dimension value="[200, 120]"/>
             </Property>
           </Properties>
           <Events>
@@ -262,15 +259,15 @@
         <Container class="javax.swing.JLayeredPane" name="jLayeredPaneHertz">
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder justification="2" position="3" title="Hertz"/>
+              <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
+                <LineBorder/>
               </Border>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="VFO Hertz digits"/>
             <Property name="name" type="java.lang.String" value="VFO  zero to 1Khz panel" noResource="true"/>
             <Property name="opaque" type="boolean" value="true"/>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[168, 130]"/>
+              <Dimension value="[168, 120]"/>
             </Property>
           </Properties>
           <AccessibilityProperties>

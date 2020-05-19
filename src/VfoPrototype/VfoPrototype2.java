@@ -25,8 +25,6 @@ import java.awt.ContainerOrderFocusTraversalPolicy;
 import java.awt.DefaultFocusTraversalPolicy;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.accessibility.AccessibleContext;
-import javax.accessibility.AccessibleValue;
 import javax.swing.JFormattedTextField;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -36,18 +34,20 @@ import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
-import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
+import javax.swing.JRadioButton;
 import javax.swing.KeyStroke;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 /**
  * Implements a prototype replacement for the JRX app VFO control to enhance the
  * accessibility adding frequency updates as the digits are manipulated.
+ * @see VfoDisplayControl class.
  * 
  * @author Coz
  */
-final public class VfoPrototype2 extends javax.swing.JFrame {
+final public class VfoPrototype2 extends javax.swing.JFrame implements ActionListener {
     public static String version = "Version 2.0.0";
     static public VfoPrototype2 singletonInstance;
     static boolean wasVfoA = true;
@@ -60,7 +60,8 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     long freqVfoB = 145330000; // Shawsville Repeater
 
     /**
-     * Creates new form VfoPrototype.
+     * Creates new form VfoPrototype which is used as a testbed for the multi-
+     * digit VfoDisplayControl which is designed to be blind accessible.
      */
     public VfoPrototype2() {
         singletonInstance = this;    
@@ -73,29 +74,30 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     
     public void setUpVfoComponents() {
         singletonInstance.setTitle("VFO Prototype Display Control "+version);
+        
         // Must instantiate components before initialization of VfoDisplayControl.
+        // vfoGroup is a JInternalFrame.
         vfoGroup = (VfoDisplayControl) digitsParent;
         vfoGroup.initDigits();
         vfoGroup.frequencyToDigits(freqVfoA); // Vfo A is arbitrary default.
-        vfoState = new VfoSelectStateMachine(VfoSelection);
+        vfoState = new VfoSelectStateMachine(VfoA,VfoB);
         vfoState.setVfoASelected(); // Vfo A is arbitrary default, later will persist.
         vfoState.writeFrequencyToRadioVfoA(freqVfoA);
-        vfoState.writeFrequencyToRadioVfoB(freqVfoB);
-        
-        //Make ones digit textField get the focus whenever frame is activated.
-        
+        vfoState.writeFrequencyToRadioVfoB(freqVfoB);        
         JFormattedTextField textField;
         Vector<Component> order = vfoGroup.getTraversalOrder();
         textField = (JFormattedTextField) order.get(0);
-        // Cause the ftf to get the focus when the JFrame gets focus.        
+        // Cause the ones digit ftf to get the focus when the JFrame gets focus.        
         this.addWindowFocusListener(new WindowAdapter() {
             public void windowGainedFocus(WindowEvent e) {
                 textField.requestFocusInWindow();
             }
         });
 
-        // @todo Coz, make VFO panel extend JInternalFrame instead.
-        // Make sure that the VfoControlFrame is focus manager.
+        
+        
+        
+        // Make sure that the JFrame is focus manager.
         // It appears that voiceOver StepInto is ignoring focus manager.
         singletonInstance.setFocusCycleRoot(true);
         VfoDigitTraversalPolicy policy; 
@@ -156,63 +158,64 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         assert( singletonInstance.isFocusCycleRoot());
         singletonInstance.setEnabled(true);
         
-        if (false) {  // This code does not work.  Why?
         
-            // Register shortcut keys for radio buttons with JFrame.rootPane
-            KeyStroke strokeA = KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.ALT_MASK);
-            rootPane.registerKeyboardAction( new ActionListener() {
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        vfoState.setVfoASelected();
-                        loadRadioFrequencyToVfo(chooseVfoA);
-                    }
-                }, strokeA, JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-            KeyStroke strokeB = KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.ALT_MASK);
-            rootPane.registerKeyboardAction( new ActionListener() {
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        vfoState.setVfoBSelected();
-                        loadRadioFrequencyToVfo(chooseVfoB);
-                    }
-                }, strokeB, JComponent.WHEN_IN_FOCUSED_WINDOW);   
-        }
-
         
-    }
+        // WHY DOES THE SHORT CUT KEY NOT WORK????????
+        VfoA.setActionCommand("VfoA");
+        VfoA.setSelected(true);
+        //VfoA.setMnemonic(KeyEvent.VK_A);
+        VfoA.setMnemonic('A');
+        VfoB.setActionCommand("VfoB");
+        //VfoB.setMnemonic(KeyEvent.VK_B);
+        VfoB.setMnemonic('B');
+        //Register a listener for the radio buttons.
+        VfoA.addActionListener(this);
+        VfoB.addActionListener(this);       
+        
+    }   
+        
     
     
     /**
-     * Method called when the vfo radio button changes the VFO selection with
+     * Method called when the VfoA radio button changes the VFO selection with
      * the requirement to update the VFO display control with the
-     * frequency read from the radio VFO.
+     * frequency read from the radio VFO A.
      * 
-     * Need to turn off the VFO change handler while this
-     * update takes place.
-     * 
-     * @param isVfoA
-     * @return 
+     * Turn off the VFO change handler while this update takes place.  Set focus
+     * on the ones digit.
+     * @return true.
      */
-    public boolean loadRadioFrequencyToVfo(boolean isVfoA) {       
-        VfoDisplayControl vfoGroup = (VfoDisplayControl) digitsParent;
+    public boolean loadRadioFrequencyToVfoA() {       
         vfoGroup.setSilent(true);
         boolean success = true;
         long freqHertz;
         String valString;
-        // Change radio button state.
-        // Simlate read freq from Radio.
-        if ( isVfoA && !wasVfoA) {
-            // Only take action when Vfo selection has changed.
-            // Read frequency from Radio VFO A.
-            freqHertz = vfoState.getVfoAFrequency();
-            
-            vfoGroup.frequencyToDigits(freqHertz);
-            wasVfoA = true;
-        } else if (!isVfoA && wasVfoA) {
-            // Only take action when Vfo selection has changed.
-            // Read frequencyl from Radio VFO B.
-            freqHertz = vfoState.getVfoBFrequency();
-            vfoGroup.frequencyToDigits(freqHertz);
-            wasVfoA = false;
-        }
+        // Simlate read freq from Radio VFO a.
+        freqHertz = vfoState.getVfoAFrequency();            
+        vfoGroup.frequencyToDigits(freqHertz);
+        if ( !vfoState.vfoA_IsSelected()) vfoState.setVfoASelected();
+        vfoGroup.getTraversalOrder().get(0).requestFocus();
+        vfoGroup.setSilent(false);       
+        return success;
+    }
+    /**
+     * Method called when the VfoB radio button changes the VFO selection with
+     * the requirement to update the VFO display control with the
+     * frequency read from the radio VFO B.
+     * 
+     * Turn off the VFO change handler while this update takes place.  Set focus
+     * on the ones digit.
+     * @return true.
+     */
+    public boolean loadRadioFrequencyToVfoB() {       
+        vfoGroup.setSilent(true);
+        boolean success = true;
+        long freqHertz;
+        String valString;    
+        // Simlate read freq from Radio VFO B.           
+        freqHertz = vfoState.getVfoBFrequency();            
+        vfoGroup.frequencyToDigits(freqHertz);
+        if ( vfoState.vfoA_IsSelected())  vfoState.setVfoBSelected();
         vfoGroup.getTraversalOrder().get(0).requestFocus();
         vfoGroup.setSilent(false);       
         return success;
@@ -263,23 +266,12 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         VfoA.setText("VFO A is controlled by VFO Display Control");
         VfoA.setToolTipText("copies radio VFO A to control digits");
         VfoA.setRequestFocusEnabled(false);
-        VfoA.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                VfoAActionPerformed(evt);
-            }
-        });
 
         VfoSelection.add(VfoB);
         VfoB.setMnemonic('B');
         VfoB.setText("VFO B is controlled by VFO Display Control");
         VfoB.setToolTipText("copies radio VFO B to control digits");
-        VfoB.setActionCommand("Connect VFO Control to radio VFO B ");
         VfoB.setRequestFocusEnabled(false);
-        VfoB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                VfoBActionPerformed(evt);
-            }
-        });
 
         frequencyVfoA.setEditable(false);
         frequencyVfoA.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
@@ -301,13 +293,14 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
 
         jLabel2.setText("Radio VFO B, readOnly current frequency Mhz");
 
+        digitsParent.setBorder(null);
         digitsParent.setVisible(true);
         digitsParent.getContentPane().setLayout(new java.awt.FlowLayout());
 
-        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP));
+        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jLayeredPaneMegahertz.setToolTipText("");
         jLayeredPaneMegahertz.setOpaque(true);
-        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(270, 130));
+        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(270, 120));
         jLayeredPaneMegahertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -318,9 +311,9 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         jLayeredPaneMegahertz.setLayout(new java.awt.FlowLayout());
         digitsParent.getContentPane().add(jLayeredPaneMegahertz);
 
-        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP));
+        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jLayeredPaneKilohertz.setOpaque(true);
-        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(200, 130));
+        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(200, 120));
         jLayeredPaneKilohertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -331,11 +324,11 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         jLayeredPaneKilohertz.setLayout(new java.awt.FlowLayout());
         digitsParent.getContentPane().add(jLayeredPaneKilohertz);
 
-        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP));
+        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jLayeredPaneHertz.setToolTipText("VFO Hertz digits");
         jLayeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
         jLayeredPaneHertz.setOpaque(true);
-        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(168, 130));
+        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(168, 120));
         jLayeredPaneHertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -352,38 +345,41 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(frequencyVfoA)
-                    .addComponent(VfoA))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(VfoB))
-                .addGap(17, 17, 17))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(digitsParent))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(frequencyVfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(VfoA))
+                        .addGap(32, 32, 32)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(VfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(15, 15, 15)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(frequencyVfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(frequencyVfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(VfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(VfoB))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
-                .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(VfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(VfoA, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         VfoA.getAccessibleContext().setAccessibleDescription("get VFO A frequency from radio and adjust");
@@ -399,14 +395,6 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void VfoBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VfoBActionPerformed
-        loadRadioFrequencyToVfo(chooseVfoB);
-    }//GEN-LAST:event_VfoBActionPerformed
-
-    private void VfoAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VfoAActionPerformed
-        loadRadioFrequencyToVfo(chooseVfoA);
-    }//GEN-LAST:event_VfoAActionPerformed
-
     private void digitsPanelAncestorResized(java.awt.event.HierarchyEvent evt) {//GEN-FIRST:event_digitsPanelAncestorResized
         Component comp = evt.getComponent();
         JLayeredPane pane = (JLayeredPane) comp;
@@ -418,29 +406,28 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {        
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            javax.swing.UIManager.LookAndFeelInfo[] installedLookAndFeels=javax.swing.UIManager.getInstalledLookAndFeels();
-            for (int idx=0; idx<installedLookAndFeels.length; idx++)
-                if ("Nimbus".equals(installedLookAndFeels[idx].getName())) {
-                    javax.swing.UIManager.setLookAndFeel(installedLookAndFeels[idx].getClassName());
+    @SuppressWarnings("empty-statement")
+    public static void main(String args[])  {        
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            try {           
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                if ("Mac OS X".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());                
+                    break;
+                }
+            } catch (ClassNotFoundException ex) {
+                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (InstantiationException ex) {
+                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }    
         }
-        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -473,5 +460,17 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     public javax.swing.JLayeredPane jLayeredPaneKilohertz;
     public javax.swing.JLayeredPane jLayeredPaneMegahertz;
     // End of variables declaration//GEN-END:variables
-    
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if ( e.getActionCommand().equals("VfoA")) {
+            //System.out.print(e);
+            System.out.println(" VfoA radio button has been pressed.");
+            loadRadioFrequencyToVfoA();      
+        } else {
+            //System.out.print(e);
+            System.out.println(" VfoB radio button has been pressed.");
+            loadRadioFrequencyToVfoB();
+        }
+    }   
 }

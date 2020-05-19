@@ -5,13 +5,11 @@
  */
 package VfoPrototype;
 
-import static VfoPrototype.VfoPrototype.singletonInstance;
+import static VfoPrototype.VfoPrototype2.singletonInstance;
 import java.text.DecimalFormat;
-import javax.swing.ButtonGroup;
 import javax.swing.JRadioButton;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.swing.AbstractButton;
-import javax.swing.ButtonModel;
+
 /**
  * The idea here is to make a reentrant state machine that can give results to
  * any thread as to the selected VFO and its frequency.
@@ -19,105 +17,114 @@ import javax.swing.ButtonModel;
  * @author Coz
  */
 public class VfoSelectStateMachine {
-    ButtonGroup radioButtonGroup;
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    
-    AbstractButton vfoA;
-    AbstractButton vfoB;
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();    
+    JRadioButton vfoA;
+    JRadioButton vfoB;
  
-    public VfoSelectStateMachine(ButtonGroup group) {
-        radioButtonGroup = group;
-        group.getSelection();
-        int count = group.getButtonCount();
-        assert(count == 2);
-        vfoA =  group.getElements().nextElement();
-        vfoB =  group.getElements().nextElement();
-        
+    public VfoSelectStateMachine(JRadioButton a, JRadioButton b) {   
+        vfoA =  a;
+        vfoB =  b;
+        //Radio buttons must be in the same group to be exclusively selected.
+        assert (vfoA.getModel().getGroup()==vfoB.getModel().getGroup());
     }
     
     public long getVfoAFrequency() {
-        lock.readLock().lock();  //blocks until lock is available.    
         long frequencyHertz = 0;
-        String valString;      
-        //Simlate read freq from Radio VFO A.
-        valString = singletonInstance.frequencyVfoA.getText();        
-        double freqMhz = Double.valueOf(valString);
-        frequencyHertz = (long) (freqMhz * 1.E06) ;           
-        lock.readLock().unlock();        
+        try {
+            lock.readLock().lock();  //blocks until lock is available.            
+            String valString;      
+            //Simlate read freq from Radio VFO A.
+            valString = singletonInstance.frequencyVfoA.getText();        
+            double freqMhz = Double.valueOf(valString);
+            frequencyHertz = (long) (freqMhz * 1.E06) ;
+        }
+        finally {
+            lock.readLock().unlock(); 
+        }
         return frequencyHertz;
     }
     
     public long getVfoBFrequency() {
-        lock.readLock().lock();  //blocks until lock is available.    
         long frequencyHertz = 0;
-        String valString;      
-        //Simlate read freq from Radio VFO A.
-        valString = singletonInstance.frequencyVfoB.getText();        
-        double freqMhz = Double.valueOf(valString);
-        frequencyHertz = (long) (freqMhz * 1.E06) ;            
-        lock.readLock().unlock();        
+        try {
+            lock.readLock().lock();  //blocks until lock is available.               
+            String valString;      
+            //Simlate read freq from Radio VFO A.
+            valString = singletonInstance.frequencyVfoB.getText();        
+            double freqMhz = Double.valueOf(valString);
+            frequencyHertz = (long) (freqMhz * 1.E06) ; 
+        }
+        finally {
+            lock.readLock().unlock(); 
+        }
         return frequencyHertz;
     }
 
-
-
     public long getSelectedVfoFrequency() {
-        lock.readLock().lock();  //blocks until lock is available.
-        
         long frequencyHertz = 0;
-        ButtonModel selected = radioButtonGroup.getSelection();
-        String valString;
-        //Simlate read freq from Radio.
-        if (selected == vfoA.getModel()) {
-            // Read frequency from Radio VFO A.
-            valString = singletonInstance.frequencyVfoA.getText();
-        } else {
-            // Read frequency from Radio VFO B.
-            valString = singletonInstance.frequencyVfoB.getText();
+        try {
+            lock.readLock().lock();  //blocks until lock is available.
+            String valString;
+            //Simlate read freq from Radio.
+            if (vfoA.isSelected()) {
+                // Read frequency from Radio VFO A.
+                valString = singletonInstance.frequencyVfoA.getText();
+            } else {
+                // Read frequency from Radio VFO B.
+                valString = singletonInstance.frequencyVfoB.getText();
+            }
+            double freqMhz = Double.valueOf(valString);
+            frequencyHertz = (long) (freqMhz * 1.E06) ;
         }
-        double freqMhz = Double.valueOf(valString);
-        frequencyHertz = (long) (freqMhz * 1.E06) ;
-                
-        lock.readLock().unlock();        
+        finally {
+            lock.readLock().unlock(); 
+        }
         return frequencyHertz;
     }
     
     public boolean vfoA_IsSelected() {
         boolean isVfoA = true;
         lock.readLock().lock();  //blocks until lock is available.
-        //Simlate read selection from Radio.
-        ButtonModel selected = radioButtonGroup.getSelection();
-        isVfoA = (selected == vfoA.getModel());
+        //Simlate read selection from Radio.       
+        isVfoA = ( vfoA.isSelected() );
         lock.readLock().unlock();  
         return isVfoA;
     }    
  
     public boolean setVfoASelected(){
-        boolean success = true;  // Simulation is always successful.   
-        lock.writeLock().lock();  //blocks until lock is available.
+        boolean success = true;  // Simulation is always successful.
+        boolean isSelectedA = vfoA_IsSelected();
+        if (isSelectedA) return success; // VFO B is already selected.
         
-        radioButtonGroup.setSelected(vfoA.getModel(), true);
+        lock.writeLock().lock();  //blocks until lock is available.
+        System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
+        vfoA.setSelected(true);
         
         lock.writeLock().unlock();
+        isSelectedA = vfoA_IsSelected();
+        System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
         return success;
     }
 
     public boolean setVfoBSelected(){
-        boolean success = true;  // Simulation is always successful.   
-        lock.writeLock().lock();  //blocks until lock is available.
+        boolean success = true;  // Simulation is always successful. 
+        boolean isSelectedA = vfoA_IsSelected();
+        if(!isSelectedA) return success; // VFO B is already selected.
         
-        radioButtonGroup.setSelected(vfoB.getModel(), true);
+        lock.writeLock().lock();  //blocks until lock is available.       
+        System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
+        vfoB.setSelected(true);
         
         lock.writeLock().unlock();
+        isSelectedA = vfoA_IsSelected();
+        System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
         return success;
     }
-
     
-    
-    
-/**
+    /**
      * Write the given frequency to the currently selected radio VFO.
-     * @Return true when frequency successfully communicated to radio.
+     * @return true when frequency successfully communicated to radio.
+     * @param frequencyHertz
     */
     public boolean writeFrequencyToRadioSelectedVfo(long frequencyHertz) {
         boolean success = true;
@@ -138,16 +145,13 @@ public class VfoSelectStateMachine {
         lock.writeLock().unlock();
         return success;
     }
-    
-
-
-
-
-
-    
+     
     /**
      * Given which Vfo to access, write the given frequency to the radio.
-     * @Return true when frequency successfully communicated to radio.
+     * @return true when frequency successfully communicated to radio.
+     * @param frequencyHertz 
+     * @param isVfoA
+     * 
     */
     public boolean writeFrequencyToRadio(long frequencyHertz, boolean isVfoA) {
         boolean success = true;
@@ -167,7 +171,6 @@ public class VfoSelectStateMachine {
         lock.writeLock().unlock();
         return success;
     }
-
 
     public boolean writeFrequencyToRadioVfoA(long frequencyHertz) {
         return writeFrequencyToRadio(frequencyHertz, true);
