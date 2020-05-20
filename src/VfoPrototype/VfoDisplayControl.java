@@ -19,6 +19,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Vector;
+import javax.accessibility.AccessibleContext;
 import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
@@ -132,23 +133,29 @@ final public class VfoDisplayControl extends JInternalFrame
         //Build the first menu.
         JMenu menu = new JMenu("Choose Radio VFO");
         menu.setMnemonic(KeyEvent.VK_V);
-        menu.getAccessibleContext().setAccessibleDescription(
+        AccessibleContext menuContext = menu.getAccessibleContext();
+        menuContext.setAccessibleDescription(
             "Pick the radio VFO that the VFO Panel controls");
+        menuContext.setAccessibleName("Choose Radio VFO");
         menuBar.add(menu);
         //Set JMenuItem A.
         JRadioButtonMenuItem menuItemA = new JRadioButtonMenuItem("VFO A", true);
         menuItemA.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_A, ActionEvent.ALT_MASK));
-        menuItemA.getAccessibleContext().setAccessibleDescription(
+        AccessibleContext itemAContext = menuItemA.getAccessibleContext();
+        itemAContext.setAccessibleDescription(
             "VFO panel controls radio VFO A");
+        itemAContext.setAccessibleName("Choose radio VFO A");       
         menuItemA.addItemListener(this);
         menu.add(menuItemA);
         //Set JMenuItem B.
         JRadioButtonMenuItem menuItemB = new JRadioButtonMenuItem("VFO B", false);
         menuItemB.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_B, ActionEvent.ALT_MASK));
-        menuItemB.getAccessibleContext().setAccessibleDescription(
+        AccessibleContext itemBContext = menuItemB.getAccessibleContext();
+        itemBContext.setAccessibleDescription(
             "VFO panel controls radio VFO B");
+        itemBContext.setAccessibleName("Choose radio VFO B");
         menuItemB.addItemListener(this);
         menu.add(menuItemB);
         
@@ -345,10 +352,12 @@ final public class VfoDisplayControl extends JInternalFrame
         // Change the field description so voiceOver will announce it.
         long freq = digitsToFrequency();
         vfoState.writeFrequencyToRadioSelectedVfo(freq);
+        String vfoString = "VFO B";
+        if (vfoState.vfoA_IsSelected()) vfoString = "VFO A";           
         System.out.println("handleChangeEvent - model value: "+ String.valueOf(value)); 
         for ( int iii=0; iii<QUANTITY_DIGITS; iii++) {
             StringBuilder freqString = new StringBuilder("");
-            freqString.append("VFO Frequency "+Double.toString(((double)freq)/1000000.)+" Mhz; ");
+            freqString.append(vfoString+" Frequency "+Double.toString(((double)freq)/1000000.)+" Mhz; ");
             Component comp = order.get(iii);
             JFormattedTextField ftfield = (JFormattedTextField)comp;
             freqString.append(ftfield.getAccessibleContext().getAccessibleName());
@@ -374,6 +383,7 @@ final public class VfoDisplayControl extends JInternalFrame
             //item.firePropertyChange("MENU_ITEM1", false, true);
             if (item.isSelected()) {
                 vfoState.setVfoASelected();
+                
                 System.out.println("VFO A menu item setSelected() itemStateChanged()");
             }           
         }
@@ -389,6 +399,8 @@ final public class VfoDisplayControl extends JInternalFrame
             System.out.println("Unknown menu item handled in itemStateChanged()");
         }
         long freq = vfoState.getSelectedVfoFrequency();
-        frequencyToDigits(freq);       
+        frequencyToDigits(freq);
+        // Cause voiceOver to anounce frequency and thus which radio VFO.
+        freqDigits.get(0).requestFocus();
     }
 }
