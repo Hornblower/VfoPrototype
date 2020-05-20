@@ -12,19 +12,21 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Vector;
-import javax.accessibility.AccessibleContext;
-import javax.accessibility.AccessibleValue;
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.KeyStroke;
 
 
 /**
@@ -52,7 +54,14 @@ import javax.swing.event.ChangeEvent;
  * @author Coz
  */
 final public class VfoDisplayControl extends JInternalFrame 
-        implements PropertyChangeListener {
+        implements PropertyChangeListener , ItemListener {
+    
+    static boolean wasVfoA = true;
+    static boolean chooseVfoA = true;
+    static boolean chooseVfoB = false;
+    static long MSN_FREQ = 3563000;   // MSN 80meter CW
+    static long SHAWSVILLE_REPEATER_OUTPUT_FREQ = 145330000; // Shawsville Repeater
+
     
     protected ArrayList<DecadeDigit> freqDigits = null;
     public final static int QUANTITY_DIGITS = 10;
@@ -63,6 +72,9 @@ final public class VfoDisplayControl extends JInternalFrame
     boolean inhibit = true;  // Inhibit interaction during construction.
     Vector<Component> order;
     boolean silent = false;
+    VfoSelectStateMachine vfoState;
+
+
 
     public VfoDisplayControl(VfoPrototype2 frame) {
         super("VFO Display Control");
@@ -109,16 +121,52 @@ final public class VfoDisplayControl extends JInternalFrame
             order.add(ftf);
         } 
         insertDigitsIntoPanels();
+        addMenuBar();
         inhibit = false;
+        initFrequency(MSN_FREQ);
     }
+        
+    private void addMenuBar() {    
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+        //Build the first menu.
+        JMenu menu = new JMenu("Choose Radio VFO");
+        menu.setMnemonic(KeyEvent.VK_V);
+        menu.getAccessibleContext().setAccessibleDescription(
+            "Pick the radio VFO that the VFO Panel controls");
+        menuBar.add(menu);
+        //Set JMenuItem A.
+        JRadioButtonMenuItem menuItemA = new JRadioButtonMenuItem("VFO A", true);
+        menuItemA.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_A, ActionEvent.ALT_MASK));
+        menuItemA.getAccessibleContext().setAccessibleDescription(
+            "VFO panel controls radio VFO A");
+        menuItemA.addItemListener(this);
+        menu.add(menuItemA);
+        //Set JMenuItem B.
+        JRadioButtonMenuItem menuItemB = new JRadioButtonMenuItem("VFO B", false);
+        menuItemB.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_B, ActionEvent.ALT_MASK));
+        menuItemB.getAccessibleContext().setAccessibleDescription(
+            "VFO panel controls radio VFO B");
+        menuItemB.addItemListener(this);
+        menu.add(menuItemB);
+        
+        vfoState = new VfoSelectStateMachine(menuItemA, menuItemB,
+            aFrame.frequencyVfoA, aFrame.frequencyVfoB );
+        vfoState.setVfoASelected(); // Vfo A is arbitrary default, later will persist.
+        vfoState.writeFrequencyToRadioVfoA(MSN_FREQ);
+        vfoState.writeFrequencyToRadioVfoB(SHAWSVILLE_REPEATER_OUTPUT_FREQ);
+        
+
+    }
+
     
     private void insertDigitsIntoPanels() {
         aFrame.digitsParent.setBackground(Color.black);
         JLayeredPane pane = aFrame.jLayeredPaneMegahertz;
         pane.removeAll();
         pane.setBackground(Color.black);
-        //TitledBorder border = (TitledBorder)pane.getBorder();
-        //border.setTitleColor(Color.GREEN);
         ((FlowLayout) pane.getLayout()).setHgap(0);
         pane.add(freqDigits.get(9));
         pane.add(freqDigits.get(8));
@@ -128,8 +176,6 @@ final public class VfoDisplayControl extends JInternalFrame
         pane = aFrame.jLayeredPaneKilohertz;
         pane.removeAll();
         pane.setBackground(Color.black);
-        //border = (TitledBorder)pane.getBorder();
-        //border.setTitleColor(Color.GREEN);
         ((FlowLayout) pane.getLayout()).setHgap(0);
         pane.add(freqDigits.get(5));
         pane.add(freqDigits.get(4));
@@ -138,8 +184,6 @@ final public class VfoDisplayControl extends JInternalFrame
         pane = aFrame.jLayeredPaneHertz;
         pane.removeAll();
         pane.setBackground(Color.black);
-        //border = (TitledBorder)pane.getBorder();
-        //border.setTitleColor(Color.GREEN);
         ((FlowLayout) pane.getLayout()).setHgap(0);
         pane.add(freqDigits.get(2));
         pane.add(freqDigits.get(1));
@@ -224,6 +268,50 @@ final public class VfoDisplayControl extends JInternalFrame
             comp.setFont(font);
         }
     }
+    /**
+     * Method called when the VfoA radio button changes the VFO selection with
+     * the requirement to update the VFO display control with the
+     * frequency read from the radio VFO A.
+     * 
+     * Turn off the VFO change handler while this update takes place.  Set focus
+     * on the ones digit.
+     * @return true.
+     */
+    public boolean loadRadioFrequencyToVfoA() {       
+        setSilent(true);
+        boolean success = true;
+        long freqHertz;
+        String valString;
+        // Simlate read freq from Radio VFO a.
+        freqHertz = vfoState.getVfoAFrequency();            
+        frequencyToDigits(freqHertz);
+        if ( !vfoState.vfoA_IsSelected()) vfoState.setVfoASelected();
+        getTraversalOrder().get(0).requestFocus();
+        setSilent(false);
+        return success;
+    }
+    /**
+     * Method called when the VfoB radio button changes the VFO selection with
+     * the requirement to update the VFO display control with the
+     * frequency read from the radio VFO B.
+     * 
+     * Turn off the VFO change handler while this update takes place.  Set focus
+     * on the ones digit.
+     * @return true.
+     */
+    public boolean loadRadioFrequencyToVfoB() {       
+        setSilent(true);
+        boolean success = true;
+        long freqHertz;
+        String valString;    
+        // Simlate read freq from Radio VFO B.           
+        freqHertz = vfoState.getVfoBFrequency();            
+        frequencyToDigits(freqHertz);
+        if ( vfoState.vfoA_IsSelected())  vfoState.setVfoBSelected();
+        getTraversalOrder().get(0).requestFocus();
+        setSilent(false);
+        return success;
+    }
 
     /**
      * This listener could possibly called very early on so there is a "silent"
@@ -235,7 +323,7 @@ final public class VfoDisplayControl extends JInternalFrame
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (silent) return;
+        //if (silent) return;
         Object source = evt.getSource();
         DecadeDigit digit = (DecadeDigit)source;
         String name = digit.getName();
@@ -250,13 +338,13 @@ final public class VfoDisplayControl extends JInternalFrame
         DecadeModel model = digit.getModel();
         DecadeModel decadeModel = (DecadeModel)model;
         int decade = decadeModel.getDecade();
-        if( aFrame.vfoState == null) {
+        if( vfoState == null) {
             // We are in the contruction process. Too early.
             return;
         }
         // Change the field description so voiceOver will announce it.
         long freq = digitsToFrequency();
-        aFrame.vfoState.writeFrequencyToRadioSelectedVfo(freq);
+        vfoState.writeFrequencyToRadioSelectedVfo(freq);
         System.out.println("handleChangeEvent - model value: "+ String.valueOf(value)); 
         for ( int iii=0; iii<QUANTITY_DIGITS; iii++) {
             StringBuilder freqString = new StringBuilder("");
@@ -272,4 +360,33 @@ final public class VfoDisplayControl extends JInternalFrame
         String ftfDesc = ftf.getAccessibleContext().getAccessibleDescription();
         System.out.println("ftf accessible description :"+ftfDesc);               
     }       
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        //System.out.print(e);
+        Object itemObj = e.getItem();
+        JMenuItem item = (JMenuItem) itemObj;
+        
+        String itemText = item.getText();
+
+        System.out.println("item.name :"+itemText);
+        if (itemText == "VFO A") {
+            //item.firePropertyChange("MENU_ITEM1", false, true);
+            if (item.isSelected()) {
+                vfoState.setVfoASelected();
+                System.out.println("VFO A menu item setSelected() itemStateChanged()");
+            }           
+        }
+        else if (itemText == "VFO B") {
+            //item.firePropertyChange("MENU_ITEM1", false, true);
+            if (item.isSelected()) {
+                vfoState.setVfoBSelected();
+                System.out.println("VFO B menu item setSelected() itemStateChanged()");
+            }
+        }
+        else {
+            //item.firePropertyChange("UNKNOWN_MENU_ITEM", false, true);
+            System.out.println("Unknown menu item handled in itemStateChanged()");
+        }
+    }
 }
