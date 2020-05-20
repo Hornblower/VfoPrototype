@@ -388,5 +388,7 @@ final public class VfoDisplayControl extends JInternalFrame
             //item.firePropertyChange("UNKNOWN_MENU_ITEM", false, true);
             System.out.println("Unknown menu item handled in itemStateChanged()");
         }
+        long freq = vfoState.getSelectedVfoFrequency();
+        frequencyToDigits(freq);       
     }
 }
