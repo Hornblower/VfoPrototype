@@ -5,26 +5,40 @@
  */
 package VfoPrototype;
 
-import static VfoPrototype.VfoPrototype2.singletonInstance;
+import java.awt.Color;
 import java.text.DecimalFormat;
-import javax.swing.JRadioButton;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.swing.ButtonGroup;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JTextField;
 
 /**
- * The idea here is to make a reentrant state machine that can give results to
- * any thread as to the selected VFO and its frequency.
+ * The idea here is to make a re-entrant state machine that can give results to
+ * any thread as to the selected VFO and its frequency.  The state machine is 
+ * the interface to change the selected JRadioButtonMenuItem state
+ * programmatically.
  * 
  * @author Coz
  */
 public class VfoSelectStateMachine {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();    
-    JRadioButton vfoA;
-    JRadioButton vfoB;
+    JRadioButtonMenuItem vfoA;
+    JRadioButtonMenuItem vfoB;
+    JTextField frequencyVfoA;
+    JTextField frequencyVfoB;
+    static Color selectedBackgroundColor = Color.PINK;
  
-    public VfoSelectStateMachine(JRadioButton a, JRadioButton b) {   
+    public VfoSelectStateMachine(JRadioButtonMenuItem a, JRadioButtonMenuItem b, 
+            JTextField freqA, JTextField freqB) {
+        frequencyVfoA = freqA;
+        frequencyVfoB = freqB;
         vfoA =  a;
         vfoB =  b;
-        //Radio buttons must be in the same group to be exclusively selected.
+        // Make the item selection exclusive.
+        ButtonGroup group = new ButtonGroup();
+        group.add(a);
+        group.add(b);
+        //Menu items must be in the same group to be exclusively selected.
         assert (vfoA.getModel().getGroup()==vfoB.getModel().getGroup());
     }
     
@@ -34,7 +48,7 @@ public class VfoSelectStateMachine {
             lock.readLock().lock();  //blocks until lock is available.            
             String valString;      
             //Simlate read freq from Radio VFO A.
-            valString = singletonInstance.frequencyVfoA.getText();        
+            valString = frequencyVfoA.getText();        
             double freqMhz = Double.valueOf(valString);
             frequencyHertz = (long) (freqMhz * 1.E06) ;
         }
@@ -50,7 +64,7 @@ public class VfoSelectStateMachine {
             lock.readLock().lock();  //blocks until lock is available.               
             String valString;      
             //Simlate read freq from Radio VFO A.
-            valString = singletonInstance.frequencyVfoB.getText();        
+            valString = frequencyVfoB.getText();        
             double freqMhz = Double.valueOf(valString);
             frequencyHertz = (long) (freqMhz * 1.E06) ; 
         }
@@ -68,10 +82,10 @@ public class VfoSelectStateMachine {
             //Simlate read freq from Radio.
             if (vfoA.isSelected()) {
                 // Read frequency from Radio VFO A.
-                valString = singletonInstance.frequencyVfoA.getText();
+                valString = frequencyVfoA.getText();
             } else {
                 // Read frequency from Radio VFO B.
-                valString = singletonInstance.frequencyVfoB.getText();
+                valString = frequencyVfoB.getText();
             }
             double freqMhz = Double.valueOf(valString);
             frequencyHertz = (long) (freqMhz * 1.E06) ;
@@ -87,6 +101,7 @@ public class VfoSelectStateMachine {
         lock.readLock().lock();  //blocks until lock is available.
         //Simlate read selection from Radio.       
         isVfoA = ( vfoA.isSelected() );
+        
         lock.readLock().unlock();  
         return isVfoA;
     }    
@@ -99,7 +114,7 @@ public class VfoSelectStateMachine {
         lock.writeLock().lock();  //blocks until lock is available.
         System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
         vfoA.setSelected(true);
-        
+        frequencyVfoA.setBackground(selectedBackgroundColor);
         lock.writeLock().unlock();
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
@@ -114,7 +129,7 @@ public class VfoSelectStateMachine {
         lock.writeLock().lock();  //blocks until lock is available.       
         System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
         vfoB.setSelected(true);
-        
+        frequencyVfoB.setBackground(selectedBackgroundColor);
         lock.writeLock().unlock();
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
@@ -138,9 +153,9 @@ public class VfoSelectStateMachine {
         DecimalFormat decimalFormat = new DecimalFormat("#.000000");
         String numberAsString = decimalFormat.format(mhz);
         if (isVfoA)
-            singletonInstance.frequencyVfoA.setText(numberAsString);
+            frequencyVfoA.setText(numberAsString);
         else
-            singletonInstance.frequencyVfoB.setText(numberAsString);
+            frequencyVfoB.setText(numberAsString);
 
         lock.writeLock().unlock();
         return success;
@@ -164,9 +179,9 @@ public class VfoSelectStateMachine {
         DecimalFormat decimalFormat = new DecimalFormat("#.000000");
         String numberAsString = decimalFormat.format(mhz);
         if (isVfoA)
-            singletonInstance.frequencyVfoA.setText(numberAsString);
+            frequencyVfoA.setText(numberAsString);
         else
-            singletonInstance.frequencyVfoB.setText(numberAsString);
+            frequencyVfoB.setText(numberAsString);
 
         lock.writeLock().unlock();
         return success;
