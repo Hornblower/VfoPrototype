@@ -86,9 +86,7 @@ final public class VfoDisplayControl extends JInternalFrame
         super.setClosable(false);
         super.setFocusCycleRoot(true);
         super.setFocusable(true);
-        super.setJMenuBar(null); // does not remove menu bar
-        setBackground(Color.red);
-        pack();
+        frame.setResizable(false);
         setVisible(false);
         
     }
