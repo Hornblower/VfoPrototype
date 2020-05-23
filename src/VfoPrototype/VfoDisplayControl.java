@@ -131,7 +131,7 @@ final public class VfoDisplayControl extends JInternalFrame
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
         //Build the first menu.
-        JMenu menu = new JMenu("Choose Radio VFO");
+        JMenu menu = new JMenu("Choose Radio VFO Operation");
         menu.setMnemonic(KeyEvent.VK_V);
         AccessibleContext menuContext = menu.getAccessibleContext();
         menuContext.setAccessibleDescription(
@@ -139,7 +139,7 @@ final public class VfoDisplayControl extends JInternalFrame
         menuContext.setAccessibleName("Choose Radio VFO");
         menuBar.add(menu);
         //Set JMenuItem A.
-        JRadioButtonMenuItem menuItemA = new JRadioButtonMenuItem("VFO A", true);
+        JRadioButtonMenuItem menuItemA = new JRadioButtonMenuItem("Select radio VFO A", true);
         menuItemA.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_A, ActionEvent.ALT_MASK));
         AccessibleContext itemAContext = menuItemA.getAccessibleContext();
@@ -149,7 +149,7 @@ final public class VfoDisplayControl extends JInternalFrame
         menuItemA.addItemListener(this);
         menu.add(menuItemA);
         //Set JMenuItem B.
-        JRadioButtonMenuItem menuItemB = new JRadioButtonMenuItem("VFO B", false);
+        JRadioButtonMenuItem menuItemB = new JRadioButtonMenuItem("Select radio VFO B", false);
         menuItemB.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_B, ActionEvent.ALT_MASK));
         AccessibleContext itemBContext = menuItemB.getAccessibleContext();
@@ -158,6 +158,18 @@ final public class VfoDisplayControl extends JInternalFrame
         itemBContext.setAccessibleName("Choose radio VFO B");
         menuItemB.addItemListener(this);
         menu.add(menuItemB);
+        // Add VFO copy items.
+        menu.addSeparator();
+        JMenuItem a2b = new JMenuItem("Copy VFO A to VFO B", KeyEvent.VK_C);
+        AccessibleContext a2bContext = a2b.getAccessibleContext();
+        a2bContext.setAccessibleName("Copy Vfo A to Vfo B");
+        a2bContext.setAccessibleDescription("Use shortcut key option C");
+        menu.add(a2b);
+        JMenuItem swap = new JMenuItem("Swap VFO A with VFO B", KeyEvent.VK_S);
+        AccessibleContext swapContext = a2b.getAccessibleContext();
+        swapContext.setAccessibleName("Swap Vfo A with Vfo B");
+        swapContext.setAccessibleDescription("Use shortcut key option S");
+        menu.add(swap);
         
         vfoState = new VfoSelectStateMachine(menuItemA, menuItemB,
             aFrame.frequencyVfoA, aFrame.frequencyVfoB );

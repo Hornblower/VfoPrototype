@@ -26,10 +26,12 @@ public class VfoSelectStateMachine {
     JRadioButtonMenuItem vfoB;
     JTextField frequencyVfoA;
     JTextField frequencyVfoB;
-    static Color selectedBackgroundColor = Color.PINK;
+    static Color selectedColor = Color.PINK;
+    static Color unselectedColor = Color.WHITE;
  
     public VfoSelectStateMachine(JRadioButtonMenuItem a, JRadioButtonMenuItem b, 
             JTextField freqA, JTextField freqB) {
+        
         frequencyVfoA = freqA;
         frequencyVfoB = freqB;
         vfoA =  a;
@@ -109,12 +111,13 @@ public class VfoSelectStateMachine {
     public boolean setVfoASelected(){
         boolean success = true;  // Simulation is always successful.
         boolean isSelectedA = vfoA_IsSelected();
-        if (isSelectedA) return success; // VFO B is already selected.
+        //if (isSelectedA) return success; // VFO B is already selected.
         
         lock.writeLock().lock();  //blocks until lock is available.
         System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
         vfoA.setSelected(true);
-        frequencyVfoA.setBackground(selectedBackgroundColor);
+        frequencyVfoA.setBackground(selectedColor);
+        frequencyVfoB.setBackground(unselectedColor);
         lock.writeLock().unlock();
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
@@ -124,12 +127,13 @@ public class VfoSelectStateMachine {
     public boolean setVfoBSelected(){
         boolean success = true;  // Simulation is always successful. 
         boolean isSelectedA = vfoA_IsSelected();
-        if(!isSelectedA) return success; // VFO B is already selected.
+        //if(!isSelectedA) return success; // VFO B is already selected.
         
         lock.writeLock().lock();  //blocks until lock is available.       
         System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
         vfoB.setSelected(true);
-        frequencyVfoB.setBackground(selectedBackgroundColor);
+        frequencyVfoB.setBackground(selectedColor);
+        frequencyVfoA.setBackground(unselectedColor);
         lock.writeLock().unlock();
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
