@@ -62,6 +62,8 @@ final public class VfoDisplayControl extends JInternalFrame
     static boolean chooseVfoB = false;
     static long MSN_FREQ = 3563000;   // MSN 80meter CW
     static long SHAWSVILLE_REPEATER_OUTPUT_FREQ = 145330000; // Shawsville Repeater
+    static String VFO_SELECT_A_TEXT = new String("Select radio VFO A");
+    static String VFO_SELECT_B_TEXT = new String("Select radio VFO B");
 
     
     protected ArrayList<DecadeDigit> freqDigits = null;
@@ -139,7 +141,7 @@ final public class VfoDisplayControl extends JInternalFrame
         menuContext.setAccessibleName("Choose Radio VFO");
         menuBar.add(menu);
         //Set JMenuItem A.
-        JRadioButtonMenuItem menuItemA = new JRadioButtonMenuItem("Select radio VFO A", true);
+        JRadioButtonMenuItem menuItemA = new JRadioButtonMenuItem(VFO_SELECT_A_TEXT, true);
         menuItemA.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_A, ActionEvent.ALT_MASK));
         AccessibleContext itemAContext = menuItemA.getAccessibleContext();
@@ -149,7 +151,7 @@ final public class VfoDisplayControl extends JInternalFrame
         menuItemA.addItemListener(this);
         menu.add(menuItemA);
         //Set JMenuItem B.
-        JRadioButtonMenuItem menuItemB = new JRadioButtonMenuItem("Select radio VFO B", false);
+        JRadioButtonMenuItem menuItemB = new JRadioButtonMenuItem(VFO_SELECT_B_TEXT, false);
         menuItemB.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_B, ActionEvent.ALT_MASK));
         AccessibleContext itemBContext = menuItemB.getAccessibleContext();
@@ -391,7 +393,7 @@ final public class VfoDisplayControl extends JInternalFrame
         String itemText = item.getText();
 
         System.out.println("item.name :"+itemText);
-        if (itemText == "Select radio VFO A") {
+        if (itemText == VFO_SELECT_A_TEXT) {
             //item.firePropertyChange("MENU_ITEM1", false, true);
             if (item.isSelected()) {
                 vfoState.setVfoASelected();
@@ -399,7 +401,7 @@ final public class VfoDisplayControl extends JInternalFrame
                 System.out.println("VFO A menu item setSelected() itemStateChanged()");
             }           
         }
-        else if (itemText == "Select radio VFO B") {
+        else if (itemText == VFO_SELECT_B_TEXT) {
             //item.firePropertyChange("MENU_ITEM1", false, true);
             if (item.isSelected()) {
                 vfoState.setVfoBSelected();
