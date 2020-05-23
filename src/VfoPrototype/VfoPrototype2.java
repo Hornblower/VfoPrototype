@@ -48,7 +48,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame {
-    public static String version = "Version 2.0.1";
+    public static String version = "Version 2.0.2";
     static public VfoPrototype2 singletonInstance;
     VfoDisplayControl vfoGroup;
 

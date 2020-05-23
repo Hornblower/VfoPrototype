@@ -62,8 +62,8 @@ final public class VfoDisplayControl extends JInternalFrame
     static boolean chooseVfoB = false;
     static long MSN_FREQ = 3563000;   // MSN 80meter CW
     static long SHAWSVILLE_REPEATER_OUTPUT_FREQ = 145330000; // Shawsville Repeater
-    static String VFO_SELECT_A_TEXT = new String("Select radio VFO A");
-    static String VFO_SELECT_B_TEXT = new String("Select radio VFO B");
+    static String VFO_SELECT_A_TEXT = "Select radio VFO A";
+    static String VFO_SELECT_B_TEXT = "Select radio VFO B";
 
     
     protected ArrayList<DecadeDigit> freqDigits = null;
@@ -82,11 +82,11 @@ final public class VfoDisplayControl extends JInternalFrame
     public VfoDisplayControl(VfoPrototype2 frame) {
         super("VFO Display Control");
         aFrame = frame;
-        super.setFrameIcon(null); // does not remove icon
-        super.setClosable(false);
-        super.setFocusCycleRoot(true);
-        super.setFocusable(true);
-        frame.setResizable(false);
+        setFrameIcon(null); // does not remove icon
+        setClosable(false);
+        setFocusCycleRoot(true);
+        setFocusable(true);
+        setResizable(false);
         setVisible(false);
         
     }

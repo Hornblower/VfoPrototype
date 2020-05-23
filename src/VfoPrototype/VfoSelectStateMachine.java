@@ -118,11 +118,7 @@ public class VfoSelectStateMachine {
         vfoA.setSelected(true);
         frequencyVfoA.setBackground(selectedColor);
         frequencyVfoB.setBackground(unselectedColor);
-        // NetBeans is not changing the background color so will rewrite the
-        // VFO frequencies to update the textField.
-        //frequencyVfoA.repaint();
-        //frequencyVfoB.repaint();
-        lock.writeLock().unlock();            
+       lock.writeLock().unlock();            
         
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
@@ -139,11 +135,7 @@ public class VfoSelectStateMachine {
         vfoB.setSelected(true);
         frequencyVfoB.setBackground(selectedColor);
         frequencyVfoA.setBackground(unselectedColor);
-        // NetBeans is not changing the background color so will rewrite the
-        // VFO frequencies to update the textField.
-        //frequencyVfoA.repaint();
-        //frequencyVfoB.repaint();
-        lock.writeLock().unlock();            
+       lock.writeLock().unlock();            
         
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
