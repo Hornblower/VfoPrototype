@@ -26,8 +26,8 @@ public class VfoSelectStateMachine {
     JRadioButtonMenuItem vfoB;
     JTextField frequencyVfoA;
     JTextField frequencyVfoB;
-    static Color selectedColor = Color.PINK;
-    static Color unselectedColor = Color.WHITE;
+    static Color selectedColor = Color.WHITE; //new Color(200,255,200); // LightGreen
+    static Color unselectedColor = Color.LIGHT_GRAY;
  
     public VfoSelectStateMachine(JRadioButtonMenuItem a, JRadioButtonMenuItem b, 
             JTextField freqA, JTextField freqB) {
@@ -118,7 +118,12 @@ public class VfoSelectStateMachine {
         vfoA.setSelected(true);
         frequencyVfoA.setBackground(selectedColor);
         frequencyVfoB.setBackground(unselectedColor);
-        lock.writeLock().unlock();
+        // NetBeans is not changing the background color so will rewrite the
+        // VFO frequencies to update the textField.
+        //frequencyVfoA.repaint();
+        //frequencyVfoB.repaint();
+        lock.writeLock().unlock();            
+        
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
         return success;
@@ -134,7 +139,12 @@ public class VfoSelectStateMachine {
         vfoB.setSelected(true);
         frequencyVfoB.setBackground(selectedColor);
         frequencyVfoA.setBackground(unselectedColor);
-        lock.writeLock().unlock();
+        // NetBeans is not changing the background color so will rewrite the
+        // VFO frequencies to update the textField.
+        //frequencyVfoA.repaint();
+        //frequencyVfoB.repaint();
+        lock.writeLock().unlock();            
+        
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
         return success;

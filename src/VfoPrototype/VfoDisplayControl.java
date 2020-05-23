@@ -391,7 +391,7 @@ final public class VfoDisplayControl extends JInternalFrame
         String itemText = item.getText();
 
         System.out.println("item.name :"+itemText);
-        if (itemText == "VFO A") {
+        if (itemText == "Select radio VFO A") {
             //item.firePropertyChange("MENU_ITEM1", false, true);
             if (item.isSelected()) {
                 vfoState.setVfoASelected();
@@ -399,7 +399,7 @@ final public class VfoDisplayControl extends JInternalFrame
                 System.out.println("VFO A menu item setSelected() itemStateChanged()");
             }           
         }
-        else if (itemText == "VFO B") {
+        else if (itemText == "Select radio VFO B") {
             //item.firePropertyChange("MENU_ITEM1", false, true);
             if (item.isSelected()) {
                 vfoState.setVfoBSelected();
