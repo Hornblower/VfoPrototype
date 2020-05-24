@@ -26,6 +26,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
@@ -64,6 +65,8 @@ final public class VfoDisplayControl extends JInternalFrame
     static long SHAWSVILLE_REPEATER_OUTPUT_FREQ = 145330000; // Shawsville Repeater
     static String VFO_SELECT_A_TEXT = "Select radio VFO A";
     static String VFO_SELECT_B_TEXT = "Select radio VFO B";
+    static String LAST_VFO = "LAST_VFO";
+    
 
     
     protected ArrayList<DecadeDigit> freqDigits = null;
@@ -124,7 +127,9 @@ final public class VfoDisplayControl extends JInternalFrame
         insertDigitsIntoPanels();
         addMenuBar();
         inhibit = false;
-        initFrequency(MSN_FREQ);
+        long selectedFreq = vfoState.getSelectedVfoFrequency();
+        frequencyToDigits(selectedFreq);
+        
     }
         
     private void addMenuBar() {    
@@ -140,6 +145,8 @@ final public class VfoDisplayControl extends JInternalFrame
         menuBar.add(menu);
         //Set JMenuItem A.
         JRadioButtonMenuItem menuItemA = new JRadioButtonMenuItem(VFO_SELECT_A_TEXT, true);
+        menuItemA.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_A, ActionEvent.ALT_MASK));
         menuItemA.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_A, ActionEvent.ALT_MASK));
         AccessibleContext itemAContext = menuItemA.getAccessibleContext();
@@ -173,11 +180,27 @@ final public class VfoDisplayControl extends JInternalFrame
         
         vfoState = new VfoSelectStateMachine(menuItemA, menuItemB,
             aFrame.frequencyVfoA, aFrame.frequencyVfoB );
-        vfoState.setVfoASelected(); // Vfo A is arbitrary default, later will persist.
+ 
+        // @todo Later we will get these from Preferences.  When do we save a freq?
         vfoState.writeFrequencyToRadioVfoA(MSN_FREQ);
         vfoState.writeFrequencyToRadioVfoB(SHAWSVILLE_REPEATER_OUTPUT_FREQ);
-        
-
+       
+          // @todo Add this later with stored frequency of the selected vfo.
+        String lastVfo = aFrame.prefs.get("LAST_VFO", "VFO_SELECT_A_TEXT");
+        if ( lastVfo == null) {
+            // There is no history.
+            // Vfo A is arbitrary default,
+            vfoState.setVfoASelected();
+        } else if ( lastVfo.equals(VFO_SELECT_A_TEXT)) {
+            vfoState.setVfoASelected();
+        } else if ( lastVfo.equals(VFO_SELECT_B_TEXT)) {
+            vfoState.setVfoBSelected();
+        } else {
+            // Do no recognize the entry.
+            System.out.println("Unrecognized preference :"+lastVfo);
+            vfoState.setVfoASelected();
+        }
+ 
     }
 
     
@@ -384,30 +407,39 @@ final public class VfoDisplayControl extends JInternalFrame
 
     @Override
     public void itemStateChanged(ItemEvent e) {
-        //System.out.print(e);
+        if (inhibit) return;
         Object itemObj = e.getItem();
         JMenuItem item = (JMenuItem) itemObj;
-        
         String itemText = item.getText();
-
         System.out.println("item.name :"+itemText);
-        if (itemText == VFO_SELECT_A_TEXT) {
+        
+        //int id = e.getID();
+        //System.out.println("itemEvent ID "+ id);
+        
+        if (itemText.equals(VFO_SELECT_A_TEXT)) {
             //item.firePropertyChange("MENU_ITEM1", false, true);
             if (item.isSelected()) {
                 vfoState.setVfoASelected();
-                
-                System.out.println("VFO A menu item setSelected() itemStateChanged()");
+                aFrame.prefs.put(LAST_VFO, VFO_SELECT_A_TEXT);
+                // If voiceOver enabled, need this dialog to announce vfo change.
+                JOptionPane.showMessageDialog(this,
+                    "VFO A Selected",
+                    "VFO A Selected", // VoiceOver reads only this line
+                    JOptionPane.PLAIN_MESSAGE);
             }           
         }
-        else if (itemText == VFO_SELECT_B_TEXT) {
+        else if (itemText.equals(VFO_SELECT_B_TEXT)) {
             //item.firePropertyChange("MENU_ITEM1", false, true);
             if (item.isSelected()) {
                 vfoState.setVfoBSelected();
-                System.out.println("VFO B menu item setSelected() itemStateChanged()");
+                aFrame.prefs.put(LAST_VFO, VFO_SELECT_B_TEXT);
+                // If voiceOver enabled, need this dialog to announce vfo change.
+                JOptionPane.showMessageDialog(this,
+                    "VFO B Selected",
+                    "VFO B Selected",  // VoiceOver reads only this line
+                    JOptionPane.PLAIN_MESSAGE);
             }
-        }
-        else {
-            //item.firePropertyChange("UNKNOWN_MENU_ITEM", false, true);
+        } else {
             System.out.println("Unknown menu item handled in itemStateChanged()");
         }
         long freq = vfoState.getSelectedVfoFrequency();
