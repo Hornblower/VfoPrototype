@@ -49,7 +49,7 @@ import java.util.prefs.*;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame {
-    public static String version = "Version 2.0.3";
+    public static String version = "Version 2.0.4";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
 
