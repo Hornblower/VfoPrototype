@@ -8,6 +8,7 @@ package VfoPrototype;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -24,18 +25,17 @@ import javax.swing.event.ChangeListener;
 final public class DecadeModel implements ChangeListener, ActionListener {
     protected DecadeModel linkedModel = null;
     private int decade;
+    private DecadeDigit digit;
     int initialValue = 0;
     int minimumValue = 0;
     int maximumValue = 9;
     int currentValue = initialValue;
     Object valueObj = new Object();
-    
-    public DecadeModel() {
-        decade = 0;  // Default to zero decade.
-    }
-    
-    public DecadeModel(int aPowerOfTen) {
+        
+    public DecadeModel(int aPowerOfTen, DecadeDigit aDigit) {
         decade = aPowerOfTen;
+        digit = aDigit;
+        
     }
 
     public void setLinkedModel(DecadeModel aLinkedModel) {
@@ -73,12 +73,10 @@ final public class DecadeModel implements ChangeListener, ActionListener {
             if (linkedModel != null) {
                 int linkedModelValue = linkedModel.getNextValue();
                 // @todo limit recursion
-                linkedModel.setValue(linkedModelValue);
-                int linkModelDecade = linkedModel.getDecade();
-                Component comp = VfoPrototype2.singletonInstance.vfoGroup.getTraversalOrder().get(linkModelDecade);
-                DecadeDigit digit = (DecadeDigit)comp;
+                linkedModel.setValue(linkedModelValue);             
+                DecadeDigit nextDecadeDigit = linkedModel.digit;
                 Object obj = linkedModelValue;
-                digit.setValue(obj);
+                nextDecadeDigit.setValue(obj);
                 
             } else {
                 // Let the VfoDisplayPanel wrap around.
@@ -96,14 +94,10 @@ final public class DecadeModel implements ChangeListener, ActionListener {
             setValue(maximumValue);
             if(linkedModel != null) {
                 int linkedModelValue = linkedModel.getPreviousValue();
-                // @todo limit recursion
-                linkedModel.setValue(linkedModelValue);
-                int linkModelDecade = linkedModel.getDecade();
-                Component comp = VfoPrototype2.singletonInstance.vfoGroup.getTraversalOrder().get(linkModelDecade);
-                DecadeDigit digit = (DecadeDigit)comp;
+                linkedModel.setValue(linkedModelValue);                                
+                DecadeDigit nextDecadeDigit = linkedModel.digit;
                 Object obj = linkedModelValue;
-                digit.setValue(obj);
-
+                nextDecadeDigit.setValue(obj);
             } else {
                 // Let the VfoDisplayPanel wrap around.
             }

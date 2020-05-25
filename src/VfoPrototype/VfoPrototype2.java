@@ -38,6 +38,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JRadioButton;
 import javax.swing.KeyStroke;
 import javax.swing.UnsupportedLookAndFeelException;
+import java.util.prefs.*;
 
 
 /**
@@ -48,16 +49,15 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame {
-    public static String version = "Version 2.0.2";
-    static public VfoPrototype2 singletonInstance;
+    public static String version = "Version 2.0.3";
     VfoDisplayControl vfoGroup;
+    protected Preferences prefs;
 
     /**
      * Creates new form VfoPrototype which is used as a testbed for the multi-
      * digit VfoDisplayControl which is designed to be blind accessible.
      */
     public VfoPrototype2() {
-        singletonInstance = this;    
         try {
             initComponents();
         } catch(Exception e) {
@@ -66,8 +66,9 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     }
     
     public void setUpVfoComponents() {
-        singletonInstance.setTitle("VFO Prototype "+version);
-        
+        setTitle("VFO Prototype "+version);
+        // Create an Prefernces object for this user's preferences.
+        prefs = Preferences.userNodeForPackage(this.getClass());       
         // Must instantiate components before initialization of VfoDisplayControl.
         vfoGroup = (VfoDisplayControl) digitsParent;
         vfoGroup.initDigits();
@@ -83,65 +84,62 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         
         // Make sure that the JFrame is focus manager.
         // It appears that voiceOver StepInto is ignoring focus manager.
-        singletonInstance.setFocusCycleRoot(true);
+        setFocusCycleRoot(true);
         VfoDigitTraversalPolicy policy; 
         policy = new VfoDigitTraversalPolicy(order);
-        singletonInstance.setFocusTraversalPolicy(policy);
-        singletonInstance.setFocusTraversalPolicyProvider(true);
-        singletonInstance.setFocusable(true);
-        singletonInstance.setVisible(true);
+        setFocusTraversalPolicy(policy);
+        setFocusTraversalPolicyProvider(true);
+        setFocusable(true);
+        setVisible(true);
         // Add focus traverse keys left and right arrow.
         // In this case, FORWARD is to the left.
-        singletonInstance.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
-        singletonInstance.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+        setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
+        setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
         Set set = new HashSet( getFocusTraversalKeys(
             KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
         set.add( KeyStroke.getKeyStroke( "RIGHT" ) );
-        singletonInstance.setFocusTraversalKeys(
+        setFocusTraversalKeys(
             KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set );
 
         set = new HashSet( getFocusTraversalKeys(
             KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
         set.add( KeyStroke.getKeyStroke( "LEFT" ) );
-        singletonInstance.setFocusTraversalKeys(
+        setFocusTraversalKeys(
             KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, set );
-        singletonInstance.setFocusTraversalKeysEnabled(true);
+        setFocusTraversalKeysEnabled(true);
 
-        assert(singletonInstance.areFocusTraversalKeysSet(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS) );
+        assert(areFocusTraversalKeysSet(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS) );
         
         // The JFrame is the root of all the traversal.  Add up and down to it.
         // Add the focus traversal keys for up cycle and down cycle.
         // Use Option UpArrow for up cycle and Option DownArrow for down cycle.
-        // I guess that ALT and OPT are the same thing....
-        singletonInstance.setFocusTraversalKeys(
+        // On MACosx ALT is OPT.
+        setFocusTraversalKeys(
                 KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, null);
-        singletonInstance.setFocusTraversalKeys(
+        setFocusTraversalKeys(
                 KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS, null);
         set = new HashSet( getFocusTraversalKeys(
             KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS ) );
         set.add( KeyStroke.getKeyStroke( KeyEvent.VK_UP, InputEvent.ALT_MASK) );
-        singletonInstance.setFocusTraversalKeys(
+        setFocusTraversalKeys(
                  KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, set);
         
         set = new HashSet( getFocusTraversalKeys(
             KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS ) );
         set.add( KeyStroke.getKeyStroke( KeyEvent.VK_DOWN, InputEvent.ALT_MASK) );
-        singletonInstance.setFocusTraversalKeys(
+        setFocusTraversalKeys(
                  KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS, set);
-        
-        
+                
         // Hold onto your hats, we're takin over the reins.
-        singletonInstance.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() );
-        ContainerOrderFocusTraversalPolicy fPolicy = (ContainerOrderFocusTraversalPolicy) singletonInstance.getFocusTraversalPolicy();
-        
-        // ContainerOrderFocusTraversalPolicy fPolicy = (ContainerOrderFocusTraversalPolicy) singletonInstance.getFocusTraversalPolicy();
+        setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() );
+        ContainerOrderFocusTraversalPolicy fPolicy = (ContainerOrderFocusTraversalPolicy) getFocusTraversalPolicy();
         // Docs say that if you provide up/down traversal, you must do this:
         fPolicy.setImplicitDownCycleTraversal(false);
          //requestFocusInWindow(boolean temporary)
-        assert( singletonInstance.getFocusTraversalPolicy() != null);
-        assert( singletonInstance.isFocusCycleRoot());
-        singletonInstance.setEnabled(true);
-                
+        assert( getFocusTraversalPolicy() != null);
+        assert( isFocusCycleRoot());
+        setEnabled(true);
+                       
     }   
         
     
@@ -156,7 +154,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        digitsParent = new VfoDisplayControl(singletonInstance);
+        digitsParent = new VfoDisplayControl(this);
         jLayeredPaneMegahertz = new javax.swing.JLayeredPane();
         jLayeredPaneKilohertz = new javax.swing.JLayeredPane();
         jLayeredPaneHertz = new javax.swing.JLayeredPane();
@@ -368,7 +366,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
                 VfoPrototype2 frame = new VfoPrototype2();
                 frame.setUpVfoComponents();
                 // Give the ones digit JFormattedTextField focus upon opening window.
-                Vector<Component> order =  singletonInstance.vfoGroup.getTraversalOrder();
+                Vector<Component> order =  VfoDisplayControl.getTraversalOrder();
                 order.get(0).requestFocusInWindow();
                 frame.setVisible(true);
             }

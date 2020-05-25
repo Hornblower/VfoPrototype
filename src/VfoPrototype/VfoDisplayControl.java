@@ -18,6 +18,7 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Vector;
 import javax.accessibility.AccessibleContext;
 import javax.swing.JFormattedTextField;
@@ -36,20 +37,25 @@ import javax.swing.KeyStroke;
  * manipulated, wraps around and carries to the next digit appropriately.
  * 
  * The VfoDisplayControl digits can be incremented and decremented by the
- * up and down arrows. The left and right arrows traverse the digit. A digit
- * if given a new description upon focus which includes the decade of the 
+ * up and down arrows. The left and right arrows traverse the decades. A digit
+ * is given a new description upon focus which includes the decade of the 
  * digit and the current VFO frequency in Mhz.  VoiceOver announces that new
  * description.  There are shortcut keys ALT-A and ALT-B to select either
  * VFO A or VFO B.  These "radio buttons" choose which radio VFO is controlled
- * by manipulating the VFO Display Control digits.
+ * by manipulating the VFO Display Control digits.  VoiceOver DOES NOT announce
+ * at all upon reaching the JInternalFrame menu and menu items.  That is a bug
+ * and am submitting it to Oracle with a simple example called JInternalFrameBug.
+ * To overcome this voiceOver problem, a dialog is opened when the VFO is changed.
+ * Blind users can use the OPT-A and OPT-B to choose VfoA and VfoB respectively
+ * without having to navigate the menu items that have no audio feedback.
  * 
  * Sighted users can click on the upper half of a digit to increment or lower
  * half to decrement.  The mouseWheel is a faster way to increment/decrement.
  * 
  * It is not possible to just type digits to enter a frequency in this app.  Each
  * digit is a formatted text field, but editing is disabled.  Editing introduces
- * many complications which include the question of when to commit.  That is why
- * editing is disabled.
+ * many complications which include the question of when to commit.  It is far
+ * easier and quicker to use the arrow keys.   That is why editing is disabled.
  * 
  * To scan the band, pick a decade digit and hold down the up/down arrow.
  * 
@@ -71,15 +77,15 @@ final public class VfoDisplayControl extends JInternalFrame
     
     protected ArrayList<DecadeDigit> freqDigits = null;
     public final static int QUANTITY_DIGITS = 10;
-    VfoPrototype2 aFrame = VfoPrototype2.singletonInstance;
+    VfoPrototype2 aFrame;
     long sv_freq;
     long currentFrequency = 3563000L;
     long oldFrequency = 0;
     boolean inhibit = true;  // Inhibit interaction during construction.
-    Vector<Component> order;
+    static Vector<Component> order;
     boolean silent = false;
-    VfoSelectStateMachine vfoState;
-
+    VfoSelectionInterface vfoState;
+    
 
 
     public VfoDisplayControl(VfoPrototype2 frame) {
@@ -97,25 +103,20 @@ final public class VfoDisplayControl extends JInternalFrame
     public void initDigits() {
         freqDigits = new ArrayList<>();
         freqDigits.add(new DecadeDigit(this, 0.7));    
-        freqDigits.add(new DecadeDigit(this, 0.7));
-        freqDigits.get(0).linkToNextHigherDecade(freqDigits.get(1));       
-        freqDigits.add(new DecadeDigit(this, 0.7));
-        freqDigits.get(1).linkToNextHigherDecade(freqDigits.get(2));   
+        freqDigits.add(new DecadeDigit(this, 0.7));    
+        freqDigits.add(new DecadeDigit(this, 0.7)); 
         freqDigits.add(new DecadeDigit(this, 1.0));
-        freqDigits.get(2).linkToNextHigherDecade(freqDigits.get(3));       
+        freqDigits.add(new DecadeDigit(this, 1.0));    
+        freqDigits.add(new DecadeDigit(this, 1.0));      
         freqDigits.add(new DecadeDigit(this, 1.0));
-        freqDigits.get(3).linkToNextHigherDecade(freqDigits.get(4));       
-        freqDigits.add(new DecadeDigit(this, 1.0));
-        freqDigits.get(4).linkToNextHigherDecade(freqDigits.get(5));       
-        freqDigits.add(new DecadeDigit(this, 1.0));
-        freqDigits.get(5).linkToNextHigherDecade(freqDigits.get(6));       
         freqDigits.add(new DecadeDigit(this, 1.0));  
-        freqDigits.get(6).linkToNextHigherDecade(freqDigits.get(7));       
+        freqDigits.add(new DecadeDigit(this, 1.0));   
         freqDigits.add(new DecadeDigit(this, 1.0));
-        freqDigits.get(7).linkToNextHigherDecade(freqDigits.get(8));       
-        freqDigits.add(new DecadeDigit(this, 1.0));
-        freqDigits.get(8).linkToNextHigherDecade(freqDigits.get(9));     
-        assert(freqDigits.size() == QUANTITY_DIGITS);       
+        assert(freqDigits.size() == QUANTITY_DIGITS);      
+        
+        // Link the digits by linking all the models.
+        DecadeDigit.linkAllDigits(freqDigits, QUANTITY_DIGITS);
+        // Save the focus order.        
         order = new Vector<>(QUANTITY_DIGITS);
         for (int iii=0; iii<QUANTITY_DIGITS; iii++) {
             // The order vector contains the formated text fields.
@@ -129,6 +130,7 @@ final public class VfoDisplayControl extends JInternalFrame
         inhibit = false;
         long selectedFreq = vfoState.getSelectedVfoFrequency();
         frequencyToDigits(selectedFreq);
+
         
     }
         
@@ -177,13 +179,28 @@ final public class VfoDisplayControl extends JInternalFrame
         swapContext.setAccessibleName("Swap Vfo A with Vfo B");
         swapContext.setAccessibleDescription("Use shortcut key option S");
         menu.add(swap);
+
+        VfoAState stateA = new VfoAState(aFrame.frequencyVfoA, menuItemA);
+        VfoBState stateB = new VfoBState(aFrame.frequencyVfoB, menuItemB);
+
+        ArrayList<VfoState> vfoStates = new ArrayList<VfoState>(
+                Arrays.asList((VfoState)stateA, (VfoState)stateB ));
+
+       VfoStateContext vfoContext = new VfoStateContext(vfoStates);
+
+
+
+
+        //Below is another version of the state machine.
+
         
-        vfoState = new VfoSelectStateMachine(menuItemA, menuItemB,
+        vfoState = new VfoSelectionInterface(menuItemA, menuItemB,
             aFrame.frequencyVfoA, aFrame.frequencyVfoB );
  
         // @todo Later we will get these from Preferences.  When do we save a freq?
         vfoState.writeFrequencyToRadioVfoA(MSN_FREQ);
         vfoState.writeFrequencyToRadioVfoB(SHAWSVILLE_REPEATER_OUTPUT_FREQ);
+
        
           // @todo Add this later with stored frequency of the selected vfo.
         String lastVfo = aFrame.prefs.get("LAST_VFO", "VFO_SELECT_A_TEXT");
@@ -232,7 +249,7 @@ final public class VfoDisplayControl extends JInternalFrame
         pane.add(freqDigits.get(0));
     }
     
-    public Vector<Component> getTraversalOrder() {
+    public static Vector<Component> getTraversalOrder() {
         return order;
     }
         

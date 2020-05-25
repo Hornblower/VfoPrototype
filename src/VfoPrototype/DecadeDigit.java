@@ -7,6 +7,7 @@ package VfoPrototype;
 
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -17,6 +18,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.text.ParseException;
+import java.util.ArrayList;
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
 import javax.swing.JFormattedTextField;
@@ -46,10 +48,10 @@ public class DecadeDigit extends JFormattedTextField
     final static String VALUE_CHANGE = "valueChange";
     MaskFormatter maskFormatter;
    
-    public DecadeDigit(VfoDisplayControl aFrame, double scale) {
+    public DecadeDigit(VfoDisplayControl group, double scale) {
         super();
         fontScale = scale;
-        frameGroup = aFrame;
+        frameGroup = group;
         try {
             maskFormatter = new MaskFormatter("#");
             this.setFormatter(maskFormatter);
@@ -57,13 +59,13 @@ public class DecadeDigit extends JFormattedTextField
             System.out.print(e);
             System.out.println("No formatter was created for the DecadeDigit.");
         }
-        setModel(new DecadeModel(0));
+        setModel(new DecadeModel(0,this));
         setToolTipText("Lou, use the force!");
         // Set foreground numeral color Green. Set background black.        
         this.setFocusable(true);
         this.setForeground(Color.GREEN);
         this.setBackground(Color.BLACK);
-        // For now, no typing digits.  Maybe a dialog window on a digit press.
+        // For now, no editing digits. 
         this.setEditable(false);
         addMouseWheelListener(this);
         addMouseListener(this);
@@ -130,11 +132,11 @@ public class DecadeDigit extends JFormattedTextField
             "Up and down arrows change value; Left and right arrows traverse digits.");
     }
     
-    // Start linking DecadeSpinners with the lowest(rightMost) digit.
-    public void linkToNextHigherDecade(DecadeDigit higherDecadeSpinner) {
-        higherDecadeSpinner.setDecade(getDecade() + 1);
+    // Start linking DecadeDigits with the lowest(rightMost) digit.
+    private void linkToNextHigherDecade(DecadeDigit higherDecadeDigit) {
+        higherDecadeDigit.setDecade(getDecade() + 1);
         DecadeModel low = (DecadeModel)this.getModel();
-        DecadeModel high = (DecadeModel)higherDecadeSpinner.getModel();
+        DecadeModel high = (DecadeModel)higherDecadeDigit.getModel();
         low.setLinkedModel(high);
     }
     
@@ -142,6 +144,12 @@ public class DecadeDigit extends JFormattedTextField
         return ((DecadeModel) getModel()).getDecade();
     }
     
+    public static void linkAllDigits(ArrayList<DecadeDigit> freqDigits, int arraySize) {
+        int limit = arraySize - 1;
+        for (int count = 0 ; count < limit; count ++)
+            freqDigits.get(count).linkToNextHigherDecade(freqDigits.get(count+1));           
+    }
+                
     /**
      * There are two representations of the current value of the field.  One is
      * the textual representation in the textField which is displayed upon 
