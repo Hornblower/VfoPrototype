@@ -179,21 +179,8 @@ final public class VfoDisplayControl extends JInternalFrame
         swapContext.setAccessibleName("Swap Vfo A with Vfo B");
         swapContext.setAccessibleDescription("Use shortcut key option S");
         menu.add(swap);
-
-        VfoAState stateA = new VfoAState(aFrame.frequencyVfoA, menuItemA);
-        VfoBState stateB = new VfoBState(aFrame.frequencyVfoB, menuItemB);
-
-        ArrayList<VfoState> vfoStates = new ArrayList<VfoState>(
-                Arrays.asList((VfoState)stateA, (VfoState)stateB ));
-
-       VfoStateContext vfoContext = new VfoStateContext(vfoStates);
-
-
-
-
-        //Below is another version of the state machine.
-
-        
+        // Add an exclusive interface to the Vfo selector so that only one thread
+        // at a time gains access.
         vfoState = new VfoSelectionInterface(menuItemA, menuItemB,
             aFrame.frequencyVfoA, aFrame.frequencyVfoB );
  
