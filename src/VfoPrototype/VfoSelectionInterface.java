@@ -204,5 +204,21 @@ public class VfoSelectionInterface {
     public boolean writeFrequencyToRadioVfoB(long frequencyHertz) {
         return writeFrequencyToRadio(frequencyHertz, false);
     }
+    
+    public boolean copyAtoB() {
+        boolean success = true;
+        long freqA = getVfoAFrequency();
+        success = writeFrequencyToRadioVfoB(freqA);       
+        return success;       
+    }
+    
+    public boolean swapAwithB() {
+        boolean success = true;
+        long oldFreqA = getVfoAFrequency();
+        long oldFreqB = getVfoBFrequency();
+        writeFrequencyToRadioVfoA(oldFreqB);
+        writeFrequencyToRadioVfoB(oldFreqA);           
+        return success;
+    }
 }
 

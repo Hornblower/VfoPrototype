@@ -49,7 +49,7 @@ import java.util.prefs.*;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame {
-    public static String version = "Version 2.0.4";
+    public static String version = "Version 2.1.0";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
 
@@ -71,6 +71,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         prefs = Preferences.userNodeForPackage(this.getClass());       
         // Must instantiate components before initialization of VfoDisplayControl.
         vfoGroup = (VfoDisplayControl) digitsParent;
+        vfoGroup.setupPanes();
         vfoGroup.initDigits();
         JFormattedTextField textField;
         Vector<Component> order = vfoGroup.getTraversalOrder();
