@@ -339,26 +339,26 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
      */
     @SuppressWarnings("empty-statement")
     public static void main(String args[])  {        
-        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-            try {           
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-                if ("Mac OS X".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());                
-                    break;
-                }
-            } catch (ClassNotFoundException ex) {
-                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-            } catch (InstantiationException ex) {
-                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-            } catch (IllegalAccessException ex) {
-                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-            } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-            }    
-        }
+//        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//            try {           
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//                if ("Mac OS X".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());                
+//                    break;
+//                }
+//            } catch (ClassNotFoundException ex) {
+//                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            } catch (InstantiationException ex) {
+//                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            } catch (IllegalAccessException ex) {
+//                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            }    
+//        }
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
