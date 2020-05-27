@@ -20,6 +20,7 @@
 package VfoPrototype;
 
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.ContainerOrderFocusTraversalPolicy;
 import java.awt.DefaultFocusTraversalPolicy;
@@ -35,6 +36,10 @@ import java.util.Vector;
 import javax.swing.JLayeredPane;
 import javax.swing.KeyStroke;
 import java.util.prefs.*;
+import javax.swing.JComponent;
+import javax.swing.UIManager;
+import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.ComponentUI;
 
 
 /**
@@ -144,7 +149,23 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         assert( getFocusTraversalPolicy() != null);
         assert( isFocusCycleRoot());
         setEnabled(true);
-                       
+     
+        // Experimenting below:
+        JComponent  digit = (JComponent) order.get(0);
+        ComponentUI ftfComponentUI = UIManager.getUI(digit);
+        String UIclassName = ftfComponentUI.getClass().getName();
+        String xxx = ftfComponentUI.toString();
+        //com.apple.laf.AquaTextFieldFormattedUI
+        Object keyObjectBackground = new String("FormattedTextField.background");
+        Object uiBackground = UIManager.get(keyObjectBackground);
+        Object keyObjectForeground = new String("FormattedTextField.foreground");
+        Object uiForeground = UIManager.get(keyObjectForeground);
+        //ColorUIResource res = new ColorUIResource(new Color(255,5,0,125));
+        //UIManager.put("FormattedTextField.foreground", res);       
+        //UIManager.put("FormattedTextField.background", res);
+        //uiBackground = UIManager.get(keyObjectBackground);
+        //uiForeground = UIManager.get(keyObjectForeground);
+        
     }       
     
     /** This method is called from within the constructor to
@@ -172,8 +193,9 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
 
         digitsParent.setVisible(true);
 
-        jLayeredPaneMegahertz.setBackground(new java.awt.Color(255, 0, 0));
-        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jLayeredPaneMegahertz.setBackground(new java.awt.Color(0, 0, 0));
+        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0))); // NOI18N
+        jLayeredPaneMegahertz.setForeground(new java.awt.Color(0, 255, 0));
         jLayeredPaneMegahertz.setToolTipText("");
         jLayeredPaneMegahertz.setOpaque(true);
         jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(277, 120));
@@ -186,8 +208,9 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         });
         jLayeredPaneMegahertz.setLayout(new java.awt.FlowLayout());
 
-        jLayeredPaneKilohertz.setBackground(new java.awt.Color(255, 0, 0));
-        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jLayeredPaneKilohertz.setBackground(new java.awt.Color(0, 0, 0));
+        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0))); // NOI18N
+        jLayeredPaneKilohertz.setForeground(new java.awt.Color(0, 255, 0));
         jLayeredPaneKilohertz.setOpaque(true);
         jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(209, 120));
         jLayeredPaneKilohertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
@@ -199,8 +222,9 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         });
         jLayeredPaneKilohertz.setLayout(new java.awt.FlowLayout());
 
-        jLayeredPaneHertz.setBackground(new java.awt.Color(255, 0, 0));
-        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jLayeredPaneHertz.setBackground(new java.awt.Color(0, 0, 0));
+        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0))); // NOI18N
+        jLayeredPaneHertz.setForeground(new java.awt.Color(0, 255, 0));
         jLayeredPaneHertz.setToolTipText("VFO Hertz digits");
         jLayeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
         jLayeredPaneHertz.setOpaque(true);

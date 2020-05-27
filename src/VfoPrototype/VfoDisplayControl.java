@@ -37,8 +37,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import javax.swing.border.LineBorder;
+import javax.swing.plaf.ColorUIResource;
 
 
 /**
@@ -405,7 +407,7 @@ final public class VfoDisplayControl extends JInternalFrame
         
         Container content = display.getContentPane();
         Rectangle contentBounds = content.getBounds();
-        content.setBackground(Color.RED);
+        //content.setBackground(Color.BLACK);
         return;
         
 //        content.setLayout(new FlowLayout());
@@ -688,7 +690,8 @@ final public class VfoDisplayControl extends JInternalFrame
     
     @Override
     public void itemStateChanged(ItemEvent e) {
-        if (inhibit) return;
+        if (inhibit) return;        
+        
         Object itemObj = e.getItem();
         JMenuItem item = (JMenuItem) itemObj;
         String itemText = item.getText();

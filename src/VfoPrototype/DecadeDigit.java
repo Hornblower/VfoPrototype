@@ -64,6 +64,8 @@ public class DecadeDigit extends JFormattedTextField
         // Set foreground numeral color Green. Set background transparent.        
         setFocusable(true);
         setForeground(Color.GREEN);
+        Color back = new Color(0,0,0,0);
+        setBackground(back);
         setEditable(false);        
         setOpaque(false);
         addMouseWheelListener(this);
