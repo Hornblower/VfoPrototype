@@ -27,17 +27,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JFormattedTextField;
 import java.awt.KeyboardFocusManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.JLayeredPane;
-import javax.swing.JRadioButton;
 import javax.swing.KeyStroke;
-import javax.swing.UnsupportedLookAndFeelException;
 import java.util.prefs.*;
 
 
@@ -67,26 +63,34 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     
     public void setUpVfoComponents() {
         setTitle("VFO Prototype "+version);
-        // Create an Prefernces object for this user's preferences.
-        prefs = Preferences.userNodeForPackage(this.getClass());       
+        // Create an Prefernces object for access to this user's preferences.
+        prefs = Preferences.userNodeForPackage(this.getClass());        
         // Must instantiate components before initialization of VfoDisplayControl.
         vfoGroup = (VfoDisplayControl) digitsParent;
-        vfoGroup.setupPanes();
-        vfoGroup.initDigits();
+        vfoGroup.initDigits();       
+        vfoGroup.setupPanes();        
+        vfoGroup.addMenuBar();       
+        vfoGroup.makeVisible();
+        // Cause the ones digit ftf to get the focus when the JFrame gets focus.                              
         JFormattedTextField textField;
         Vector<Component> order = vfoGroup.getTraversalOrder();
         textField = (JFormattedTextField) order.get(0);
-        // Cause the ones digit ftf to get the focus when the JFrame gets focus.        
-        this.addWindowFocusListener(new WindowAdapter() {
+         this.addWindowFocusListener(new WindowAdapter() {
             public void windowGainedFocus(WindowEvent e) {
                 textField.requestFocusInWindow();
             }
-        });
-        
+        }); 
+        // Associate labels with fields for accessibility.
+        jLabel1.setLabelFor(frequencyVfoA);
+        jLabel2.setLabelFor(frequencyVfoB);
+    }
+    
+    public void setUpFocusManager() {
         // Make sure that the JFrame is focus manager.
         // It appears that voiceOver StepInto is ignoring focus manager.
         setFocusCycleRoot(true);
         VfoDigitTraversalPolicy policy; 
+        Vector<Component> order = vfoGroup.getTraversalOrder();
         policy = new VfoDigitTraversalPolicy(order);
         setFocusTraversalPolicy(policy);
         setFocusTraversalPolicyProvider(true);
@@ -141,11 +145,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         assert( isFocusCycleRoot());
         setEnabled(true);
                        
-    }   
-        
-    
-    
-    
+    }       
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -172,10 +172,11 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
 
         digitsParent.setVisible(true);
 
+        jLayeredPaneMegahertz.setBackground(new java.awt.Color(255, 0, 0));
         jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jLayeredPaneMegahertz.setToolTipText("");
         jLayeredPaneMegahertz.setOpaque(true);
-        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(270, 120));
+        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(277, 120));
         jLayeredPaneMegahertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -185,9 +186,10 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         });
         jLayeredPaneMegahertz.setLayout(new java.awt.FlowLayout());
 
+        jLayeredPaneKilohertz.setBackground(new java.awt.Color(255, 0, 0));
         jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jLayeredPaneKilohertz.setOpaque(true);
-        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(200, 120));
+        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(209, 120));
         jLayeredPaneKilohertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -197,11 +199,12 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         });
         jLayeredPaneKilohertz.setLayout(new java.awt.FlowLayout());
 
+        jLayeredPaneHertz.setBackground(new java.awt.Color(255, 0, 0));
         jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jLayeredPaneHertz.setToolTipText("VFO Hertz digits");
         jLayeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
         jLayeredPaneHertz.setOpaque(true);
-        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(168, 120));
+        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(145, 120));
         jLayeredPaneHertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -221,7 +224,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
                 .addComponent(jLayeredPaneKilohertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLayeredPaneHertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 2, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         digitsParentLayout.setVerticalGroup(
             digitsParentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -366,6 +369,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
                 
                 VfoPrototype2 frame = new VfoPrototype2();
                 frame.setUpVfoComponents();
+                frame.setUpFocusManager();
                 // Give the ones digit JFormattedTextField focus upon opening window.
                 Vector<Component> order =  VfoDisplayControl.getTraversalOrder();
                 order.get(0).requestFocusInWindow();

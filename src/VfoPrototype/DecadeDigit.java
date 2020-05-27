@@ -7,8 +7,8 @@ package VfoPrototype;
 
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -35,7 +35,7 @@ import javax.swing.text.MaskFormatter;
  * 
  * @author Coz
  */
-public class DecadeDigit extends JFormattedTextField 
+public class DecadeDigit extends JFormattedTextField
         implements Accessible, FocusListener, MouseWheelListener, 
         MouseListener, KeyListener  {
     
@@ -61,19 +61,18 @@ public class DecadeDigit extends JFormattedTextField
         }
         setModel(new DecadeModel(0,this));
         setToolTipText("Lou, use the force!");
-        // Set foreground numeral color Green. Set background black.        
-        this.setFocusable(true);
-        this.setForeground(Color.GREEN);
-        this.setBackground(Color.BLACK);
-        // For now, no editing digits. 
-        this.setEditable(false);
+        // Set foreground numeral color Green. Set background transparent.        
+        setFocusable(true);
+        setForeground(Color.GREEN);
+        setEditable(false);        
+        setOpaque(false);
         addMouseWheelListener(this);
         addMouseListener(this);
         addKeyListener(this);
         addFocusListener(this);
         addPropertyChangeListener(VALUE_CHANGE, frameGroup);                                 
-        this.setValue(this.getModel().getValue());
-        this.requestFocus();
+        setValue(this.getModel().getValue());
+        requestFocus();
     }
     
     public double getFontScale() {
@@ -149,7 +148,18 @@ public class DecadeDigit extends JFormattedTextField
         for (int count = 0 ; count < limit; count ++)
             freqDigits.get(count).linkToNextHigherDecade(freqDigits.get(count+1));           
     }
-                
+    
+    // Coz try this for translucent backgound == semi transparent.
+    @Override protected void paintComponent(Graphics g) { 
+        g.setColor(new Color(0, 0, 0, 5)); 
+        g.fillRect(getX(), getY(), getWidth(), getHeight());
+        super.paintComponent(g); 
+    } 
+    
+//    @Override protected void BasicFormatedTextFieldUI.paintBackground(Graphics g) {
+//        
+//    }
+    
     /**
      * There are two representations of the current value of the field.  One is
      * the textual representation in the textField which is displayed upon 
