@@ -69,7 +69,8 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     public void setUpVfoComponents() {
         setTitle("VFO Prototype "+version);
         // Create an Prefernces object for access to this user's preferences.
-        prefs = Preferences.userNodeForPackage(this.getClass());        
+        prefs = Preferences.userNodeForPackage(this.getClass()); 
+        this.setResizable(false);
         // Must instantiate components before initialization of VfoDisplayControl.
         vfoGroup = (VfoDisplayControl) digitsParent;
         vfoGroup.initDigits();       
@@ -149,23 +150,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         assert( getFocusTraversalPolicy() != null);
         assert( isFocusCycleRoot());
         setEnabled(true);
-     
-        // Experimenting below:
-        JComponent  digit = (JComponent) order.get(0);
-        ComponentUI ftfComponentUI = UIManager.getUI(digit);
-        String UIclassName = ftfComponentUI.getClass().getName();
-        String xxx = ftfComponentUI.toString();
-        //com.apple.laf.AquaTextFieldFormattedUI
-        Object keyObjectBackground = new String("FormattedTextField.background");
-        Object uiBackground = UIManager.get(keyObjectBackground);
-        Object keyObjectForeground = new String("FormattedTextField.foreground");
-        Object uiForeground = UIManager.get(keyObjectForeground);
-        //ColorUIResource res = new ColorUIResource(new Color(255,5,0,125));
-        //UIManager.put("FormattedTextField.foreground", res);       
-        //UIManager.put("FormattedTextField.background", res);
-        //uiBackground = UIManager.get(keyObjectBackground);
-        //uiForeground = UIManager.get(keyObjectForeground);
-        
+             
     }       
     
     /** This method is called from within the constructor to
@@ -363,26 +348,26 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
      */
     @SuppressWarnings("empty-statement")
     public static void main(String args[])  {        
-//        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//            try {           
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//                if ("Mac OS X".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());                
-//                    break;
-//                }
-//            } catch (ClassNotFoundException ex) {
-//                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//            } catch (InstantiationException ex) {
-//                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//            } catch (IllegalAccessException ex) {
-//                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//            } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//            }    
-//        }
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            try {           
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+                if ("Mac OS X".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());                
+                    break;
+                }
+            } catch (ClassNotFoundException ex) {
+                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (InstantiationException ex) {
+                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+                java.util.logging.Logger.getLogger(VfoPrototype2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }    
+        }
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
