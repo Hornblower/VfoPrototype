@@ -28,8 +28,8 @@ public abstract class Geometry {
     boolean doFill;
     int sides;
     String name;
-    public Geometry(Rectangle bounds, Color color, boolean isFilled, int qtySides, String geoName) {
-        this.bounds = bounds;           
+    public Geometry(Rectangle rbounds, Color color, boolean isFilled, int qtySides, String geoName) {
+        bounds = rbounds;           
         usedColor = color;
         doFill = isFilled;
         sides = qtySides;

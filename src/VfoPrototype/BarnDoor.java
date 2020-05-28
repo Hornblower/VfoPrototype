@@ -25,22 +25,16 @@ import javax.swing.*;
  * @author Coz
  */
 public class BarnDoor extends JPanel {
-    private GeometryModel model;   
-    //private  int rectX;
-    //private  int rectY;
-    private  int rectWidth; // Width of textField
-    private  int rectHeight;// Height of textField
-    private  Color outlineColor = Color.WHITE;
+    private GeometryCollection model;   
+    private  Color outlineColor = Color.DARK_GRAY;
     private  Color fillColor = Color.BLACK;
     private  boolean hasFill = false;
-    private  Dimension preferredSize;
+    private  Dimension prefSize;
 
-    public BarnDoor(GeometryModel model, Dimension prefSize) {
-        this.model = model;
-        this.setPreferredSize(prefSize);
-        preferredSize = prefSize;
-        rectWidth = prefSize.width;
-        rectHeight = prefSize.height;
+    public BarnDoor(Dimension pSize) {
+        model = new GeometryCollection();
+        setPreferredSize(pSize);
+        prefSize = pSize;       
     }
    
    public void setFillColor(Color c) {
@@ -58,38 +52,41 @@ public class BarnDoor extends JPanel {
     }
    
     public void addShapes() {
+        setOpaque(true);
         // Painting coordinates are positive going to the right and down from
         // the top left corner of the space.
         // Fill the complete space occupied by the textField.
-        Rectangle bounds = new Rectangle(0, 0, rectWidth, rectHeight);
+        Rectangle bounds = new Rectangle(0, 0, prefSize.width, prefSize.height);
         FilledRectangle filledRect =  new FilledRectangle(bounds, fillColor); 
         model.addGeometry((Geometry) filledRect);
            
         // Draw the upper button outline rectangle with inset of 5 percent of the 
         // fieldWidth.
-        int inset = rectWidth/20;
-        int boxHeight = (rectHeight/2)-(2*inset);
-        int boxWidth = rectWidth-(2*inset);
+        int inset = prefSize.width/20;
+        int boxHeight = (prefSize.height/2)-(2*inset);
+        int boxWidth = prefSize.width-(2*inset);
         Rectangle upperBoxRect = new Rectangle(inset,inset,boxWidth,boxHeight);
         OutlineRectangle upperBox = new OutlineRectangle( upperBoxRect, outlineColor);
         model.addGeometry((Geometry) upperBox);
         // Draw the lower outline rectangle.        
-        Rectangle lowerBoxRect = new Rectangle(inset, inset+rectHeight/2, 
+        Rectangle lowerBoxRect = new Rectangle(inset, inset+prefSize.height/2, 
                 boxWidth, boxHeight);
         OutlineRectangle lowerBox = new OutlineRectangle(lowerBoxRect, outlineColor);
         model.addGeometry((Geometry)lowerBox);
                
         // Draw the upper arrow triangle outline at 5 percent inset.
         int Tinset = 2*inset;
-        boxWidth = rectWidth - (4*inset);
-        boxHeight = rectHeight/2 - (4*inset);
+        boxWidth = prefSize.width - (4*inset);
+        boxHeight = prefSize.height/2 - (4*inset);
         Rectangle upArrowRect = new Rectangle( Tinset, Tinset, boxWidth, boxHeight);
-        UpwardOutlineTriangle upTriangle = new UpwardOutlineTriangle(upArrowRect, outlineColor);
+        UpwardOutlineTriangle upTriangle = 
+                new UpwardOutlineTriangle(upArrowRect, outlineColor);
         model.addGeometry(upTriangle);
         // Draw the lower arrow triangle outline.
-        Rectangle downArrowRect = new Rectangle( Tinset, Tinset+rectHeight/2,
+        Rectangle downArrowRect = new Rectangle( Tinset, Tinset+prefSize.height/2,
                     boxWidth, boxHeight);
-        DownwardOutlineTriangle downTriangle = new DownwardOutlineTriangle(downArrowRect, outlineColor);
+        DownwardOutlineTriangle downTriangle = 
+                new DownwardOutlineTriangle(downArrowRect, outlineColor);
         model.addGeometry(downTriangle);
 
     }

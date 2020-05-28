@@ -50,7 +50,7 @@ import javax.swing.plaf.ComponentUI;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame {
-    public static String version = "Version 2.1.0";
+    public static String version = "Version 2.1.1";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
 
@@ -177,74 +177,34 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         setFocusable(false);
 
         digitsParent.setVisible(true);
+        digitsParent.getContentPane().setLayout(new java.awt.FlowLayout());
 
-        jLayeredPaneMegahertz.setBackground(new java.awt.Color(0, 0, 0));
-        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP)); // NOI18N
+        jLayeredPaneMegahertz.setBackground(new java.awt.Color(255, 255, 255));
+        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP)); // NOI18N
         jLayeredPaneMegahertz.setForeground(new java.awt.Color(0, 255, 0));
         jLayeredPaneMegahertz.setToolTipText("");
         jLayeredPaneMegahertz.setOpaque(true);
         jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(267, 120));
-        jLayeredPaneMegahertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
-            public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
-            }
-            public void ancestorResized(java.awt.event.HierarchyEvent evt) {
-                digitsPanelAncestorResized(evt);
-            }
-        });
         jLayeredPaneMegahertz.setLayout(new java.awt.FlowLayout());
+        digitsParent.getContentPane().add(jLayeredPaneMegahertz);
 
-        jLayeredPaneKilohertz.setBackground(new java.awt.Color(0, 0, 0));
-        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP)); // NOI18N
+        jLayeredPaneKilohertz.setBackground(new java.awt.Color(255, 255, 255));
+        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP)); // NOI18N
         jLayeredPaneKilohertz.setForeground(new java.awt.Color(0, 255, 0));
         jLayeredPaneKilohertz.setOpaque(true);
-        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(205, 120));
-        jLayeredPaneKilohertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
-            public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
-            }
-            public void ancestorResized(java.awt.event.HierarchyEvent evt) {
-                digitsPanelAncestorResized(evt);
-            }
-        });
+        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(200, 120));
         jLayeredPaneKilohertz.setLayout(new java.awt.FlowLayout());
+        digitsParent.getContentPane().add(jLayeredPaneKilohertz);
 
-        jLayeredPaneHertz.setBackground(new java.awt.Color(0, 0, 0));
-        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP));
+        jLayeredPaneHertz.setBackground(new java.awt.Color(255, 255, 255));
+        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP));
         jLayeredPaneHertz.setForeground(new java.awt.Color(0, 255, 0));
         jLayeredPaneHertz.setToolTipText("VFO Hertz digits");
         jLayeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
         jLayeredPaneHertz.setOpaque(true);
-        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(149, 120));
-        jLayeredPaneHertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
-            public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
-            }
-            public void ancestorResized(java.awt.event.HierarchyEvent evt) {
-                digitsPanelAncestorResized(evt);
-            }
-        });
+        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(155, 120));
         jLayeredPaneHertz.setLayout(new java.awt.FlowLayout());
-
-        javax.swing.GroupLayout digitsParentLayout = new javax.swing.GroupLayout(digitsParent.getContentPane());
-        digitsParent.getContentPane().setLayout(digitsParentLayout);
-        digitsParentLayout.setHorizontalGroup(
-            digitsParentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(digitsParentLayout.createSequentialGroup()
-                .addComponent(jLayeredPaneMegahertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLayeredPaneKilohertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLayeredPaneHertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-        digitsParentLayout.setVerticalGroup(
-            digitsParentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(digitsParentLayout.createSequentialGroup()
-                .addGroup(digitsParentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLayeredPaneKilohertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLayeredPaneMegahertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLayeredPaneHertz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, 0))
-        );
-
+        digitsParent.getContentPane().add(jLayeredPaneHertz);
         jLayeredPaneHertz.getAccessibleContext().setAccessibleName("Hertz VFO panel");
 
         jInternalFrame1.setVisible(true);
@@ -330,14 +290,6 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void digitsPanelAncestorResized(java.awt.event.HierarchyEvent evt) {//GEN-FIRST:event_digitsPanelAncestorResized
-        Component comp = evt.getComponent();
-        JLayeredPane pane = (JLayeredPane) comp;
-        VfoDisplayControl control = (VfoDisplayControl) digitsParent;
-        control.adjustSize(pane);
-        
-    }//GEN-LAST:event_digitsPanelAncestorResized
 
     private void frequencyVfoAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frequencyVfoAActionPerformed
         // TODO add your handling code here:

@@ -13,7 +13,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Insets;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,10 +25,8 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.accessibility.AccessibleContext;
-import javax.swing.GroupLayout;
 import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -37,10 +35,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
-import javax.swing.border.LineBorder;
-import javax.swing.plaf.ColorUIResource;
 
 
 /**
@@ -219,8 +214,6 @@ final public class VfoDisplayControl extends JInternalFrame
         Rectangle rootBounds = display.getRootPane().getBounds();
         Container contentPane = display.getContentPane();
         Rectangle contentBounds = contentPane.getBounds();
-        // Confirm that content layout manager is GroupLayout.
-        GroupLayout layoutContent = (GroupLayout) contentPane.getLayout(); 
 
         display.setGlassPane(new JPanel());
         glassPane = (JPanel) display.getGlassPane();
@@ -230,7 +223,7 @@ final public class VfoDisplayControl extends JInternalFrame
         FlowLayout layoutGlass = (FlowLayout)glassPane.getLayout();
         
         // Space the layered panes down from the top. Arrived by trial & error.
-        layoutGlass.setVgap(23);
+        layoutGlass.setVgap(26);
         
         
         //MUST HAVE THE FOLLOWING LINE FOR GLASS PANE TO BE TRANSPARENT!
@@ -339,52 +332,38 @@ final public class VfoDisplayControl extends JInternalFrame
         System.out.println("megaPref :" + megaPref);
         System.out.println("kiloPref :" + kiloPref);
         System.out.println("unnoPref :" + unnoPref);
-        
-        Dimension megaDim = layoutGlass.minimumLayoutSize((Container)layeredPaneMegahertz);
-        Dimension kiloDim = layoutGlass.minimumLayoutSize((Container)layeredPaneKilohertz);
-        Dimension unnoDim = layoutGlass.minimumLayoutSize((Container)layeredPaneHertz);
-        System.out.println("megaDim :" + megaDim);
-        System.out.println("kiloDim :" + kiloDim);
-        System.out.println("unnoDim :" + unnoDim);
-        
+               
     }
    
 
     /**
-     * Adjust the size of the DecadeDigit font by hand.  There is another method
-     * that can be applied to compute the font size. 
+     * Adjust the size of the DecadeDigit fonts.
      * 
-     * @param resizedComponent 
+     * @param resizedComponent is a layered pane.
      */
-//    protected void BdjustSize(JLayeredPane resizedComponent) {
-//        double handPickedDivisor = 8.5;
-//        int fontSize = (int) (this.getWidth() / handPickedDivisor);
-//        for (Component comp : resizedComponent.getComponentsInLayer(JLayeredPane.DEFAULT_LAYER)) {
-//            DecadeDigit digit = (DecadeDigit) comp;
-//            double fs = digit.fontScale;
-//            Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
-//            comp.setFont(font);
-//        }
-//    }
     protected void adjustSize(JLayeredPane resizedComponent) {
         for (Component comp : resizedComponent.getComponentsInLayer(JLayeredPane.DEFAULT_LAYER)) {
             DecadeDigit digit = (DecadeDigit) comp;
             double fs = digit.fontScale;
             if ( fs < .99) {
                 // Small digits are size limited by width.
-                double handPickedDivisor = 10.;
+                double handPickedDivisor = 1.8;
                 int titleBorderWidth = 20;
-                int fontSize = (int) ((this.getWidth()-titleBorderWidth*2) / handPickedDivisor);
+                int fontSize = (int) ((resizedComponent.getWidth()-titleBorderWidth*2) / handPickedDivisor);
                 Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
                 comp.setFont(font);
             } else { 
                 // Large digits are limited by layered pane height.
-                double handPickedDivisor = 2.1;
+                double handPickedDivisor = 1.4;
                 int hertzTitleHeight = 23;
-                int fontSize = (int) ((this.getHeight()-hertzTitleHeight) / handPickedDivisor);
+                int fontSize = (int) ((resizedComponent.getHeight()-hertzTitleHeight) / handPickedDivisor);
                 Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
                 comp.setFont(font);
             }
+            Dimension prefSize = digit.getPreferredSize();
+            int decade = digit.getDecade();
+            System.out.println("DecadeDigit : "+decade+" preferredSize : "+prefSize);
+
         }
     }
 
@@ -429,30 +408,37 @@ final public class VfoDisplayControl extends JInternalFrame
 
         // Generally junky junk above...
         
-        
-        
-        Container content = display.getContentPane();
-        Rectangle contentBounds = content.getBounds();
+        //Container content = display.getContentPane();
+        //Rectangle contentBounds = content.getBounds();
         //content.setBackground(Color.BLACK);
-        return;
-        
-//        content.setLayout(new FlowLayout());
-//
-//        // Now draw the BarnDoor on the content pane.
-//        // Use exact same rectangle used for the JLabel.
-//        GeometryModel model = new GeometryModel();
-//        Dimension dim = new Dimension(rectL.width, rectL.height);
-//        BarnDoor door = new BarnDoor(model, dim);
-//        door.addShapes();
-//        content.add(door);
-//        
 
+        // Get the dims of the small Hertz digits.               
+        Dimension smallDims = new Dimension(34,56);
+        aFrame.jLayeredPaneHertz.setBackground(Color.BLACK);
+        for (int iii=0; iii<3; iii++) {
+            BarnDoor door = new BarnDoor(smallDims);
+            door.addShapes();           
+            aFrame.jLayeredPaneHertz.add(door);
+            door.setVisible(true);
+        }
+        // Get the dims of the tall Hertz digits.               
+        Dimension tallDims = new Dimension(51,89);
+        aFrame.jLayeredPaneKilohertz.setBackground(Color.BLACK);
+        for (int iii=3; iii<6; iii++) {
+            BarnDoor door = new BarnDoor(tallDims);
+            door.addShapes();           
+            aFrame.jLayeredPaneKilohertz.add(door);
+            door.setVisible(true);
+        }       
+        aFrame.jLayeredPaneMegahertz.setBackground(Color.BLACK);
+        for (int iii=6; iii<10; iii++) {
+            BarnDoor door = new BarnDoor(tallDims);
+            door.addShapes();           
+            aFrame.jLayeredPaneMegahertz.add(door);
+            door.setVisible(true);
+        }
     }
 
-    
-    
-    
-    
     
     /**
      * Create the menu bar for the display and add menu items to operate the
@@ -543,6 +529,8 @@ final public class VfoDisplayControl extends JInternalFrame
 
         getGlassPane().setVisible(true);
         getContentPane().setVisible(true);
+        
+        getContentPane().repaint();
 
         //Rectangle menuBarBounds = menuBar.getBounds(); //Does not work.  Bug.
         //Rectangle frameBounds = getBounds();
