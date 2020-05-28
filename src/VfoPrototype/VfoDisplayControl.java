@@ -112,6 +112,8 @@ final public class VfoDisplayControl extends JInternalFrame
         setFocusCycleRoot(true);
         setFocusable(true);
         setResizable(false);
+        AccessibleContext contextVfoControl = getAccessibleContext();
+        contextVfoControl.setAccessibleName("V F O Display Control");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE); //not a user operation.
         
         
@@ -126,9 +128,9 @@ final public class VfoDisplayControl extends JInternalFrame
      * frameBounds    =   6,132,664,151
      * rootPaneBounds =   6, 25,652,120
      * contentBounds  =   0,  0,652,120
-     * megaBounds     =   0,  0,260,120
-     * kiloBounds     = 276,  0,200,120
-     * unnoBounds     = 482,  0,168,120
+     * megaBounds     =   0, 23,273,120
+     * kiloBounds     = 278, 23,205,120
+     * unnoBounds     = 488, 23,143,120
      * menuBarBounds  = 
      */
     public void setupPanes() {
@@ -222,30 +224,34 @@ final public class VfoDisplayControl extends JInternalFrame
 
         display.setGlassPane(new JPanel());
         glassPane = (JPanel) display.getGlassPane();
+        
+        // Since we have the bounds for each component, could do away with layout.
         glassPane.setLayout(new FlowLayout());
         FlowLayout layoutGlass = (FlowLayout)glassPane.getLayout();
-        // Space the layered panes down from the top.
+        
+        // Space the layered panes down from the top. Arrived by trial & error.
         layoutGlass.setVgap(23);
         
         
         //MUST HAVE THE FOLLOWING LINE FOR GLASS PANE TO BE TRANSPARENT!
         glassPane.setOpaque(false);
-        Insets gInsets = glassPane.getInsets(); // insets are zero       
-        Insets mgInsets = layeredPaneMegahertz.getInsets(); // insets are zero
+        
+        //Insets gInsets = glassPane.getInsets(); // insets are zero       
+        //Insets mgInsets = layeredPaneMegahertz.getInsets(); // insets are zero
         
         // Compute component widths.
         int digitGap = 5; //guess by sight.
-        int offsetY = 80; //does not move digits down. FlowLayout doesn't use it.
-        
-        
+        int offsetY = 23; //does not move digits down. FlowLayout doesn't use it.
 
-        double digitWidth = (double)(contentBounds.width-4*digitGap)/((7.*DIGIT_RELATIVE_SIZE)+(3*ONES_RELATIVE_SIZE));
-        int onesWide = (int)(digitWidth * ONES_RELATIVE_SIZE * 3.0);
-        int megaWide = (int)(4*digitWidth);
-        int kiloWide = (int)(3*digitWidth);
+        int titleBorderWidth = 10;
+        double digitWidth = (double)(contentBounds.width-4*digitGap - 6*titleBorderWidth)/
+                ((7.*DIGIT_RELATIVE_SIZE)+(3*ONES_RELATIVE_SIZE));
+        int onesWide = (int)(digitWidth * ONES_RELATIVE_SIZE * 3.0)+2*titleBorderWidth;
+        int megaWide = (int)(4*digitWidth)+2*titleBorderWidth;
+        int kiloWide = (int)(3*digitWidth)+2*titleBorderWidth;
         int onesOffsetX = megaWide+digitGap+kiloWide+digitGap;
         layeredPaneMegahertz.setAlignmentY(1.0f);
-        float y = layeredPaneMegahertz.getAlignmentY();
+        //float y = layeredPaneMegahertz.getAlignmentY();
         
                 
         Rectangle megaBounds = new Rectangle(  0,  offsetY, megaWide, 120);                   
@@ -270,6 +276,13 @@ final public class VfoDisplayControl extends JInternalFrame
         layeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneMegahertz.setToolTipText("");
         layeredPaneMegahertz.setOpaque(false);
+        layeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(
+                javax.swing.BorderFactory.createTitledBorder(""),
+                "Megahertz", javax.swing.border.TitledBorder.CENTER, 
+                javax.swing.border.TitledBorder.TOP, 
+                new java.awt.Font("Lucida Grande", 0, 13), 
+                new java.awt.Color(0, 255, 0))); 
+        layeredPaneMegahertz.setForeground(new java.awt.Color(0, 255, 0));
         layeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(megaBounds.width, megaBounds.height));
         layeredPaneMegahertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
@@ -281,6 +294,14 @@ final public class VfoDisplayControl extends JInternalFrame
 
         layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneKilohertz.setOpaque(false);
+        layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(
+                javax.swing.BorderFactory.createTitledBorder(""), 
+                "Kilohertz", javax.swing.border.TitledBorder.CENTER, 
+                javax.swing.border.TitledBorder.TOP, 
+                new java.awt.Font("Lucida Grande", 0, 13), 
+                new java.awt.Color(0, 255, 0))); 
+        layeredPaneKilohertz.setForeground(new java.awt.Color(0, 255, 0));
+
         layeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(kiloBounds.width, kiloBounds.height));
         layeredPaneKilohertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
@@ -294,6 +315,13 @@ final public class VfoDisplayControl extends JInternalFrame
         layeredPaneHertz.setToolTipText("VFO Hertz digits");
         layeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
         layeredPaneHertz.setOpaque(false);
+        layeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(
+                javax.swing.BorderFactory.createTitledBorder(""), 
+                "Hertz", javax.swing.border.TitledBorder.CENTER, 
+                javax.swing.border.TitledBorder.TOP, 
+                new java.awt.Font("Lucida Grande", 0, 13), 
+                new java.awt.Color(0, 255, 0))); 
+        layeredPaneHertz.setForeground(new java.awt.Color(0, 255, 0));
         layeredPaneHertz.setPreferredSize(new java.awt.Dimension(unnoBounds.width, unnoBounds.height));
         layeredPaneHertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
@@ -318,8 +346,6 @@ final public class VfoDisplayControl extends JInternalFrame
         System.out.println("megaDim :" + megaDim);
         System.out.println("kiloDim :" + kiloDim);
         System.out.println("unnoDim :" + unnoDim);
-
-        
         
     }
    
@@ -327,8 +353,6 @@ final public class VfoDisplayControl extends JInternalFrame
     /**
      * Adjust the size of the DecadeDigit font by hand.  There is another method
      * that can be applied to compute the font size. 
-     * 
-     * @todo Coz add method to pick the right font size.
      * 
      * @param resizedComponent 
      */
@@ -348,14 +372,16 @@ final public class VfoDisplayControl extends JInternalFrame
             double fs = digit.fontScale;
             if ( fs < .99) {
                 // Small digits are size limited by width.
-                double handPickedDivisor = 8.5;
-                int fontSize = (int) (this.getWidth() / handPickedDivisor);
+                double handPickedDivisor = 10.;
+                int titleBorderWidth = 20;
+                int fontSize = (int) ((this.getWidth()-titleBorderWidth*2) / handPickedDivisor);
                 Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
                 comp.setFont(font);
             } else { 
                 // Large digits are limited by layered pane height.
                 double handPickedDivisor = 2.1;
-                int fontSize = (int) (this.getHeight() / handPickedDivisor);
+                int hertzTitleHeight = 23;
+                int fontSize = (int) ((this.getHeight()-hertzTitleHeight) / handPickedDivisor);
                 Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
                 comp.setFont(font);
             }

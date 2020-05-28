@@ -179,11 +179,11 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         digitsParent.setVisible(true);
 
         jLayeredPaneMegahertz.setBackground(new java.awt.Color(0, 0, 0));
-        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0))); // NOI18N
+        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP)); // NOI18N
         jLayeredPaneMegahertz.setForeground(new java.awt.Color(0, 255, 0));
         jLayeredPaneMegahertz.setToolTipText("");
         jLayeredPaneMegahertz.setOpaque(true);
-        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(277, 120));
+        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(267, 120));
         jLayeredPaneMegahertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -194,10 +194,10 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         jLayeredPaneMegahertz.setLayout(new java.awt.FlowLayout());
 
         jLayeredPaneKilohertz.setBackground(new java.awt.Color(0, 0, 0));
-        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0))); // NOI18N
+        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP)); // NOI18N
         jLayeredPaneKilohertz.setForeground(new java.awt.Color(0, 255, 0));
         jLayeredPaneKilohertz.setOpaque(true);
-        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(209, 120));
+        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(205, 120));
         jLayeredPaneKilohertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -208,12 +208,12 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         jLayeredPaneKilohertz.setLayout(new java.awt.FlowLayout());
 
         jLayeredPaneHertz.setBackground(new java.awt.Color(0, 0, 0));
-        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0))); // NOI18N
+        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP));
         jLayeredPaneHertz.setForeground(new java.awt.Color(0, 255, 0));
         jLayeredPaneHertz.setToolTipText("VFO Hertz digits");
         jLayeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
         jLayeredPaneHertz.setOpaque(true);
-        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(145, 120));
+        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(149, 120));
         jLayeredPaneHertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
             }
@@ -344,7 +344,11 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     }//GEN-LAST:event_frequencyVfoAActionPerformed
     
     /**
+     * Nimbus gives a nice outline to the keyboard focus component;  Mac OS X
+     * does not.
+     * 
      * @param args the command line arguments
+     * 
      */
     @SuppressWarnings("empty-statement")
     public static void main(String args[])  {        

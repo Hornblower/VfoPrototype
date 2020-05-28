@@ -8,7 +8,6 @@ package VfoPrototype;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -64,8 +63,8 @@ public class DecadeDigit extends JFormattedTextField
         // Set foreground numeral color Green. Set background transparent.        
         setFocusable(true);
         setForeground(Color.GREEN);
-        Color back = new Color(0,0,0,0);
-        setBackground(back);
+        Color backTransparent = new Color(0,0,0,0);
+        setBackground(backTransparent);
         setEditable(false);        
         setOpaque(false);
         addMouseWheelListener(this);
@@ -151,16 +150,6 @@ public class DecadeDigit extends JFormattedTextField
             freqDigits.get(count).linkToNextHigherDecade(freqDigits.get(count+1));           
     }
     
-    // Coz try this for translucent backgound == semi transparent.
-    @Override protected void paintComponent(Graphics g) { 
-        g.setColor(new Color(0, 0, 0, 5)); 
-        g.fillRect(getX(), getY(), getWidth(), getHeight());
-        super.paintComponent(g); 
-    } 
-    
-//    @Override protected void BasicFormatedTextFieldUI.paintBackground(Graphics g) {
-//        
-//    }
     
     /**
      * There are two representations of the current value of the field.  One is
