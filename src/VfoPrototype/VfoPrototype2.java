@@ -20,7 +20,7 @@
 package VfoPrototype;
 
 
-import java.awt.Color;
+import java.awt.AWTKeyStroke;
 import java.awt.Component;
 import java.awt.ContainerOrderFocusTraversalPolicy;
 import java.awt.DefaultFocusTraversalPolicy;
@@ -30,16 +30,12 @@ import javax.swing.JFormattedTextField;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import static java.lang.reflect.Array.set;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
-import javax.swing.JLayeredPane;
 import javax.swing.KeyStroke;
 import java.util.prefs.*;
-import javax.swing.JComponent;
-import javax.swing.UIManager;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.ComponentUI;
 
 
 /**
@@ -50,7 +46,7 @@ import javax.swing.plaf.ComponentUI;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame {
-    public static String version = "Version 2.1.1";
+    public static String version = "Version 2.1.2";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
 
@@ -91,6 +87,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         jLabel2.setLabelFor(frequencyVfoB);
     }
     
+    @SuppressWarnings("unchecked")
     public void setUpFocusManager() {
         // Make sure that the JFrame is focus manager.
         // It appears that voiceOver StepInto is ignoring focus manager.
@@ -106,20 +103,25 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         // In this case, FORWARD is to the left.
         setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
-        Set set = new HashSet( getFocusTraversalKeys(
-            KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
-        set.add( KeyStroke.getKeyStroke( "RIGHT" ) );
-        setFocusTraversalKeys(
-            KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set );
 
-        set = new HashSet( getFocusTraversalKeys(
+        Set set = new HashSet<>( 
+            getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
+       
+        final AWTKeyStroke keyStrokeRight = KeyStroke.getKeyStroke( "RIGHT");
+        set.add(keyStrokeRight) ;
+        setFocusTraversalKeys(
+            KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set);
+        
+        set = new HashSet<>( getFocusTraversalKeys(
             KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
-        set.add( KeyStroke.getKeyStroke( "LEFT" ) );
+        final AWTKeyStroke keyStrokeLeft = KeyStroke.getKeyStroke( "LEFT" );           
+        set.add(keyStrokeLeft);
         setFocusTraversalKeys(
             KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, set );
         setFocusTraversalKeysEnabled(true);
-
-        assert(areFocusTraversalKeysSet(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS) );
+                    
+        assert(areFocusTraversalKeysSet(
+                KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS) );
         
         // The JFrame is the root of all the traversal.  Add up and down to it.
         // Add the focus traversal keys for up cycle and down cycle.
@@ -129,21 +131,27 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
                 KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, null);
         setFocusTraversalKeys(
                 KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS, null);
-        set = new HashSet( getFocusTraversalKeys(
-            KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS ) );
-        set.add( KeyStroke.getKeyStroke( KeyEvent.VK_UP, InputEvent.ALT_MASK) );
-        setFocusTraversalKeys(
-                 KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, set);
         
-        set = new HashSet( getFocusTraversalKeys(
-            KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS ) );
-        set.add( KeyStroke.getKeyStroke( KeyEvent.VK_DOWN, InputEvent.ALT_MASK) );
+        set = new HashSet<>( getFocusTraversalKeys(
+            KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS ) );
+        final AWTKeyStroke keyStrokeUp =  KeyStroke.getKeyStroke( 
+                KeyEvent.VK_UP, InputEvent.ALT_DOWN_MASK);  
+        set.add( keyStrokeUp);
         setFocusTraversalKeys(
-                 KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS, set);
+             KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, set);
+        
+        final AWTKeyStroke keyStrokeDown =  KeyStroke.getKeyStroke(
+                KeyEvent.VK_DOWN, InputEvent.ALT_DOWN_MASK);               
+        set = new HashSet<>( getFocusTraversalKeys(
+            KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS ) );        
+        set.add( keyStrokeDown );
+        setFocusTraversalKeys(
+                 KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS, set);      
                 
         // Hold onto your hats, we're takin over the reins.
         setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() );
-        ContainerOrderFocusTraversalPolicy fPolicy = (ContainerOrderFocusTraversalPolicy) getFocusTraversalPolicy();
+        ContainerOrderFocusTraversalPolicy fPolicy = 
+                (ContainerOrderFocusTraversalPolicy) getFocusTraversalPolicy();
         // Docs say that if you provide up/down traversal, you must do this:
         fPolicy.setImplicitDownCycleTraversal(false);
          //requestFocusInWindow(boolean temporary)

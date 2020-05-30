@@ -120,6 +120,7 @@ final public class VfoDisplayControl extends JInternalFrame
      * We are drawing the DecadeDigits on the glass pane.
      * We are drawing the BarnDoors  on the content pane.
      * 
+     * THESE ARE APPROXIMATE SIZES... THE ACTUAL SIZES HAVE CHANGED.
      * frameBounds    =   6,132,664,151
      * rootPaneBounds =   6, 25,652,120
      * contentBounds  =   0,  0,652,120
@@ -137,7 +138,14 @@ final public class VfoDisplayControl extends JInternalFrame
         setupContentPane(display);
         
     }
-    
+    /**
+     * Create all ten DecadeDigits, initialize them ,store them in an ordered 
+     * collection which is used to traverse the digits, then insert them into
+     * three panels indicating scientific notation grouping.
+     * 
+     * The one hertz digits are usually smaller on radio displays.  Use the
+     * JRX proportions.
+     */
     protected void initDigits() {
         freqDigits = new ArrayList<>();
         freqDigits.add(new DecadeDigit(this, 0.7));    
@@ -232,20 +240,22 @@ final public class VfoDisplayControl extends JInternalFrame
         //Insets gInsets = glassPane.getInsets(); // insets are zero       
         //Insets mgInsets = layeredPaneMegahertz.getInsets(); // insets are zero
         
-        // Compute component widths.
+        //////////////////////////////////////////////////////////////////
+        // Compute component widths.  Some subtle math here....
         int digitGap = 5; //guess by sight.
         int offsetY = 23; //does not move digits down. FlowLayout doesn't use it.
-
         int titleBorderWidth = 10;
-        double digitWidth = (double)(contentBounds.width-4*digitGap - 6*titleBorderWidth)/
+        double digitWidth = 
+                (double)(contentBounds.width-4*digitGap - 6*titleBorderWidth)/
                 ((7.*DIGIT_RELATIVE_SIZE)+(3*ONES_RELATIVE_SIZE));
-        int onesWide = (int)(digitWidth * ONES_RELATIVE_SIZE * 3.0)+2*titleBorderWidth;
+        int onesWide = 
+                (int)(digitWidth * ONES_RELATIVE_SIZE * 3.0)+2*titleBorderWidth;
         int megaWide = (int)(4*digitWidth)+2*titleBorderWidth;
         int kiloWide = (int)(3*digitWidth)+2*titleBorderWidth;
         int onesOffsetX = megaWide+digitGap+kiloWide+digitGap;
         layeredPaneMegahertz.setAlignmentY(1.0f);
         //float y = layeredPaneMegahertz.getAlignmentY();
-        
+        ////////////////////////////////////////////////////////////////////
                 
         Rectangle megaBounds = new Rectangle(  0,  offsetY, megaWide, 120);                   
         Rectangle kiloBounds = new Rectangle(megaWide+digitGap,  offsetY, kiloWide, 120);
@@ -324,20 +334,19 @@ final public class VfoDisplayControl extends JInternalFrame
             }
         });
         
-        // At this point, all the digits have been resized and inserted into 
-        // the fixed size layered panes. Get some measurements.
-        Dimension megaPref = layeredPaneMegahertz.getPreferredSize();
-        Dimension kiloPref = layeredPaneKilohertz.getPreferredSize();
-        Dimension unnoPref = layeredPaneHertz.getPreferredSize();
-        System.out.println("megaPref :" + megaPref);
-        System.out.println("kiloPref :" + kiloPref);
-        System.out.println("unnoPref :" + unnoPref);
-               
+//        // At this point, all the digits have been resized and inserted into 
+//        // the fixed size layered panes. Get some measurements.
+//        Dimension megaPref = layeredPaneMegahertz.getPreferredSize();
+//        Dimension kiloPref = layeredPaneKilohertz.getPreferredSize();
+//        Dimension unnoPref = layeredPaneHertz.getPreferredSize();
+//        //System.out.println("megaPref :" + megaPref);
+//        //System.out.println("kiloPref :" + kiloPref);
+//        //System.out.println("unnoPref :" + unnoPref);               
     }
    
 
     /**
-     * Adjust the size of the DecadeDigit fonts.
+     * Adjust the size of the DecadeDigit fonts (and thus the DecadeDigit dims).
      * 
      * @param resizedComponent is a layered pane.
      */
@@ -346,14 +355,14 @@ final public class VfoDisplayControl extends JInternalFrame
             DecadeDigit digit = (DecadeDigit) comp;
             double fs = digit.fontScale;
             if ( fs < .99) {
-                // Small digits are size limited by width.
+                // Small digits are size limited by width.  fs = 0.7
                 double handPickedDivisor = 1.8;
                 int titleBorderWidth = 20;
                 int fontSize = (int) ((resizedComponent.getWidth()-titleBorderWidth*2) / handPickedDivisor);
                 Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
                 comp.setFont(font);
             } else { 
-                // Large digits are limited by layered pane height.
+                // Large digits are limited by layered pane height.  fs = 1.0
                 double handPickedDivisor = 1.4;
                 int hertzTitleHeight = 23;
                 int fontSize = (int) ((resizedComponent.getHeight()-hertzTitleHeight) / handPickedDivisor);
@@ -362,12 +371,9 @@ final public class VfoDisplayControl extends JInternalFrame
             }
             Dimension prefSize = digit.getPreferredSize();
             int decade = digit.getDecade();
-            System.out.println("DecadeDigit : "+decade+" preferredSize : "+prefSize);
-
+            //System.out.println("DecadeDigit : "+decade+" preferredSize : "+prefSize);
         }
     }
-
-    
     
     /**
      * All the dynamic components are added to the glass pane so the context
@@ -376,42 +382,6 @@ final public class VfoDisplayControl extends JInternalFrame
      */
     public void setupContentPane(VfoDisplayControl display) {
         
-//        int boundsX = 10;
-//        int boundsY = 10;
-//        int boundsWidth = 65;
-//        int boundsHeight = 120;
-//        Rectangle labelRect = new Rectangle(boundsX,boundsY,boundsWidth,boundsHeight);
-//        
-//        JLabel label = new JLabel();
-//        label.setBounds(labelRect);
-//        Font font = new Font("Lucida Grande", Font.PLAIN, 12);
-//        label.setFont(font);
-//        label.setText("8");
-//        int fontSizeToUse = Geometry.computeMaxFontSize(label); 
-//        
-//        // Set the label's font size to the newly determined size.
-//        label.setFont(new Font(font.getName(), Font.PLAIN, fontSizeToUse));
-//        
-//        label.setForeground(Color.GREEN);
-//        label.setBorder(new LineBorder(Color.BLACK, 1));
-//        Rectangle bounds = label.getBounds();
-//        boundsX = bounds.x;
-//        boundsY = bounds.y;
-//        boundsWidth = bounds.width;
-//        boundsHeight = bounds.height;
-//        label.setPreferredSize(label.getSize());
-//        float xL = label.getAlignmentX();
-//        float yL = label.getAlignmentY();
-//        Rectangle rectL = label.getBounds();
-//        Dimension dimPrefSizeL = label.getPreferredSize();
-        
-
-        // Generally junky junk above...
-        
-        //Container content = display.getContentPane();
-        //Rectangle contentBounds = content.getBounds();
-        //content.setBackground(Color.BLACK);
-
         // Get the dims of the small Hertz digits.               
         Dimension smallDims = new Dimension(34,56);
         aFrame.jLayeredPaneHertz.setBackground(Color.BLACK);
@@ -438,7 +408,6 @@ final public class VfoDisplayControl extends JInternalFrame
             door.setVisible(true);
         }
     }
-
     
     /**
      * Create the menu bar for the display and add menu items to operate the
@@ -533,7 +502,6 @@ final public class VfoDisplayControl extends JInternalFrame
         getContentPane().repaint();
 
         //Rectangle menuBarBounds = menuBar.getBounds(); //Does not work.  Bug.
-        //Rectangle frameBounds = getBounds();
     }
 
     
@@ -624,7 +592,7 @@ final public class VfoDisplayControl extends JInternalFrame
         freqHertz = vfoState.getVfoAFrequency();            
         frequencyToDigits(freqHertz);
         if ( !vfoState.vfoA_IsSelected()) vfoState.setVfoASelected();
-        getTraversalOrder().get(0).requestFocus();
+        //getTraversalOrder().get(0).requestFocus();
         setSilent(false);
         return success;
     }
@@ -646,7 +614,7 @@ final public class VfoDisplayControl extends JInternalFrame
         freqHertz = vfoState.getVfoBFrequency();            
         frequencyToDigits(freqHertz);
         if ( vfoState.vfoA_IsSelected())  vfoState.setVfoBSelected();
-        getTraversalOrder().get(0).requestFocus();
+        //getTraversalOrder().get(0).requestFocus();
         setSilent(false);
         return success;
     }
@@ -685,7 +653,7 @@ final public class VfoDisplayControl extends JInternalFrame
         vfoState.writeFrequencyToRadioSelectedVfo(freq);
         String vfoString = "VFO B";
         if (vfoState.vfoA_IsSelected()) vfoString = "VFO A";           
-        System.out.println("handleChangeEvent - model value: "+ String.valueOf(value)); 
+        //System.out.println("handleChangeEvent - model value: "+ String.valueOf(value)); 
         for ( int iii=0; iii<QUANTITY_DIGITS; iii++) {
             StringBuilder freqString = new StringBuilder("");
             freqString.append(vfoString+" Frequency "+Double.toString(((double)freq)/1000000.)+" Mhz; ");
@@ -709,7 +677,7 @@ final public class VfoDisplayControl extends JInternalFrame
         Object itemObj = e.getItem();
         JMenuItem item = (JMenuItem) itemObj;
         String itemText = item.getText();
-        System.out.println("item.name :"+itemText);
+        //System.out.println("item.name :"+itemText);
         if (itemText.equals(VFO_SELECT_A_TEXT)) {
             //item.firePropertyChange("MENU_ITEM1", false, true);
             if (item.isSelected()) {
@@ -737,8 +705,6 @@ final public class VfoDisplayControl extends JInternalFrame
         }
         long freq = vfoState.getSelectedVfoFrequency();
         frequencyToDigits(freq);
-        // Cause voiceOver to anounce frequency and thus which radio VFO.
-        freqDigits.get(0).requestFocus();
     }
 
     @Override
