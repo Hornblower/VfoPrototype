@@ -20,6 +20,11 @@
 package VfoPrototype;
 
 
+import static VfoPrototype.VfoDisplayControl.LAST_VFO;
+import static VfoPrototype.VfoDisplayControl.MSN_FREQ;
+import static VfoPrototype.VfoDisplayControl.SHAWSVILLE_REPEATER_OUTPUT_FREQ;
+import static VfoPrototype.VfoDisplayControl.VFO_SELECT_A_TEXT;
+import static VfoPrototype.VfoDisplayControl.VFO_SELECT_B_TEXT;
 import java.awt.AWTKeyStroke;
 import java.awt.Component;
 import java.awt.ContainerOrderFocusTraversalPolicy;
@@ -28,14 +33,22 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JFormattedTextField;
 import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import static java.lang.reflect.Array.set;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.KeyStroke;
 import java.util.prefs.*;
+import javax.accessibility.AccessibleContext;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 
 
 /**
@@ -46,9 +59,12 @@ import java.util.prefs.*;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame {
-    public static String version = "Version 2.1.4";
+    public static String version = "Version 2.1.5";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
+    JMenuBar menuBar;
+    public JRadioButtonMenuItem menuItemA;
+    public JRadioButtonMenuItem menuItemB;
 
     /**
      * Creates new form VfoPrototype which is used as a testbed for the multi-
@@ -67,11 +83,15 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         // Create an Prefernces object for access to this user's preferences.
         prefs = Preferences.userNodeForPackage(this.getClass()); 
         this.setResizable(false);
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Name");
+
+        addMenuBar(); // Need to have menu created before setupPanes();
         // Must instantiate components before initialization of VfoDisplayControl.
         vfoGroup = (VfoDisplayControl) digitsParent;
         vfoGroup.initDigits();       
         vfoGroup.setupPanes();        
-        vfoGroup.addMenuBar();       
+              
         vfoGroup.makeVisible();
         // Cause the ones digit ftf to get the focus when the JFrame gets focus.                              
         JFormattedTextField textField;
@@ -89,6 +109,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         // Associate labels with fields for accessibility.
         jLabel1.setLabelFor(frequencyVfoA);
         jLabel2.setLabelFor(frequencyVfoB);
+        
     }
     
     @SuppressWarnings("unchecked")
@@ -164,6 +185,67 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         setEnabled(true);
              
     }       
+    /**
+     * Create the menu bar for the display and add menu items to operate the
+     * VFO selection and copy tasks.
+     */        
+    protected void addMenuBar() {    
+        menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+        //Build the first menu.
+        JMenu menu = new JMenu("Choose Radio VFO Operation");
+        menu.setMnemonic(KeyEvent.VK_V);
+        AccessibleContext menuContext = menu.getAccessibleContext();
+        menuContext.setAccessibleDescription(
+            "Pick the radio VFO that the VFO Panel controls");
+        menuContext.setAccessibleName("Choose Radio VFO");
+        menuBar.add(menu);
+        
+        //Set JMenuItem A.
+        menuItemA = new JRadioButtonMenuItem(VFO_SELECT_A_TEXT, true);
+        menuItemA.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_A, ActionEvent.ALT_MASK));
+        AccessibleContext itemAContext = menuItemA.getAccessibleContext();
+        itemAContext.setAccessibleDescription(
+            "VFO panel controls radio VFO A");
+        itemAContext.setAccessibleName("Choose radio VFO A");       
+        menuItemA.addItemListener(vfoGroup);
+        menu.add(menuItemA);
+        //Set JMenuItem B.
+        menuItemB = new JRadioButtonMenuItem(VFO_SELECT_B_TEXT, false);
+        menuItemB.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_B, ActionEvent.ALT_MASK));
+        AccessibleContext itemBContext = menuItemB.getAccessibleContext();
+        itemBContext.setAccessibleDescription(
+            "VFO panel controls radio VFO B");
+        itemBContext.setAccessibleName("Choose radio VFO B");
+        menuItemB.addItemListener(vfoGroup);
+        menu.add(menuItemB);
+        // Add VFO "copy" menu items.
+        menu.addSeparator();
+        JMenuItem a2b = new JMenuItem("Copy VFO A to VFO B", KeyEvent.VK_C);
+        AccessibleContext a2bContext = a2b.getAccessibleContext();
+        a2bContext.setAccessibleName("Copy Vfo A to Vfo B");
+        a2bContext.setAccessibleDescription("Use shortcut key option C");
+        a2b.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_C, ActionEvent.ALT_MASK));
+        a2b.addItemListener(vfoGroup);
+        a2b.addActionListener(vfoGroup);
+        menu.add(a2b);
+        JMenuItem swap = new JMenuItem("Swap VFO A with VFO B", KeyEvent.VK_S);
+        AccessibleContext swapContext = a2b.getAccessibleContext();
+        swapContext.setAccessibleName("Swap Vfo A with Vfo B");
+        swapContext.setAccessibleDescription("Use shortcut key option S");
+        swap.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_S, ActionEvent.ALT_MASK));
+        swap.addItemListener(vfoGroup);
+        swap.addActionListener(vfoGroup);
+        menu.add(swap);
+        
+        
+        
+        
+        }
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -173,51 +255,20 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        digitsParent = new VfoDisplayControl(this);
-        jLayeredPaneMegahertz = new javax.swing.JLayeredPane();
-        jLayeredPaneKilohertz = new javax.swing.JLayeredPane();
-        jLayeredPaneHertz = new javax.swing.JLayeredPane();
         jInternalFrame1 = new GroupBox();
         jLabel1 = new javax.swing.JLabel();
         frequencyVfoB = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         frequencyVfoA = new javax.swing.JTextField();
+        digitsParent = new VfoDisplayControl(this);
+        jLayeredPaneMegahertz = new javax.swing.JLayeredPane();
+        jLayeredPaneKilohertz = new javax.swing.JLayeredPane();
+        jLayeredPaneHertz = new javax.swing.JLayeredPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("VFO Display Prototype");
         setFocusTraversalPolicyProvider(true);
         setFocusable(false);
-
-        digitsParent.setVisible(true);
-        digitsParent.getContentPane().setLayout(new java.awt.FlowLayout());
-
-        jLayeredPaneMegahertz.setBackground(new java.awt.Color(255, 255, 255));
-        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP)); // NOI18N
-        jLayeredPaneMegahertz.setForeground(new java.awt.Color(0, 255, 0));
-        jLayeredPaneMegahertz.setToolTipText("");
-        jLayeredPaneMegahertz.setOpaque(true);
-        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(267, 120));
-        jLayeredPaneMegahertz.setLayout(new java.awt.FlowLayout());
-        digitsParent.getContentPane().add(jLayeredPaneMegahertz);
-
-        jLayeredPaneKilohertz.setBackground(new java.awt.Color(255, 255, 255));
-        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP)); // NOI18N
-        jLayeredPaneKilohertz.setForeground(new java.awt.Color(0, 255, 0));
-        jLayeredPaneKilohertz.setOpaque(true);
-        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(200, 120));
-        jLayeredPaneKilohertz.setLayout(new java.awt.FlowLayout());
-        digitsParent.getContentPane().add(jLayeredPaneKilohertz);
-
-        jLayeredPaneHertz.setBackground(new java.awt.Color(255, 255, 255));
-        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP));
-        jLayeredPaneHertz.setForeground(new java.awt.Color(0, 255, 0));
-        jLayeredPaneHertz.setToolTipText("VFO Hertz digits");
-        jLayeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
-        jLayeredPaneHertz.setOpaque(true);
-        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(155, 120));
-        jLayeredPaneHertz.setLayout(new java.awt.FlowLayout());
-        digitsParent.getContentPane().add(jLayeredPaneHertz);
-        jLayeredPaneHertz.getAccessibleContext().setAccessibleName("Hertz VFO panel");
 
         jInternalFrame1.setVisible(true);
 
@@ -268,7 +319,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
                 .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(14, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         frequencyVfoB.getAccessibleContext().setAccessibleName("Frequency of VFO B Mhz");
@@ -276,25 +327,51 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         frequencyVfoA.getAccessibleContext().setAccessibleName("Frequency of VFO A Mhz");
         frequencyVfoA.getAccessibleContext().setAccessibleDescription("Simulates Radio VFO A Display");
 
+        digitsParent.setVisible(true);
+        digitsParent.getContentPane().setLayout(new java.awt.FlowLayout());
+
+        jLayeredPaneMegahertz.setBackground(new java.awt.Color(255, 255, 255));
+        jLayeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Megahertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP)); // NOI18N
+        jLayeredPaneMegahertz.setForeground(new java.awt.Color(0, 255, 0));
+        jLayeredPaneMegahertz.setToolTipText("");
+        jLayeredPaneMegahertz.setOpaque(true);
+        jLayeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(267, 120));
+        jLayeredPaneMegahertz.setLayout(new java.awt.FlowLayout());
+        digitsParent.getContentPane().add(jLayeredPaneMegahertz);
+
+        jLayeredPaneKilohertz.setBackground(new java.awt.Color(255, 255, 255));
+        jLayeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 13), new java.awt.Color(0, 255, 0)), "Kilohertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP)); // NOI18N
+        jLayeredPaneKilohertz.setForeground(new java.awt.Color(0, 255, 0));
+        jLayeredPaneKilohertz.setOpaque(true);
+        jLayeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(200, 120));
+        jLayeredPaneKilohertz.setLayout(new java.awt.FlowLayout());
+        digitsParent.getContentPane().add(jLayeredPaneKilohertz);
+
+        jLayeredPaneHertz.setBackground(new java.awt.Color(255, 255, 255));
+        jLayeredPaneHertz.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Hertz", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP));
+        jLayeredPaneHertz.setForeground(new java.awt.Color(0, 255, 0));
+        jLayeredPaneHertz.setToolTipText("VFO Hertz digits");
+        jLayeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
+        jLayeredPaneHertz.setOpaque(true);
+        jLayeredPaneHertz.setPreferredSize(new java.awt.Dimension(155, 120));
+        jLayeredPaneHertz.setLayout(new java.awt.FlowLayout());
+        digitsParent.getContentPane().add(jLayeredPaneHertz);
+        jLayeredPaneHertz.getAccessibleContext().setAccessibleName("Hertz VFO panel");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jInternalFrame1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(digitsParent))
-                .addContainerGap())
+            .addComponent(jInternalFrame1)
+            .addComponent(digitsParent)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(jInternalFrame1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 26, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jInternalFrame1.getAccessibleContext().setAccessibleName("Test Info");
@@ -369,5 +446,6 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
     public javax.swing.JLayeredPane jLayeredPaneKilohertz;
     public javax.swing.JLayeredPane jLayeredPaneMegahertz;
     // End of variables declaration//GEN-END:variables
+
 
 }

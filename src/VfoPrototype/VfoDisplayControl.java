@@ -96,7 +96,7 @@ final public class VfoDisplayControl extends GroupBox
     JLayeredPane layeredPaneKilohertz; 
     JLayeredPane layeredPaneHertz;
     JPanel glassPane;
-    JMenuBar menuBar;
+
 
 
     public VfoDisplayControl(VfoPrototype2 frame) {
@@ -230,7 +230,7 @@ final public class VfoDisplayControl extends GroupBox
         FlowLayout layoutGlass = (FlowLayout)glassPane.getLayout();
         
         // Space the layered panes down from the top. Arrived by trial & error.
-        layoutGlass.setVgap(26);
+        layoutGlass.setVgap(6);
         
         
         //MUST HAVE THE FOLLOWING LINE FOR GLASS PANE TO BE TRANSPARENT!
@@ -406,66 +406,10 @@ final public class VfoDisplayControl extends GroupBox
             aFrame.jLayeredPaneMegahertz.add(door);
             door.setVisible(true);
         }
-    }
-    
-    /**
-     * Create the menu bar for the display and add menu items to operate the
-     * VFO selection and copy tasks.
-     */        
-    protected void addMenuBar() {    
-        menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
-        //Build the first menu.
-        JMenu menu = new JMenu("Choose Radio VFO Operation");
-        menu.setMnemonic(KeyEvent.VK_V);
-        AccessibleContext menuContext = menu.getAccessibleContext();
-        menuContext.setAccessibleDescription(
-            "Pick the radio VFO that the VFO Panel controls");
-        menuContext.setAccessibleName("Choose Radio VFO");
-        menuBar.add(menu);
-        //Set JMenuItem A.
-        JRadioButtonMenuItem menuItemA = new JRadioButtonMenuItem(VFO_SELECT_A_TEXT, true);
-        menuItemA.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_A, ActionEvent.ALT_MASK));
-        AccessibleContext itemAContext = menuItemA.getAccessibleContext();
-        itemAContext.setAccessibleDescription(
-            "VFO panel controls radio VFO A");
-        itemAContext.setAccessibleName("Choose radio VFO A");       
-        menuItemA.addItemListener(this);
-        menu.add(menuItemA);
-        //Set JMenuItem B.
-        JRadioButtonMenuItem menuItemB = new JRadioButtonMenuItem(VFO_SELECT_B_TEXT, false);
-        menuItemB.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_B, ActionEvent.ALT_MASK));
-        AccessibleContext itemBContext = menuItemB.getAccessibleContext();
-        itemBContext.setAccessibleDescription(
-            "VFO panel controls radio VFO B");
-        itemBContext.setAccessibleName("Choose radio VFO B");
-        menuItemB.addItemListener(this);
-        menu.add(menuItemB);
-        // Add VFO "copy" menu items.
-        menu.addSeparator();
-        JMenuItem a2b = new JMenuItem("Copy VFO A to VFO B", KeyEvent.VK_C);
-        AccessibleContext a2bContext = a2b.getAccessibleContext();
-        a2bContext.setAccessibleName("Copy Vfo A to Vfo B");
-        a2bContext.setAccessibleDescription("Use shortcut key option C");
-        a2b.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_C, ActionEvent.ALT_MASK));
-        a2b.addItemListener(this);
-        a2b.addActionListener(this);
-        menu.add(a2b);
-        JMenuItem swap = new JMenuItem("Swap VFO A with VFO B", KeyEvent.VK_S);
-        AccessibleContext swapContext = a2b.getAccessibleContext();
-        swapContext.setAccessibleName("Swap Vfo A with Vfo B");
-        swapContext.setAccessibleDescription("Use shortcut key option S");
-        swap.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_S, ActionEvent.ALT_MASK));
-        swap.addItemListener(this);
-        swap.addActionListener(this);
-        menu.add(swap);
-        // Add an exclusive interface to the Vfo selector so that only one thread
+        
+            // Add an exclusive interface to the Vfo selector so that only one thread
         // at a time gains access.
-        vfoState = new VfoSelectionInterface(menuItemA, menuItemB,
+        vfoState = new VfoSelectionInterface(aFrame.menuItemA, aFrame.menuItemB,
             aFrame.frequencyVfoA, aFrame.frequencyVfoB );
  
         // @todo Later we will get these from Preferences.  When do we save a freq?
@@ -487,8 +431,9 @@ final public class VfoDisplayControl extends GroupBox
             System.out.println("Unrecognized preference :"+lastVfo);
             vfoState.setVfoASelected();
         }
-        inhibit = false;
+        inhibit = false;        
     }
+    
     
     public void makeVisible() {
         
@@ -669,6 +614,39 @@ final public class VfoDisplayControl extends GroupBox
     }       
 
     
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String actionString = e.getActionCommand();
+        if (actionString == "Copy VFO A to VFO B") {
+            vfoState.copyAtoB();
+                 
+            if (!vfoState.vfoA_IsSelected()) {
+                long freqA = vfoState.getVfoAFrequency();
+                aFrame.vfoGroup.frequencyToDigits(freqA);
+            }
+            JOptionPane.showMessageDialog(this,
+                    "VFO A copied to VFO B",
+                    "VFO A copied to VFO B",  // VoiceOver reads only this line.
+                    JOptionPane.PLAIN_MESSAGE);
+        } else if (actionString == "Swap VFO A with VFO B") {
+            vfoState.swapAwithB();
+                 
+            if (vfoState.vfoA_IsSelected()) {
+                long freqA = vfoState.getVfoAFrequency();
+                aFrame.vfoGroup.frequencyToDigits(freqA);
+            } else {
+                long freqB = vfoState.getVfoBFrequency();
+                aFrame.vfoGroup.frequencyToDigits(freqB);
+                
+            }
+            JOptionPane.showMessageDialog(this,
+                    "VFO A swapped with VFO B",
+                    "VFO A swapped with VFO B",  // VoiceOver reads only this line.
+                    JOptionPane.PLAIN_MESSAGE);            
+        }
+    } 
+    
     @Override
     public void itemStateChanged(ItemEvent e) {
         if (inhibit) return;        
@@ -706,37 +684,8 @@ final public class VfoDisplayControl extends GroupBox
         frequencyToDigits(freq);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String actionString = e.getActionCommand();
-        if (actionString == "Copy VFO A to VFO B") {
-            vfoState.copyAtoB();
-                 
-            if (!vfoState.vfoA_IsSelected()) {
-                long freqA = vfoState.getVfoAFrequency();
-                aFrame.vfoGroup.frequencyToDigits(freqA);
-            }
-            JOptionPane.showMessageDialog(this,
-                    "VFO A copied to VFO B",
-                    "VFO A copied to VFO B",  // VoiceOver reads only this line.
-                    JOptionPane.PLAIN_MESSAGE);
-        } else if (actionString == "Swap VFO A with VFO B") {
-            vfoState.swapAwithB();
-                 
-            if (vfoState.vfoA_IsSelected()) {
-                long freqA = vfoState.getVfoAFrequency();
-                aFrame.vfoGroup.frequencyToDigits(freqA);
-            } else {
-                long freqB = vfoState.getVfoBFrequency();
-                aFrame.vfoGroup.frequencyToDigits(freqB);
-                
-            }
-            JOptionPane.showMessageDialog(this,
-                    "VFO A swapped with VFO B",
-                    "VFO A swapped with VFO B",  // VoiceOver reads only this line.
-                    JOptionPane.PLAIN_MESSAGE);            
-        }
-    } 
+    
+    
     private void digitsPanelAncestorResized(java.awt.event.HierarchyEvent evt) {                                            
         Component comp = evt.getComponent();
         JLayeredPane pane = (JLayeredPane) comp;
