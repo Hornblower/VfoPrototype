@@ -54,7 +54,7 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jInternalFrame1" alignment="1" max="32767" attributes="0"/>
+                  <Component id="jInternalFrame1" alignment="1" max="-2" attributes="0"/>
                   <Component id="digitsParent" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -175,6 +175,13 @@
       <Properties>
         <Property name="visible" type="boolean" value="true"/>
       </Properties>
+      <AccessibilityProperties>
+        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Test Info"/>
+        <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="This group is for testing VFO settings."/>
+      </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new GroupBox();"/>
+      </AuxValues>
 
       <Layout>
         <DimensionLayout dim="0">

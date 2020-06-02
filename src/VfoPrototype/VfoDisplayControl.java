@@ -67,7 +67,7 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
  * 
  * @author Coz
  */
-final public class VfoDisplayControl extends JInternalFrame 
+final public class VfoDisplayControl extends GroupBox 
         implements PropertyChangeListener , ItemListener, ActionListener {
     
     static boolean wasVfoA = true;
@@ -100,9 +100,8 @@ final public class VfoDisplayControl extends JInternalFrame
 
 
     public VfoDisplayControl(VfoPrototype2 frame) {
-        super("VFO Display Control");
+        super();
         aFrame = frame;
-        setFrameIcon(null); // does not remove icon
         setClosable(false);
         setFocusCycleRoot(true);
         setFocusable(true);

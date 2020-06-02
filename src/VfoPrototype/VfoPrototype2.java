@@ -46,7 +46,7 @@ import java.util.prefs.*;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame {
-    public static String version = "Version 2.1.2";
+    public static String version = "Version 2.1.4";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
 
@@ -81,7 +81,11 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
             public void windowGainedFocus(WindowEvent e) {
                 textField.requestFocusInWindow();
             }
-        }); 
+        });
+        // Set up TestInfo GroupBox.
+        jInternalFrame1.setFocusable(true);
+        
+        
         // Associate labels with fields for accessibility.
         jLabel1.setLabelFor(frequencyVfoA);
         jLabel2.setLabelFor(frequencyVfoB);
@@ -173,7 +177,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
         jLayeredPaneMegahertz = new javax.swing.JLayeredPane();
         jLayeredPaneKilohertz = new javax.swing.JLayeredPane();
         jLayeredPaneHertz = new javax.swing.JLayeredPane();
-        jInternalFrame1 = new javax.swing.JInternalFrame();
+        jInternalFrame1 = new GroupBox();
         jLabel1 = new javax.swing.JLabel();
         frequencyVfoB = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -279,7 +283,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jInternalFrame1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jInternalFrame1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(digitsParent))
                 .addContainerGap())
         );
@@ -292,6 +296,9 @@ final public class VfoPrototype2 extends javax.swing.JFrame {
                 .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 26, Short.MAX_VALUE))
         );
+
+        jInternalFrame1.getAccessibleContext().setAccessibleName("Test Info");
+        jInternalFrame1.getAccessibleContext().setAccessibleDescription("This group is for testing VFO settings.");
 
         getAccessibleContext().setAccessibleName("VFO Display prototype App");
         getAccessibleContext().setAccessibleDescription("Each VFO digit is a spinner responding to up down arrows.");
