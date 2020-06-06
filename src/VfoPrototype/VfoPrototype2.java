@@ -29,7 +29,6 @@ import java.awt.ContainerOrderFocusTraversalPolicy;
 import java.awt.DefaultFocusTraversalPolicy;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JFormattedTextField;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,6 +41,7 @@ import java.util.Vector;
 import javax.swing.KeyStroke;
 import java.util.prefs.*;
 import javax.accessibility.AccessibleContext;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -82,8 +82,8 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         setTitle("VFO Prototype "+version);
         // Create an Prefernces object for access to this user's preferences.
         prefs = Preferences.userNodeForPackage(this.getClass());
-        setBounds(0,0,680,300);
-        setResizable(false);
+        setBounds(0,0,680,400);
+        setResizable(true);
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         //System.setProperty("apple.awt.application.name", "Vfo Prototype");
         //System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Name");
@@ -124,12 +124,12 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         vfoGroup.makeVisible();
         
         // Cause the ones digit ftf to get the focus when the JFrame gets focus.                              
-        JFormattedTextField textField;
+        JLabel label;
         Vector<Component> order = vfoGroup.getTraversalOrder();
-        textField = (JFormattedTextField) order.get(0);
+        label = (JLabel) order.get(0);
          this.addWindowFocusListener(new WindowAdapter() {
             public void windowGainedFocus(WindowEvent e) {
-                textField.requestFocusInWindow();
+                label.requestFocusInWindow();
             }
         });
         // Set up TestInfo GroupBox.
@@ -229,7 +229,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         menuBar = new JMenuBar();
         setJMenuBar(menuBar);
         //Build the first menu.
-        JMenu menu = new JMenu("Choose Radio VFO Operation");
+        JMenu menu = new JMenu("Radio VFO");
         menu.setMnemonic(KeyEvent.VK_V);
         AccessibleContext menuContext = menu.getAccessibleContext();
         menuContext.setAccessibleDescription(
@@ -358,22 +358,17 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         jInternalFrame1Layout.setVerticalGroup(
             jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jInternalFrame1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jInternalFrame1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(keysInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jInternalFrame1Layout.createSequentialGroup()
-                        .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(frequencyVfoA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jInternalFrame1Layout.createSequentialGroup()
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(keysInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jInternalFrame1Layout.createSequentialGroup()
+                        .addComponent(frequencyVfoA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(22, Short.MAX_VALUE))
+                            .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)))))
         );
 
         jLabel1.getAccessibleContext().setAccessibleName("Radio VFO A,  Mhz");
@@ -418,15 +413,15 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jInternalFrame1)
-            .addComponent(digitsParent, javax.swing.GroupLayout.DEFAULT_SIZE, 684, Short.MAX_VALUE)
+            .addComponent(digitsParent, javax.swing.GroupLayout.DEFAULT_SIZE, 702, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jInternalFrame1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(digitsParent, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jInternalFrame1.getAccessibleContext().setAccessibleName("Test Info");
@@ -543,9 +538,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         Object itemObj = e.getItem();
         JMenuItem item = (JMenuItem) itemObj;
         String itemText = item.getText();
-        //System.out.println("item.name :"+itemText);
         if (itemText.equals(VFO_SELECT_A_TEXT)) {
-            //item.firePropertyChange("MENU_ITEM1", false, true);
             if (item.isSelected()) {
                 vfoState.setVfoASelected();
                 prefs.put(LAST_VFO, VFO_SELECT_A_TEXT);

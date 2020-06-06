@@ -29,7 +29,7 @@ public class VfoSelectionInterface {
     JRadioButtonMenuItem vfoB;
     JTextField frequencyVfoA;
     JTextField frequencyVfoB;
-    static Color SELECTED_COLOR = Color.WHITE; 
+    static Color SELECTED_COLOR = Color.BLACK; 
     static Color UNSELECTED_COLOR = Color.LIGHT_GRAY;
  
     public VfoSelectionInterface(JRadioButtonMenuItem a, JRadioButtonMenuItem b, 
@@ -120,8 +120,8 @@ public class VfoSelectionInterface {
         lock.writeLock().lock();  //blocks until lock is available.
         System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
         vfoA.setSelected(true);
-        frequencyVfoA.setBackground(SELECTED_COLOR);
-        frequencyVfoB.setBackground(UNSELECTED_COLOR);
+        frequencyVfoA.setForeground(SELECTED_COLOR);
+        frequencyVfoB.setForeground(UNSELECTED_COLOR);
         lock.writeLock().unlock();            
         
         isSelectedA = vfoA_IsSelected();
@@ -137,8 +137,8 @@ public class VfoSelectionInterface {
         lock.writeLock().lock();  //blocks until lock is available.       
         System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
         vfoB.setSelected(true);
-        frequencyVfoB.setBackground(SELECTED_COLOR);
-        frequencyVfoA.setBackground(UNSELECTED_COLOR);
+        frequencyVfoB.setForeground(SELECTED_COLOR);
+        frequencyVfoA.setForeground(UNSELECTED_COLOR);
         lock.writeLock().unlock();            
         
         isSelectedA = vfoA_IsSelected();

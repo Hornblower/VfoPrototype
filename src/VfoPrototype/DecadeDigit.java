@@ -6,6 +6,7 @@
 package VfoPrototype;
 
 
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.FocusEvent;
@@ -16,12 +17,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.text.ParseException;
 import java.util.ArrayList;
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
-import javax.swing.JFormattedTextField;
-import javax.swing.text.MaskFormatter;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+
 
 /**
  * Implements a decade digit within a multi-digit numeric display.
@@ -34,7 +35,7 @@ import javax.swing.text.MaskFormatter;
  * 
  * @author Coz
  */
-public class DecadeDigit extends JFormattedTextField
+public class DecadeDigit extends JLabel
         implements Accessible, FocusListener, MouseWheelListener, 
         MouseListener, KeyListener  {
     
@@ -43,30 +44,35 @@ public class DecadeDigit extends JFormattedTextField
     final static Font DIGITS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 30);
     final static Color NON_ZERO_COLOR = new Color(0,192,0);
     final static Color ZERO_COLOR = new Color(0,64,0);
-    protected double fontScale = 0.0;
+    protected float fontScale = 0.0f;
     final static String VALUE_CHANGE = "valueChange";
-    MaskFormatter maskFormatter;
+    private long value = 0;
+    final private int digitDecade; // Used only for automatic testing.
    
-    public DecadeDigit(VfoDisplayControl group, double scale) {
+    public DecadeDigit(VfoDisplayControl group, int decade, float scale) {
         super();
         fontScale = scale;
         frameGroup = group;
-        try {
-            maskFormatter = new MaskFormatter("#");
-            this.setFormatter(maskFormatter);
-        } catch (ParseException e) {
-            System.out.print(e);
-            System.out.println("No formatter was created for the DecadeDigit.");
-        }
+        digitDecade = decade;
+        
         setModel(new DecadeModel(0,this));
-        setToolTipText("Lou, use the force!");
+        setToolTipText("Use arrows to change value and tranverse digits.");
         // Set foreground numeral color Green. Set background transparent.        
         setFocusable(true);
         setForeground(Color.GREEN);
+        setBorder(BorderFactory.createLineBorder(Color.red));
+
         Color backTransparent = new Color(0,0,0,0);
-        setBackground(backTransparent);
-        setEditable(false);        
+        setBackground(backTransparent);   
         setOpaque(false);
+        if (decade >= 0 && decade <= 9){
+            setForeground(ZERO_COLOR);
+            setText("0"); // Need a text digit to adjust font size.
+        } else {
+            // Original JRX scientific notation groups indicator.
+            setText(".");
+            setForeground(NON_ZERO_COLOR);
+        }       
         addMouseWheelListener(this);
         addMouseListener(this);
         addKeyListener(this);
@@ -76,11 +82,11 @@ public class DecadeDigit extends JFormattedTextField
         requestFocus();
     }
     
-    public double getFontScale() {
+    public float getFontScale() {
         return fontScale;
     }
     
-    public void setFontScale( double scale ) {
+    public void setFontScale( float scale ) {
         fontScale = scale;
     }
     private void setModel(DecadeModel digitModel) {
@@ -125,7 +131,7 @@ public class DecadeDigit extends JFormattedTextField
         DecadeModel myModel = (DecadeModel)getModel();
         int powerOfTen = myModel.getDecade();
         AccessibleContext ftfContext = this.getAccessibleContext();
-        String name = getName(powerOfTen)+" JFormattedTextField";
+        String name = getName(powerOfTen)+" Decade digit";
         ftfContext.setAccessibleName(name);
         this.setName(name);
         ftfContext.setAccessibleDescription(
@@ -153,47 +159,42 @@ public class DecadeDigit extends JFormattedTextField
     
     /**
      * There are two representations of the current value of the field.  One is
-     * the textual representation in the textField which is displayed upon 
-     * commit.  The other is the currentValue stored in the DecadeModel.  The
-     * idea is to keep them in synch or die a painful death.  In any case, the
+     * the textual representation in the JLabel which is displayed.
+     *  The other is the currentValue stored in the DecadeModel.  The
+     * idea is to keep them in sync or die a painful death.  In any case, the
      * currentValue of the model always wins.  This method sets them both to the
-     * same value.  
+     * same value or makes sure that they are equal.  
      * 
      * @param obj Object representing the numeric value.
-     */
-    @Override
+     */    
     public void setValue(Object obj) {
         int oldValue = (Integer)getValue();
-        int value = (Integer) obj;
-        this.getModel().setValue(value);
-        super.setValue(obj);
-        this.firePropertyChange(VALUE_CHANGE, oldValue, value );
+        int newValue = (Integer) obj;
+        if (oldValue == newValue) return;
+        value = newValue;
+        setText(""+value);
+        this.getModel().setValue((int) value);
+        this.firePropertyChange(VALUE_CHANGE, oldValue, value);
     }
     
     /**
-     * Must override this method because sometime, somewhere, someone will call
-     * the method and the two values for the field better match.
+     * This method retrieves the current digit value and makes sure the two values
+     * for the field, displayed value and model value),  match.
      * 
-     * @return object representing JFormatedTextField textField.
+     * @return object representing value.
      */
-    @Override
+    
     public Object getValue() {
         assert (this.getModel() != null);
-        Object ftfObj = super.getValue();
-        if (ftfObj == null) {
-            // Super does not have a value yet.
-            return (Integer)0;
-        }
-        DecadeModel digitModel = getModel();
+       DecadeModel digitModel = getModel();
         if ( digitModel == null) {
-            //It's too early in the process.  We don't have a model yet.
-            return super.getValue();
+            //It's too early in the construction process.  Don't have a model yet.
+            return value;
         }
         Object modelObj = (Integer) digitModel.getValue();
-        int ftfValue = (Integer)ftfObj;
         int modelValue = (Integer)modelObj;
-        assert(ftfValue == modelValue);
-        return ftfObj;
+        assert(value == modelValue);
+        return modelObj;
     }
     
 

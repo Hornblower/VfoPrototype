@@ -62,28 +62,30 @@ public class BarnDoor extends JPanel {
            
         // Draw the upper button outline rectangle with inset of 5 percent of the 
         // fieldWidth.
-        int inset = prefSize.width/20;
-        int boxHeight = (prefSize.height/2)-(2*inset);
-        int boxWidth = prefSize.width-(2*inset);
-        Rectangle upperBoxRect = new Rectangle(inset,inset,boxWidth,boxHeight);
+        int insetX = prefSize.width/10;
+        int insetY = prefSize.width/10;
+        int boxHeight = (prefSize.height/2)-(2*insetY);
+        int boxWidth = prefSize.width-(2*insetX);
+        Rectangle upperBoxRect = new Rectangle(insetX,insetY,boxWidth,boxHeight);
         OutlineRectangle upperBox = new OutlineRectangle( upperBoxRect, outlineColor);
         model.addGeometry((Geometry) upperBox);
         // Draw the lower outline rectangle.        
-        Rectangle lowerBoxRect = new Rectangle(inset, inset+prefSize.height/2, 
+        Rectangle lowerBoxRect = new Rectangle(insetX, insetY+prefSize.height/2, 
                 boxWidth, boxHeight);
         OutlineRectangle lowerBox = new OutlineRectangle(lowerBoxRect, outlineColor);
         model.addGeometry((Geometry)lowerBox);
                
         // Draw the upper arrow triangle outline at 5 percent inset.
-        int Tinset = 2*inset;
-        boxWidth = prefSize.width - (4*inset);
-        boxHeight = prefSize.height/2 - (4*inset);
-        Rectangle upArrowRect = new Rectangle( Tinset, Tinset, boxWidth, boxHeight);
+        int TinsetX = 2*insetX;
+        int TinsetY = 2*insetY;
+        boxWidth = prefSize.width - (4*insetX);
+        boxHeight = prefSize.height/2 - (4*insetY);
+        Rectangle upArrowRect = new Rectangle( TinsetX, TinsetY, boxWidth, boxHeight);
         UpwardOutlineTriangle upTriangle = 
                 new UpwardOutlineTriangle(upArrowRect, outlineColor);
         model.addGeometry(upTriangle);
         // Draw the lower arrow triangle outline.
-        Rectangle downArrowRect = new Rectangle( Tinset, Tinset+prefSize.height/2,
+        Rectangle downArrowRect = new Rectangle( TinsetX, TinsetY+prefSize.height/2,
                     boxWidth, boxHeight);
         DownwardOutlineTriangle downTriangle = 
                 new DownwardOutlineTriangle(downArrowRect, outlineColor);

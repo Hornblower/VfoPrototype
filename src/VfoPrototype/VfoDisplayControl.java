@@ -13,29 +13,17 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.accessibility.AccessibleContext;
-import javax.swing.JFormattedTextField;
-import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.KeyStroke;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
+import javax.swing.border.TitledBorder;
 
 
 /**
@@ -59,16 +47,14 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
  * half to decrement.  The mouseWheel is a faster way to increment/decrement.
  * 
  * It is not possible to just type digits to enter a frequency in this app.  Each
- * digit is a formatted text field, but editing is disabled.  Editing introduces
- * many complications which include the question of when to commit.  It is far
- * easier and quicker to use the arrow keys.   That is why editing is disabled.
+ * digit is a JLabel.
  * 
  * To scan the band, pick a decade digit and hold down the up/down arrow.
  * 
  * @author Coz
  */
 final public class VfoDisplayControl extends GroupBox 
-        implements PropertyChangeListener , ItemListener, ActionListener {
+        implements PropertyChangeListener  {
     
     static boolean wasVfoA = true;
     static boolean chooseVfoA = true;
@@ -88,7 +74,7 @@ final public class VfoDisplayControl extends GroupBox
     boolean inhibit = true;  // Inhibit interaction during construction.
     static Vector<Component> order;
     boolean silent = false;
-    VfoSelectionInterface vfoState;
+    
     double ONES_RELATIVE_SIZE = 0.7;
     double DIGIT_RELATIVE_SIZE = 1.0;
     
@@ -96,6 +82,12 @@ final public class VfoDisplayControl extends GroupBox
     JLayeredPane layeredPaneKilohertz; 
     JLayeredPane layeredPaneHertz;
     JPanel glassPane;
+    Container contentPane;
+    Rectangle megaBounds;
+    Rectangle kiloBounds;
+    Rectangle unnoBounds;
+    Dimension smallDims;
+    Dimension tallDims;
 
 
 
@@ -105,12 +97,10 @@ final public class VfoDisplayControl extends GroupBox
         setClosable(false);
         setFocusCycleRoot(true);
         setFocusable(true);
-        setResizable(false);
+        setResizable(true);
         AccessibleContext contextVfoControl = getAccessibleContext();
         contextVfoControl.setAccessibleName("V F O Display Control");
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE); //not a user operation.
-        
-        
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE); //not a user operation.       
     }
     /**
      * Method to use glass pane as the dynamic content pane for the frame and
@@ -130,11 +120,13 @@ final public class VfoDisplayControl extends GroupBox
      */
     public void setupPanes() {
         VfoDisplayControl display = this;
-        Rectangle frameBounds = display.getBounds();
+        
+        display.setBounds(0,157,642,200); // Doc says you must set bounds.
         Dimension frameSize = display.getSize();
 
         setupGlassPane(display);
         setupContentPane(display);
+        
         
     }
     /**
@@ -147,16 +139,16 @@ final public class VfoDisplayControl extends GroupBox
      */
     protected void initDigits() {
         freqDigits = new ArrayList<>();
-        freqDigits.add(new DecadeDigit(this, 0.7));    
-        freqDigits.add(new DecadeDigit(this, 0.7));    
-        freqDigits.add(new DecadeDigit(this, 0.7)); 
-        freqDigits.add(new DecadeDigit(this, 1.0));
-        freqDigits.add(new DecadeDigit(this, 1.0));    
-        freqDigits.add(new DecadeDigit(this, 1.0));      
-        freqDigits.add(new DecadeDigit(this, 1.0));
-        freqDigits.add(new DecadeDigit(this, 1.0));  
-        freqDigits.add(new DecadeDigit(this, 1.0));   
-        freqDigits.add(new DecadeDigit(this, 1.0));
+        freqDigits.add(new DecadeDigit(this, 0, 0.7f));    
+        freqDigits.add(new DecadeDigit(this, 1, 0.7f));    
+        freqDigits.add(new DecadeDigit(this, 2, 0.7f)); 
+        freqDigits.add(new DecadeDigit(this, 3, 1.0f));
+        freqDigits.add(new DecadeDigit(this, 4, 1.0f));    
+        freqDigits.add(new DecadeDigit(this, 5, 1.0f));      
+        freqDigits.add(new DecadeDigit(this, 6, 1.0f));
+        freqDigits.add(new DecadeDigit(this, 7, 1.0f));  
+        freqDigits.add(new DecadeDigit(this, 8, 1.0f));   
+        freqDigits.add(new DecadeDigit(this, 9, 1.0f));
         assert(freqDigits.size() == QUANTITY_DIGITS);      
         
         // Link the digits by linking all the models.
@@ -165,10 +157,10 @@ final public class VfoDisplayControl extends GroupBox
         order = new Vector<>(QUANTITY_DIGITS);
         for (int iii=0; iii<QUANTITY_DIGITS; iii++) {
             // The order vector contains the formated text fields.
-            Component ftf = freqDigits.get(iii);
-            // Every ftf has unique accessible info based on decade. 
-            ((DecadeDigit)ftf).setAccessibleInfo();
-            order.add(ftf);
+            Component label = freqDigits.get(iii);
+            // Every label has unique accessible info based on decade. 
+            ((DecadeDigit)label).setAccessibleInfo();
+            order.add(label);
         } 
         insertDigitsIntoPanels();
     }
@@ -187,7 +179,7 @@ final public class VfoDisplayControl extends GroupBox
         
         JLayeredPane pane = layeredPaneMegahertz;
         pane.removeAll();
-        ((FlowLayout) pane.getLayout()).setHgap(0); //snuggle horizontally
+        ((FlowLayout) pane.getLayout()).setHgap(5); //snuggle horizontally
         pane.add(freqDigits.get(9));
         pane.add(freqDigits.get(8));
         pane.add(freqDigits.get(7));
@@ -195,14 +187,14 @@ final public class VfoDisplayControl extends GroupBox
         
         pane = layeredPaneKilohertz;
         pane.removeAll();
-        ((FlowLayout) pane.getLayout()).setHgap(0);
+        ((FlowLayout) pane.getLayout()).setHgap(5);
         pane.add(freqDigits.get(5));
         pane.add(freqDigits.get(4));
         pane.add(freqDigits.get(3));
         
         pane = layeredPaneHertz;
         pane.removeAll();
-        ((FlowLayout) pane.getLayout()).setHgap(0);
+        ((FlowLayout) pane.getLayout()).setHgap(5);
         pane.add(freqDigits.get(2));
         pane.add(freqDigits.get(1));
         pane.add(freqDigits.get(0));
@@ -219,30 +211,45 @@ final public class VfoDisplayControl extends GroupBox
      */
     public void setupGlassPane(VfoDisplayControl display) {
         Rectangle rootBounds = display.getRootPane().getBounds();
-        Container contentPane = display.getContentPane();
+        contentPane = display.getContentPane();
         Rectangle contentBounds = contentPane.getBounds();
 
         display.setGlassPane(new JPanel());
         glassPane = (JPanel) display.getGlassPane();
+        glassPane.setBounds(contentBounds);
         
-        // Since we have the bounds for each component, could do away with layout.
-        glassPane.setLayout(new FlowLayout());
-        FlowLayout layoutGlass = (FlowLayout)glassPane.getLayout();
+        Rectangle glassBounds = glassPane.getBounds();
+        System.out.println("ContentPane bounds = "+ contentBounds);
+        System.out.println("GlassPane bounds = "+ glassBounds);
         
-        // Space the layered panes down from the top. Arrived by trial & error.
-        layoutGlass.setVgap(6);
-        
+        // Since we have the bounds for each component, do away with layout.
+        glassPane.setLayout(null);
         
         //MUST HAVE THE FOLLOWING LINE FOR GLASS PANE TO BE TRANSPARENT!
         glassPane.setOpaque(false);
         
         //Insets gInsets = glassPane.getInsets(); // insets are zero       
         //Insets mgInsets = layeredPaneMegahertz.getInsets(); // insets are zero
+ 
+        rootBounds = display.getRootPane().getBounds();
+        contentPane = display.getContentPane();
+        contentBounds = contentPane.getBounds();
+
+        
+        glassPane = (JPanel) display.getGlassPane();
+        glassBounds = glassPane.getBounds();
+        System.out.println("ContentPane bounds = "+ contentBounds);
+        System.out.println("GlassPane bounds = "+ glassBounds);
+        
+        
+        
+        
+        
         
         //////////////////////////////////////////////////////////////////
         // Compute component widths.  Some subtle math here....
         int digitGap = 5; //guess by sight.
-        int offsetY = 23; //does not move digits down. FlowLayout doesn't use it.
+        int offsetY = 0;
         int titleBorderWidth = 10;
         double digitWidth = 
                 (double)(contentBounds.width-4*digitGap - 6*titleBorderWidth)/
@@ -252,17 +259,19 @@ final public class VfoDisplayControl extends GroupBox
         int megaWide = (int)(4*digitWidth)+2*titleBorderWidth;
         int kiloWide = (int)(3*digitWidth)+2*titleBorderWidth;
         int onesOffsetX = megaWide+digitGap+kiloWide+digitGap;
-        layeredPaneMegahertz.setAlignmentY(1.0f);
+        //layeredPaneMegahertz.setAlignmentY(1.0f);
         //float y = layeredPaneMegahertz.getAlignmentY();
         ////////////////////////////////////////////////////////////////////
                 
-        Rectangle megaBounds = new Rectangle(  0,  offsetY, megaWide, 120);                   
-        Rectangle kiloBounds = new Rectangle(megaWide+digitGap,  offsetY, kiloWide, 120);
-        Rectangle unnoBounds = new Rectangle(onesOffsetX,  offsetY, onesWide, 120);
+        megaBounds = new Rectangle(  0,  offsetY, megaWide, 120);                   
+        kiloBounds = new Rectangle(megaWide+digitGap,  offsetY, kiloWide, 120);
+        unnoBounds = new Rectangle(onesOffsetX,  offsetY, onesWide, 120);
         
         System.out.println("megaBounds :" + megaBounds);
         System.out.println("kiloBounds :" + kiloBounds);
         System.out.println("unnoBounds :" + unnoBounds);
+        Rectangle displayBounds = display.getBounds();
+        System.out.println("displayBounds :" + displayBounds);
         
         layeredPaneMegahertz.setBounds(megaBounds);
         layeredPaneMegahertz.setOpaque(false);
@@ -293,7 +302,8 @@ final public class VfoDisplayControl extends GroupBox
                 digitsPanelAncestorResized(evt);
             }
         });
-
+        adjustSize(layeredPaneMegahertz);
+        
         layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneKilohertz.setOpaque(false);
         layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(
@@ -303,7 +313,6 @@ final public class VfoDisplayControl extends GroupBox
                 new java.awt.Font("Lucida Grande", 0, 13), 
                 new java.awt.Color(0, 255, 0))); 
         layeredPaneKilohertz.setForeground(new java.awt.Color(0, 255, 0));
-
         layeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(kiloBounds.width, kiloBounds.height));
         layeredPaneKilohertz.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
             public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
@@ -312,7 +321,8 @@ final public class VfoDisplayControl extends GroupBox
                 digitsPanelAncestorResized(evt);
             }
         });
-
+        adjustSize(layeredPaneKilohertz);
+        
         layeredPaneHertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneHertz.setToolTipText("VFO Hertz digits");
         layeredPaneHertz.setName("VFO  zero to 1Khz panel"); // NOI18N
@@ -332,6 +342,7 @@ final public class VfoDisplayControl extends GroupBox
                 digitsPanelAncestorResized(evt);
             }
         });
+        adjustSize(layeredPaneHertz);
         
 //        // At this point, all the digits have been resized and inserted into 
 //        // the fixed size layered panes. Get some measurements.
@@ -355,23 +366,24 @@ final public class VfoDisplayControl extends GroupBox
             double fs = digit.fontScale;
             if ( fs < .99) {
                 // Small digits are size limited by width.  fs = 0.7
-                double handPickedDivisor = 1.8;
-                int titleBorderWidth = 20;
-                int fontSize = (int) ((resizedComponent.getWidth()-titleBorderWidth*2) / handPickedDivisor);
+                double handPickedDivisor = 2.0;
+                int fontSize = (int) ((resizedComponent.getWidth()) / handPickedDivisor);
                 Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
                 comp.setFont(font);
+                smallDims = digit.getPreferredSize(); // 40,62
             } else { 
                 // Large digits are limited by layered pane height.  fs = 1.0
-                double handPickedDivisor = 1.4;
-                int hertzTitleHeight = 23;
-                int fontSize = (int) ((resizedComponent.getHeight()-hertzTitleHeight) / handPickedDivisor);
+                double handPickedDivisor = 1.55;
+                
+                int fontSize = (int) ((resizedComponent.getHeight()) / handPickedDivisor);
                 Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
                 comp.setFont(font);
-            }
-            Dimension prefSize = digit.getPreferredSize();
-            int decade = digit.getDecade();
-            //System.out.println("DecadeDigit : "+decade+" preferredSize : "+prefSize);
+                tallDims = digit.getPreferredSize(); // 57,94
+            }            
         }
+        
+        System.out.println("tallDims  : "+tallDims);
+        System.out.println("smallDims : "+smallDims);
     }
     
     /**
@@ -381,8 +393,11 @@ final public class VfoDisplayControl extends GroupBox
      */
     public void setupContentPane(VfoDisplayControl display) {
         
-        // Get the dims of the small Hertz digits.               
-        Dimension smallDims = new Dimension(34,56);
+        contentPane.setLayout(null);  //don't need no stinkin ....
+        smallDims = new Dimension(40-5,62);
+        tallDims  = new Dimension(57-5,94);
+        // Use the dims of the small Hertz digits.               
+        aFrame.jLayeredPaneHertz.setBounds(unnoBounds);
         aFrame.jLayeredPaneHertz.setBackground(Color.BLACK);
         for (int iii=0; iii<3; iii++) {
             BarnDoor door = new BarnDoor(smallDims);
@@ -390,15 +405,16 @@ final public class VfoDisplayControl extends GroupBox
             aFrame.jLayeredPaneHertz.add(door);
             door.setVisible(true);
         }
-        // Get the dims of the tall Hertz digits.               
-        Dimension tallDims = new Dimension(51,89);
+        // Use the dims of the tall Kilohertz digits.               
+        aFrame.jLayeredPaneKilohertz.setBounds(kiloBounds);
         aFrame.jLayeredPaneKilohertz.setBackground(Color.BLACK);
         for (int iii=3; iii<6; iii++) {
             BarnDoor door = new BarnDoor(tallDims);
             door.addShapes();           
             aFrame.jLayeredPaneKilohertz.add(door);
             door.setVisible(true);
-        }       
+        }
+        aFrame.jLayeredPaneMegahertz.setBounds(megaBounds);
         aFrame.jLayeredPaneMegahertz.setBackground(Color.BLACK);
         for (int iii=6; iii<10; iii++) {
             BarnDoor door = new BarnDoor(tallDims);
@@ -406,48 +422,18 @@ final public class VfoDisplayControl extends GroupBox
             aFrame.jLayeredPaneMegahertz.add(door);
             door.setVisible(true);
         }
-        
-            // Add an exclusive interface to the Vfo selector so that only one thread
-        // at a time gains access.
-        vfoState = new VfoSelectionInterface(aFrame.menuItemA, aFrame.menuItemB,
-            aFrame.frequencyVfoA, aFrame.frequencyVfoB );
- 
-        // @todo Later we will get these from Preferences.  When do we save a freq?
-        vfoState.writeFrequencyToRadioVfoA(MSN_FREQ);
-        vfoState.writeFrequencyToRadioVfoB(SHAWSVILLE_REPEATER_OUTPUT_FREQ);
-      
-          // @todo Add this later with stored frequency of the selected vfo.
-        String lastVfo = aFrame.prefs.get("LAST_VFO", "VFO_SELECT_A_TEXT");
-        if ( lastVfo == null) {
-            // There is no history.
-            // Vfo A is arbitrary default,
-            vfoState.setVfoASelected();
-        } else if ( lastVfo.equals(VFO_SELECT_A_TEXT)) {
-            vfoState.setVfoASelected();
-        } else if ( lastVfo.equals(VFO_SELECT_B_TEXT)) {
-            vfoState.setVfoBSelected();
-        } else {
-            // Do no recognize the entry.
-            System.out.println("Unrecognized preference :"+lastVfo);
-            vfoState.setVfoASelected();
-        }
-        inhibit = false;        
+                
     }
     
     
-    public void makeVisible() {
-        
-        long selectedFreq = vfoState.getSelectedVfoFrequency();
+    public void makeVisible() { 
+        inhibit = false;
+        long selectedFreq = aFrame.vfoState.getSelectedVfoFrequency();
         frequencyToDigits(selectedFreq);        
 
         getGlassPane().setVisible(true);
         getContentPane().setVisible(true);
-        
-        getContentPane().repaint();
-
-        //Rectangle menuBarBounds = menuBar.getBounds(); //Does not work.  Bug.
     }
-
     
     public static Vector<Component> getTraversalOrder() {
         return order;
@@ -533,9 +519,9 @@ final public class VfoDisplayControl extends GroupBox
         long freqHertz;
         String valString;
         // Simlate read freq from Radio VFO a.
-        freqHertz = vfoState.getVfoAFrequency();            
+        freqHertz = aFrame.vfoState.getVfoAFrequency();            
         frequencyToDigits(freqHertz);
-        if ( !vfoState.vfoA_IsSelected()) vfoState.setVfoASelected();
+        if ( !aFrame.vfoState.vfoA_IsSelected()) aFrame.vfoState.setVfoASelected();
         //getTraversalOrder().get(0).requestFocus();
         setSilent(false);
         return success;
@@ -555,9 +541,9 @@ final public class VfoDisplayControl extends GroupBox
         long freqHertz;
         String valString;    
         // Simlate read freq from Radio VFO B.           
-        freqHertz = vfoState.getVfoBFrequency();            
+        freqHertz = aFrame.vfoState.getVfoBFrequency();            
         frequencyToDigits(freqHertz);
-        if ( vfoState.vfoA_IsSelected())  vfoState.setVfoBSelected();
+        if ( aFrame.vfoState.vfoA_IsSelected())  aFrame.vfoState.setVfoBSelected();
         //getTraversalOrder().get(0).requestFocus();
         setSilent(false);
         return success;
@@ -576,120 +562,36 @@ final public class VfoDisplayControl extends GroupBox
         //if (silent) return;
         Object source = evt.getSource();
         DecadeDigit digit = (DecadeDigit)source;
-        String name = digit.getName();
-        // getValue() synchronizes the model and ftf values.
-        int value = (Integer) digit.getValue();
-        //System.out.print("PropertyChangeEvent :");
-        //System.out.print(" source : " + name);
-        //System.out.println(" ; getValue() returns :"+ value);        
-        Component ftf = (Component)source;         
-        // Update this ftf description with new frequency and decade name.
-        // Update the debug panel frequency.           
+        // getValue() synchronizes the model and label values.
+        int value = (Integer) digit.getValue();        
         DecadeModel model = digit.getModel();
         DecadeModel decadeModel = (DecadeModel)model;
         int decade = decadeModel.getDecade();
-        if( vfoState == null) {
+        if( aFrame.vfoState == null) {
             // We are in the contruction process. Too early.
             return;
         }
         // Change the field description so voiceOver will announce it.
         long freq = digitsToFrequency();
-        vfoState.writeFrequencyToRadioSelectedVfo(freq);
+        aFrame.vfoState.writeFrequencyToRadioSelectedVfo(freq);
         String vfoString = "VFO B";
-        if (vfoState.vfoA_IsSelected()) vfoString = "VFO A";           
+        if (aFrame.vfoState.vfoA_IsSelected()) vfoString = "VFO A";           
         //System.out.println("handleChangeEvent - model value: "+ String.valueOf(value)); 
         for ( int iii=0; iii<QUANTITY_DIGITS; iii++) {
             StringBuilder freqString = new StringBuilder("");
-            freqString.append(vfoString+" Frequency "+Double.toString(((double)freq)/1000000.)+" Mhz; ");
+            freqString.append(vfoString+" Frequency ");
+            freqString.append(Double.toString(((double)freq)/1000000.)+" Mhz; ");
             Component comp = order.get(iii);
-            JFormattedTextField ftfield = (JFormattedTextField)comp;
-            freqString.append(ftfield.getAccessibleContext().getAccessibleName());
-            ftfield.getAccessibleContext().setAccessibleDescription(freqString.toString());
+            JLabel label = (JLabel)comp;
+            freqString.append(label.getAccessibleContext().getAccessibleName());
+            label.getAccessibleContext().setAccessibleDescription(freqString.toString());
         }
-        // Print out just this field's name and description.
-        //String ftfName = ftf.getAccessibleContext().getAccessibleName();
-        //System.out.println("ftf accessible name :"+ftfName);
-        String ftfDesc = ftf.getAccessibleContext().getAccessibleDescription();
-        System.out.println("ftf accessible description :"+ftfDesc);               
     }       
-
-    
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String actionString = e.getActionCommand();
-        if (actionString == "Copy VFO A to VFO B") {
-            vfoState.copyAtoB();
-                 
-            if (!vfoState.vfoA_IsSelected()) {
-                long freqA = vfoState.getVfoAFrequency();
-                aFrame.vfoGroup.frequencyToDigits(freqA);
-            }
-            JOptionPane.showMessageDialog(this,
-                    "VFO A copied to VFO B",
-                    "VFO A copied to VFO B",  // VoiceOver reads only this line.
-                    JOptionPane.PLAIN_MESSAGE);
-        } else if (actionString == "Swap VFO A with VFO B") {
-            vfoState.swapAwithB();
-                 
-            if (vfoState.vfoA_IsSelected()) {
-                long freqA = vfoState.getVfoAFrequency();
-                aFrame.vfoGroup.frequencyToDigits(freqA);
-            } else {
-                long freqB = vfoState.getVfoBFrequency();
-                aFrame.vfoGroup.frequencyToDigits(freqB);
-                
-            }
-            JOptionPane.showMessageDialog(this,
-                    "VFO A swapped with VFO B",
-                    "VFO A swapped with VFO B",  // VoiceOver reads only this line.
-                    JOptionPane.PLAIN_MESSAGE);            
-        }
-    } 
-    
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-        if (inhibit) return;        
-        
-        Object itemObj = e.getItem();
-        JMenuItem item = (JMenuItem) itemObj;
-        String itemText = item.getText();
-        //System.out.println("item.name :"+itemText);
-        if (itemText.equals(VFO_SELECT_A_TEXT)) {
-            //item.firePropertyChange("MENU_ITEM1", false, true);
-            if (item.isSelected()) {
-                vfoState.setVfoASelected();
-                aFrame.prefs.put(LAST_VFO, VFO_SELECT_A_TEXT);
-                // If voiceOver enabled, need this dialog to announce vfo change.
-                JOptionPane.showMessageDialog(this,
-                    "VFO A Selected", // VoiceOver does not read the text in dialog.
-                    "VFO A Selected", // VoiceOver reads only this line, the title.
-                    JOptionPane.PLAIN_MESSAGE);
-            }           
-        } else if (itemText.equals(VFO_SELECT_B_TEXT)) {
-            //item.firePropertyChange("MENU_ITEM1", false, true);
-            if (item.isSelected()) {
-                vfoState.setVfoBSelected();
-                aFrame.prefs.put(LAST_VFO, VFO_SELECT_B_TEXT);
-                // If voiceOver enabled, need this dialog to announce vfo change.
-                JOptionPane.showMessageDialog(this,
-                    "VFO B Selected",
-                    "VFO B Selected",  // VoiceOver reads only this line.
-                    JOptionPane.PLAIN_MESSAGE);
-            }
-        } else {
-            System.out.println("Unknown menu item handled in itemStateChanged()");
-        }
-        long freq = vfoState.getSelectedVfoFrequency();
-        frequencyToDigits(freq);
-    }
-
-    
     
     private void digitsPanelAncestorResized(java.awt.event.HierarchyEvent evt) {                                            
         Component comp = evt.getComponent();
         JLayeredPane pane = (JLayeredPane) comp;
-        adjustSize(pane);        
+        //adjustSize(pane);        
     }                                           
 
 }
