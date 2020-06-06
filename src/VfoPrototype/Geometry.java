@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 
 /**
@@ -67,6 +68,37 @@ public abstract class Geometry {
         System.out.println("Font size to use is "+ String.valueOf(fontSizeToUse));
         return fontSizeToUse;
     }
+ 
     
+    /**
+     * For the given JLabel, use the label dimensions and font metrics to 
+     * determine the maximum font size that will fit.
+     * 
+     * @param label the JLabel text field 
+     * 
+     * @return The maximum font size in font points
+     */
+    public static int computeMaxFontSize(JFormattedTextField ftf) {
+        // Given the label dimensions, the text, and the font, 
+        // what is the font size that will fit?
+        
+        // Compute the font size to fit into the label size.
+        Font font = ftf.getFont();
+        String text = ftf.getText();
+
+        int stringWidth = ftf.getFontMetrics(font).stringWidth(text);
+        int componentWidth = ftf.getWidth();
+
+        // Find out how much the font can grow in width.
+        double widthRatio = (double)componentWidth / (double)stringWidth;
+        System.out.println("widthRatio of "+font.getName()+" is " + String.valueOf(widthRatio) );
+        int newFontSize = (int)(font.getSize() * widthRatio);
+        int componentHeight = ftf.getHeight();
+
+        // Pick a new font size so it will not be larger than the height of label.
+        int fontSizeToUse = Math.min(newFontSize, componentHeight);
+        System.out.println("Font size to use is "+ String.valueOf(fontSizeToUse));
+        return fontSizeToUse;
+    }
 }
 
