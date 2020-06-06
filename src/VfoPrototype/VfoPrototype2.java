@@ -82,11 +82,10 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         setTitle("VFO Prototype "+version);
         // Create an Prefernces object for access to this user's preferences.
         prefs = Preferences.userNodeForPackage(this.getClass());
-        setBounds(0,0,680,300);
-        setResizable(false);
+        setBounds(0,0,648,320);
+        setResizable(true);
+        // Use the Mac OSX menuBar at the top of the screen.
         System.setProperty("apple.laf.useScreenMenuBar", "true");
-        //System.setProperty("apple.awt.application.name", "Vfo Prototype");
-        //System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Name");
 
         addMenuBar(); // Need to have menu created before setupPanes();
         
@@ -293,10 +292,8 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jInternalFrame1Layout.createSequentialGroup()
                         .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(frequencyVfoA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jInternalFrame1Layout.createSequentialGroup()
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(frequencyVfoB, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))))
@@ -352,15 +349,14 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jInternalFrame1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(digitsParent, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(digitsParent, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE))
         );
 
         jInternalFrame1.getAccessibleContext().setAccessibleName("Test Info");
         jInternalFrame1.getAccessibleContext().setAccessibleDescription("This group is for testing VFO settings.");
 
         getAccessibleContext().setAccessibleName("VFO Display prototype App");
-        getAccessibleContext().setAccessibleDescription("Each VFO digit is a spinner responding to up down arrows.");
+        getAccessibleContext().setAccessibleDescription("Each VFO digit  responds to up down arrows.");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

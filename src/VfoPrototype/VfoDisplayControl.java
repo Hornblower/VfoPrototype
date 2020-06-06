@@ -93,7 +93,10 @@ final public class VfoDisplayControl extends GroupBox
     JLayeredPane layeredPaneMegahertz; 
     JLayeredPane layeredPaneKilohertz; 
     JLayeredPane layeredPaneHertz;
-    JPanel glassPane;
+    JPanel glassPane;       
+    Rectangle megaBounds;                
+    Rectangle kiloBounds; 
+    Rectangle unnoBounds;
 
 
 
@@ -103,7 +106,7 @@ final public class VfoDisplayControl extends GroupBox
         setClosable(false);
         setFocusCycleRoot(true);
         setFocusable(true);
-        setResizable(false);
+        setResizable(true);
         AccessibleContext contextVfoControl = getAccessibleContext();
         contextVfoControl.setAccessibleName("V F O Display Control");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE); //not a user operation.
@@ -185,7 +188,7 @@ final public class VfoDisplayControl extends GroupBox
         
         JLayeredPane pane = layeredPaneMegahertz;
         pane.removeAll();
-        ((FlowLayout) pane.getLayout()).setHgap(0); //snuggle horizontally
+        ((FlowLayout) pane.getLayout()).setHgap(5); //snuggle horizontally
         pane.add(freqDigits.get(9));
         pane.add(freqDigits.get(8));
         pane.add(freqDigits.get(7));
@@ -193,14 +196,14 @@ final public class VfoDisplayControl extends GroupBox
         
         pane = layeredPaneKilohertz;
         pane.removeAll();
-        ((FlowLayout) pane.getLayout()).setHgap(0);
+        ((FlowLayout) pane.getLayout()).setHgap(5);
         pane.add(freqDigits.get(5));
         pane.add(freqDigits.get(4));
         pane.add(freqDigits.get(3));
         
         pane = layeredPaneHertz;
         pane.removeAll();
-        ((FlowLayout) pane.getLayout()).setHgap(0);
+        ((FlowLayout) pane.getLayout()).setHgap(5);
         pane.add(freqDigits.get(2));
         pane.add(freqDigits.get(1));
         pane.add(freqDigits.get(0));
@@ -219,17 +222,15 @@ final public class VfoDisplayControl extends GroupBox
         Rectangle rootBounds = display.getRootPane().getBounds();
         Container contentPane = display.getContentPane();
         Rectangle contentBounds = contentPane.getBounds();
+        
+        contentPane.setLayout(null);
 
         display.setGlassPane(new JPanel());
         glassPane = (JPanel) display.getGlassPane();
         
-        // Since we have the bounds for each component, could do away with layout.
-        glassPane.setLayout(new FlowLayout());
-        FlowLayout layoutGlass = (FlowLayout)glassPane.getLayout();
-        
-        // Space the layered panes down from the top. Arrived by trial & error.
-        layoutGlass.setVgap(6);
-        
+        // We have the bounds for each component, do away with layout manager.
+        glassPane.setLayout(null);
+                
         
         //MUST HAVE THE FOLLOWING LINE FOR GLASS PANE TO BE TRANSPARENT!
         glassPane.setOpaque(false);
@@ -239,24 +240,27 @@ final public class VfoDisplayControl extends GroupBox
         
         //////////////////////////////////////////////////////////////////
         // Compute component widths.  Some subtle math here....
-        int digitGap = 5; //guess by sight.
-        int offsetY = 23; //does not move digits down. FlowLayout doesn't use it.
-        int titleBorderWidth = 10;
+        int digitGap = 5; // Is hgap for FlowLayout.
+        int offsetY = 5; //  Moves digits down.
+        int panelGap = 5; // Gap between panels and left and right ends
+        int offsetX = panelGap; // Leave a border on the left.
+        int titleBorderWidth = 5;
+        
         double digitWidth = 
-                (double)(contentBounds.width-4*digitGap - 6*titleBorderWidth)/
+                (double)(contentBounds.width - 7*digitGap - 6*titleBorderWidth - 4*panelGap)/
                 ((7.*DIGIT_RELATIVE_SIZE)+(3*ONES_RELATIVE_SIZE));
         int onesWide = 
                 (int)(digitWidth * ONES_RELATIVE_SIZE * 3.0)+2*titleBorderWidth;
         int megaWide = (int)(4*digitWidth)+2*titleBorderWidth;
         int kiloWide = (int)(3*digitWidth)+2*titleBorderWidth;
-        int onesOffsetX = megaWide+digitGap+kiloWide+digitGap;
-        layeredPaneMegahertz.setAlignmentY(1.0f);
-        //float y = layeredPaneMegahertz.getAlignmentY();
+        int onesOffsetX = offsetX+megaWide+panelGap+kiloWide+panelGap;
+        //layeredPaneMegahertz.setAlignmentY(1.0f);
+        
         ////////////////////////////////////////////////////////////////////
                 
-        Rectangle megaBounds = new Rectangle(  0,  offsetY, megaWide, 120);                   
-        Rectangle kiloBounds = new Rectangle(megaWide+digitGap,  offsetY, kiloWide, 120);
-        Rectangle unnoBounds = new Rectangle(onesOffsetX,  offsetY, onesWide, 120);
+        megaBounds = new Rectangle( offsetX,  offsetY, megaWide, 130);                   
+        kiloBounds = new Rectangle(megaWide+digitGap+offsetX,  offsetY, kiloWide, 130);
+        unnoBounds = new Rectangle(onesOffsetX,  offsetY, onesWide, 130);
         
         System.out.println("megaBounds :" + megaBounds);
         System.out.println("kiloBounds :" + kiloBounds);
@@ -291,6 +295,7 @@ final public class VfoDisplayControl extends GroupBox
                 digitsPanelAncestorResized(evt);
             }
         });
+        adjustSize(layeredPaneMegahertz);
 
         layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneKilohertz.setOpaque(false);
@@ -310,6 +315,7 @@ final public class VfoDisplayControl extends GroupBox
                 digitsPanelAncestorResized(evt);
             }
         });
+        adjustSize(layeredPaneKilohertz);
 
         layeredPaneHertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneHertz.setToolTipText("VFO Hertz digits");
@@ -330,6 +336,7 @@ final public class VfoDisplayControl extends GroupBox
                 digitsPanelAncestorResized(evt);
             }
         });
+        adjustSize(layeredPaneHertz);
         
 //        // At this point, all the digits have been resized and inserted into 
 //        // the fixed size layered panes. Get some measurements.
@@ -353,14 +360,14 @@ final public class VfoDisplayControl extends GroupBox
             double fs = digit.fontScale;
             if ( fs < .99) {
                 // Small digits are size limited by width.  fs = 0.7
-                double handPickedDivisor = 1.8;
+                double handPickedDivisor = 2.1;
                 int titleBorderWidth = 20;
                 int fontSize = (int) ((resizedComponent.getWidth()-titleBorderWidth*2) / handPickedDivisor);
                 Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
                 comp.setFont(font);
             } else { 
                 // Large digits are limited by layered pane height.  fs = 1.0
-                double handPickedDivisor = 1.4;
+                double handPickedDivisor = 1.7;
                 int hertzTitleHeight = 23;
                 int fontSize = (int) ((resizedComponent.getHeight()-hertzTitleHeight) / handPickedDivisor);
                 Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
@@ -381,6 +388,7 @@ final public class VfoDisplayControl extends GroupBox
         
         // Get the dims of the small Hertz digits.               
         Dimension smallDims = new Dimension(34,56);
+        aFrame.jLayeredPaneHertz.setBounds(unnoBounds);
         aFrame.jLayeredPaneHertz.setBackground(Color.BLACK);
         for (int iii=0; iii<3; iii++) {
             BarnDoor door = new BarnDoor(smallDims);
@@ -390,13 +398,15 @@ final public class VfoDisplayControl extends GroupBox
         }
         // Get the dims of the tall Hertz digits.               
         Dimension tallDims = new Dimension(51,89);
+        aFrame.jLayeredPaneKilohertz.setBounds(kiloBounds);
         aFrame.jLayeredPaneKilohertz.setBackground(Color.BLACK);
         for (int iii=3; iii<6; iii++) {
             BarnDoor door = new BarnDoor(tallDims);
             door.addShapes();           
             aFrame.jLayeredPaneKilohertz.add(door);
             door.setVisible(true);
-        }       
+        }
+        aFrame.jLayeredPaneMegahertz.setBounds(megaBounds);
         aFrame.jLayeredPaneMegahertz.setBackground(Color.BLACK);
         for (int iii=6; iii<10; iii++) {
             BarnDoor door = new BarnDoor(tallDims);
@@ -729,7 +739,7 @@ final public class VfoDisplayControl extends GroupBox
     private void digitsPanelAncestorResized(java.awt.event.HierarchyEvent evt) {                                            
         Component comp = evt.getComponent();
         JLayeredPane pane = (JLayeredPane) comp;
-        adjustSize(pane);        
+        //adjustSize(pane);        
     }                                           
 
 }

@@ -30,7 +30,7 @@
   </Properties>
   <AccessibilityProperties>
     <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="VFO Display prototype App"/>
-    <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Each VFO digit is a spinner responding to up down arrows."/>
+    <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="Each VFO digit  responds to up down arrows."/>
   </AccessibilityProperties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -60,8 +60,7 @@
           <Group type="102" alignment="0" attributes="0">
               <Component id="jInternalFrame1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="digitsParent" min="-2" pref="196" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <Component id="digitsParent" pref="236" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
