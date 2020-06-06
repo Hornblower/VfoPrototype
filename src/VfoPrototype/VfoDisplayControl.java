@@ -7,21 +7,28 @@ package VfoPrototype;
 
 
 
+import java.awt.AWTKeyStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.ContainerOrderFocusTraversalPolicy;
+import java.awt.DefaultFocusTraversalPolicy;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 import javax.accessibility.AccessibleContext;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import javax.swing.border.TitledBorder;
 
@@ -65,6 +72,7 @@ final public class VfoDisplayControl extends GroupBox
     static String VFO_SELECT_B_TEXT = "Select radio VFO B";
     static String LAST_VFO = "LAST_VFO";
     
+    protected VfoDigitTraversalPolicy policy; 
     protected ArrayList<DecadeDigit> freqDigits = null;
     public final static int QUANTITY_DIGITS = 10;
     VfoPrototype2 aFrame;
@@ -127,7 +135,8 @@ final public class VfoDisplayControl extends GroupBox
         setupGlassPane(display);
         setupContentPane(display);
         
-        
+        setUpFocusManager();
+                
     }
     /**
      * Create all ten DecadeDigits, initialize them ,store them in an ordered 
@@ -156,14 +165,17 @@ final public class VfoDisplayControl extends GroupBox
         // Save the focus order.        
         order = new Vector<>(QUANTITY_DIGITS);
         for (int iii=0; iii<QUANTITY_DIGITS; iii++) {
-            // The order vector contains the formated text fields.
+            // The order vector contains the digit components in focus order.
             Component label = freqDigits.get(iii);
             // Every label has unique accessible info based on decade. 
             ((DecadeDigit)label).setAccessibleInfo();
-
             order.add(label);
         } 
         insertDigitsIntoPanels();
+        for (int iii=0; iii<QUANTITY_DIGITS; iii++) {
+            Component label = freqDigits.get(iii);           
+            ((DecadeDigit)label).addInputActions();
+        }        
     }
 
     /**
@@ -179,6 +191,8 @@ final public class VfoDisplayControl extends GroupBox
         layeredPaneHertz.setLayout(new java.awt.FlowLayout(FlowLayout.CENTER));        
         
         JLayeredPane pane = layeredPaneMegahertz;
+        pane.setFocusTraversalPolicyProvider(false);
+        pane.setFocusCycleRoot(false);
         pane.removeAll();
         ((FlowLayout) pane.getLayout()).setHgap(5); //snuggle horizontally
         pane.add(freqDigits.get(9));
@@ -187,6 +201,8 @@ final public class VfoDisplayControl extends GroupBox
         pane.add(freqDigits.get(6));
         
         pane = layeredPaneKilohertz;
+        pane.setFocusTraversalPolicyProvider(false);
+        pane.setFocusCycleRoot(false);
         pane.removeAll();
         ((FlowLayout) pane.getLayout()).setHgap(5);
         pane.add(freqDigits.get(5));
@@ -194,6 +210,8 @@ final public class VfoDisplayControl extends GroupBox
         pane.add(freqDigits.get(3));
         
         pane = layeredPaneHertz;
+        pane.setFocusTraversalPolicyProvider(false);
+        pane.setFocusCycleRoot(false);
         pane.removeAll();
         ((FlowLayout) pane.getLayout()).setHgap(5);
         pane.add(freqDigits.get(2));
@@ -305,6 +323,7 @@ final public class VfoDisplayControl extends GroupBox
         });
         adjustSize(layeredPaneMegahertz);
         
+        
         layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneKilohertz.setOpaque(false);
         layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(
@@ -355,6 +374,49 @@ final public class VfoDisplayControl extends GroupBox
 //        //System.out.println("unnoPref :" + unnoPref);               
     }
    
+    @SuppressWarnings("unchecked")
+    public void setUpFocusManager() {
+        // Make sure that the JInternalFrame is focus manager.
+        // It appears that voiceOver StepInto is ignoring focus manager.
+        
+        
+        Vector<Component> order = getTraversalOrder();
+        policy = new VfoDigitTraversalPolicy(order);
+        setFocusTraversalPolicy(policy);
+        setFocusTraversalPolicyProvider(true);
+        setFocusable(true);
+        setVisible(true);
+        setFocusCycleRoot(true);
+        
+        // Add focus traverse keys left and right arrow.
+        // In this case, FORWARD is to the left.
+        setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
+        setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+
+        Set set = new HashSet<>( 
+            getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
+       
+        final AWTKeyStroke keyStrokeRight = KeyStroke.getKeyStroke( "LEFT"  );
+        set.add(keyStrokeRight) ;
+        setFocusTraversalKeys(
+            KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set);
+        
+        set = new HashSet<>( getFocusTraversalKeys(
+            KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
+        final AWTKeyStroke keyStrokeLeft = KeyStroke.getKeyStroke( "RIGHT");           
+        set.add(keyStrokeLeft);
+        setFocusTraversalKeys(
+            KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, set );
+        setFocusTraversalKeysEnabled(true);
+                    
+        assert(areFocusTraversalKeysSet(
+                KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS) );
+        
+        assert( getFocusTraversalPolicy() != null);
+        assert( isFocusCycleRoot());
+        setEnabled(true);
+             
+    }       
 
     /**
      * Adjust the size of the DecadeDigit fonts (and thus the DecadeDigit dims).
@@ -562,9 +624,11 @@ final public class VfoDisplayControl extends GroupBox
     public void propertyChange(PropertyChangeEvent evt) {
         //if (silent) return;
         Object source = evt.getSource();
+        System.out.println("handle change event for property :"+evt.getPropertyName());
         DecadeDigit digit = (DecadeDigit)source;
         // getValue() synchronizes the model and label values.
-        int value = (Integer) digit.getValue();        
+        int value = (Integer) digit.getValue();
+
         DecadeModel model = digit.getModel();
         DecadeModel decadeModel = (DecadeModel)model;
         int decade = decadeModel.getDecade();
@@ -576,12 +640,13 @@ final public class VfoDisplayControl extends GroupBox
             // We are in the contruction process. Too early.
             return;            
         }
+        System.out.println("handleChangeEvent - model value: "+ String.valueOf(value));         
         // Change the field description so voiceOver will announce it.
         long freq = digitsToFrequency();
         aFrame.vfoState.writeFrequencyToRadioSelectedVfo(freq);
         String vfoString = "VFO B";
         if (aFrame.vfoState.vfoA_IsSelected()) vfoString = "VFO A";           
-        //System.out.println("handleChangeEvent - model value: "+ String.valueOf(value)); 
+
         for ( int iii=0; iii<QUANTITY_DIGITS; iii++) {
             StringBuilder freqString = new StringBuilder("");
             freqString.append(vfoString+" Frequency ");
@@ -590,10 +655,11 @@ final public class VfoDisplayControl extends GroupBox
             DecadeDigit label = (DecadeDigit)comp;
                         
             int powerOfTen  = iii;
-            String name = DecadeDigit.getName(powerOfTen);
+            String decadeName = DecadeDigit.getName(powerOfTen);
                        
-            label.getAccessibleContext().setAccessibleName(name);
-            freqString.append(label.getAccessibleContext().getAccessibleName());
+            //label.getAccessibleContext().setAccessibleName(name);
+            freqString.append(decadeName);
+            freqString.append(" is "+label.getText()+ ",");            
             label.getAccessibleContext().setAccessibleDescription(freqString.toString());
         }
     }       

@@ -148,79 +148,6 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         
     }
     
-    @SuppressWarnings("unchecked")
-    public void setUpFocusManager() {
-        // Make sure that the JFrame is focus manager.
-        // It appears that voiceOver StepInto is ignoring focus manager.
-        setFocusCycleRoot(true);
-        VfoDigitTraversalPolicy policy; 
-        Vector<Component> order = vfoGroup.getTraversalOrder();
-        policy = new VfoDigitTraversalPolicy(order);
-        setFocusTraversalPolicy(policy);
-        setFocusTraversalPolicyProvider(true);
-        setFocusable(true);
-        setVisible(true);
-        // Add focus traverse keys left and right arrow.
-        // In this case, FORWARD is to the left.
-        setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
-        setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
-
-        Set set = new HashSet<>( 
-            getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
-       
-        final AWTKeyStroke keyStrokeRight = KeyStroke.getKeyStroke( "RIGHT");
-        set.add(keyStrokeRight) ;
-        setFocusTraversalKeys(
-            KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set);
-        
-        set = new HashSet<>( getFocusTraversalKeys(
-            KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
-        final AWTKeyStroke keyStrokeLeft = KeyStroke.getKeyStroke( "LEFT" );           
-        set.add(keyStrokeLeft);
-        setFocusTraversalKeys(
-            KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, set );
-        setFocusTraversalKeysEnabled(true);
-                    
-        assert(areFocusTraversalKeysSet(
-                KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS) );
-        
-//        // The JFrame is the root of all the traversal.  Add up and down to it.
-//        // Add the focus traversal keys for up cycle and down cycle.
-//        // Use Option UpArrow for up cycle and Option DownArrow for down cycle.
-//        // On MACosx ALT is OPT.
-//        setFocusTraversalKeys(
-//                KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, null);
-//        setFocusTraversalKeys(
-//                KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS, null);
-//        
-//        set = new HashSet<>( getFocusTraversalKeys(
-//            KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS ) );
-//        final AWTKeyStroke keyStrokeUp =  KeyStroke.getKeyStroke( 
-//                KeyEvent.VK_UP, InputEvent.ALT_DOWN_MASK);  
-//        set.add( keyStrokeUp);
-//        setFocusTraversalKeys(
-//             KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, set);
-//        
-//        final AWTKeyStroke keyStrokeDown =  KeyStroke.getKeyStroke(
-//                KeyEvent.VK_DOWN, InputEvent.ALT_DOWN_MASK);               
-//        set = new HashSet<>( getFocusTraversalKeys(
-//            KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS ) );        
-//        set.add( keyStrokeDown );
-//        setFocusTraversalKeys(
-//                 KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS, set);      
-                
-        // Hold onto your hats, we're takin over the reins.
-        setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() );
-        ContainerOrderFocusTraversalPolicy fPolicy = 
-                (ContainerOrderFocusTraversalPolicy) getFocusTraversalPolicy();
-        // Docs say that if you provide up/down traversal, you must do this:
-        fPolicy.setImplicitDownCycleTraversal(false);
-         //requestFocusInWindow(boolean temporary)
-        assert( getFocusTraversalPolicy() != null);
-        assert( isFocusCycleRoot());
-        setEnabled(true);
-             
-    }       
     /**
      * Create the menu bar for the display and add menu items to operate the
      * VFO selection and copy tasks.
@@ -476,7 +403,6 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
                 
                 VfoPrototype2 frame = new VfoPrototype2();
                 frame.setUpVfoComponents();
-                frame.setUpFocusManager();
                 // Give the ones digit JFormattedTextField focus upon opening window.
                 Vector<Component> order =  VfoDisplayControl.getTraversalOrder();
                 order.get(0).requestFocusInWindow();

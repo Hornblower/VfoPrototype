@@ -8,22 +8,34 @@ package VfoPrototype;
 
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
+import javax.swing.AbstractAction;
+import static javax.swing.Action.MNEMONIC_KEY;
+import static javax.swing.Action.SHORT_DESCRIPTION;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 
 
@@ -40,8 +52,9 @@ import javax.swing.border.Border;
  */
 public class DecadeDigit extends JLabel
         implements Accessible, FocusListener, MouseWheelListener, 
-        MouseListener, KeyListener , PropertyChangeListener {
+        MouseListener, PropertyChangeListener  {
     
+    static protected boolean nastyShiftFocusFlag = false;
     DecadeModel model;
     VfoDisplayControl frameGroup;
     final Border WHITE_BORDER = BorderFactory.createLineBorder(Color.WHITE);
@@ -80,12 +93,24 @@ public class DecadeDigit extends JLabel
         }       
         addMouseWheelListener(this);
         addMouseListener(this);
-        addKeyListener(this);
         addFocusListener(this);
         addPropertyChangeListener(VALUE_CHANGE, this);
         addPropertyChangeListener(VALUE_CHANGE, frameGroup);
         setValue(this.getModel().getValue());
-        requestFocus();
+        requestFocus();       
+    }
+    
+    
+    public void addInputActions() {
+        String incName = "Increment";
+        InputMap inputMap = frameGroup.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), incName);
+        ActionMap actionMap = frameGroup.getActionMap();
+        actionMap.put(incName,  (new IncrementAction(incName, null, "Increment Value", KeyEvent.VK_UP)));
+        
+        String decName = "Decrement";
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), decName);
+        actionMap.put(decName,  (new DecrementAction(decName, null, "Deccrement Value", KeyEvent.VK_DOWN)));               
     }
     
     public float getFontScale() {
@@ -134,14 +159,14 @@ public class DecadeDigit extends JLabel
      * the models; @see method linkToNextHigherDecade().
      */
     public void setAccessibleInfo(){
-        DecadeModel myModel = (DecadeModel)getModel();
-        int powerOfTen = myModel.getDecade();
-        AccessibleContext ftfContext = this.getAccessibleContext();
-        String name = getName(powerOfTen);
-        ftfContext.setAccessibleName(name);
-        setName(name);  // Technically, this is not accessible info.
-        ftfContext.setAccessibleDescription(
-            "Up and down arrows change value; Left and right arrows traverse digits.");
+//        DecadeModel myModel = (DecadeModel)getModel();
+//        int powerOfTen = myModel.getDecade();
+//        AccessibleContext ftfContext = this.getAccessibleContext();
+//        String name = getName(powerOfTen);
+//        ftfContext.setAccessibleName(name);
+//        setName(name);  // Technically, this is not accessible info.
+//        ftfContext.setAccessibleDescription(
+//            "Up and down arrows change value; Left and right arrows traverse digits.");
     }
     
     // Start linking DecadeDigits with the lowest(rightMost) digit.
@@ -205,8 +230,22 @@ public class DecadeDigit extends JLabel
 
     @Override
     public void focusGained(FocusEvent e) {
-        setBorder(WHITE_BORDER);
-        //System.out.println("DecadeDigit :"+ getName() + " received focus.");
+        
+       if (nastyShiftFocusFlag)  {
+            transferFocusBackward();
+            System.out.println("transfer focus backward");
+            nastyShiftFocusFlag = false;          
+        } else {
+            DecadeDigit digit = (DecadeDigit)e.getComponent();
+            System.out.println("Focus gained by decade digit :"+digit.getDecade());
+            AccessibleContext context = digit.getAccessibleContext();
+            
+            setText(String.valueOf(getValue()));
+            context.setAccessibleDescription(getText());
+            System.out.println("Decade digit new value : "+ getText());
+            setBorder(WHITE_BORDER);
+        }
+        System.out.println("DecadeDigit :"+ getName() + " received focus.");
     }
 
     @Override
@@ -263,11 +302,8 @@ public class DecadeDigit extends JLabel
     public void mouseClicked(MouseEvent e) {
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
 
-    @Override
+    //@Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
         Object oldValue = this.getValue();
@@ -277,6 +313,13 @@ public class DecadeDigit extends JLabel
             Object obj = (Integer)newInt;
             this.setValue(obj); // Method sets the label text.
             // The JLabel text has changed, but is not read aloud by voiceOver. BUG????
+            setEnabled(false);
+            setEnabled(true);
+            setText(String.valueOf(newInt)); // Set the text AGAIN.!!!!
+            nastyShiftFocusFlag = true;
+            System.out.println("transfer focus forward");
+            transferFocus();
+            setText(String.valueOf(newInt));
 //            int currentValue = newInt;
 //            AccessibleContext context = getAccessibleContext();
 //            int powerOfTen  = ((DecadeModel)getModel()).getDecade();           
@@ -292,6 +335,14 @@ public class DecadeDigit extends JLabel
             Object obj = (Integer)newInt;
             this.setValue(obj);  // Method sets the label text.
             // The JLabel text has changed, but is not read aloud by voiceOver. BUG????
+                        setEnabled(false);
+            setEnabled(true);
+            nastyShiftFocusFlag = true;
+            KeyboardFocusManager focusManager =
+                        KeyboardFocusManager.getCurrentKeyboardFocusManager();
+            focusManager.focusPreviousComponent();
+
+            setText(String.valueOf(newInt));
 //            int currentValue = newInt;
 //            AccessibleContext context = getAccessibleContext();
 //            int powerOfTen  = ((DecadeModel)getModel()).getDecade();           
@@ -304,27 +355,87 @@ public class DecadeDigit extends JLabel
         }
     }
 
-    @Override
+    //@Override
     public void keyReleased(KeyEvent e) {
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propertyName = evt.getPropertyName();
-//        if (propertyName == VALUE_CHANGE) {
-//            int currentValue = (Integer) getValue();
-//            AccessibleContext context = getAccessibleContext();
-//            int powerOfTen  = ((DecadeModel)getModel()).getDecade();           
-//            String name = getName(powerOfTen)+" "+Integer.toString(currentValue);
-//            //context.setAccessibleName(name);
-//            //setName(name);
-//            
-//            
-//            
-//        }       
+        if (propertyName == VALUE_CHANGE) {
+            int currentValue = (Integer) getValue();
+            AccessibleContext context = getAccessibleContext();
+            int powerOfTen  = ((DecadeModel)getModel()).getDecade();           
+            String name = getName(powerOfTen)+" "+Integer.toString(currentValue);
+            //context.setAccessibleName(name);
+            //setName(name);
+            
+            
+            
+        }       
     }
-
 }
 
-    
 
+class IncrementAction extends AbstractAction  {
+    public IncrementAction(String name, ImageIcon icon, String shortDescription, Integer mnemonic)
+    {
+        super(name, icon);
+        putValue(SHORT_DESCRIPTION, shortDescription);
+        putValue(MNEMONIC_KEY, mnemonic);
+    }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Object obj = e.getSource();
+        VfoDisplayControl display = (VfoDisplayControl) obj;
+        if (! display.isSelected() ) {
+            try {
+                display.setSelected(true);
+            } catch (PropertyVetoException exc) {
+                System.out.println(exc);
+                return;
+            }
+        }
+        if (display.isSelected()) {
+            Component comp = display.getFocusOwner();
+            //Component recentComp = display.getMostRecentFocusOwner();       
+            DecadeDigit digit = (DecadeDigit)comp;
+            DecadeModel model = digit.getModel();       
+            int newInt = model.getNextValue();
+            Object valueObj = (Integer)newInt;        
+            digit.setValue(valueObj); // Method sets the label text.
+        }
+    }
+}   
+
+
+class DecrementAction extends AbstractAction  {
+    public DecrementAction(String name, ImageIcon icon, String shortDescription, Integer mnemonic)
+    {
+        super(name, icon);
+        putValue(SHORT_DESCRIPTION, shortDescription);
+        putValue(MNEMONIC_KEY, mnemonic);
+    }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Object obj = e.getSource();
+        VfoDisplayControl display = (VfoDisplayControl) obj;
+        if (! display.isSelected() ) {
+            try {
+                display.setSelected(true);
+            } catch (PropertyVetoException exc) {
+                System.out.println(exc);
+                return;
+            }
+        }
+        if (display.isSelected()) {
+            Component comp = display.getFocusOwner();
+            //Component recentComp = display.getMostRecentFocusOwner();       
+            DecadeDigit digit = (DecadeDigit)comp;
+            DecadeModel model = digit.getModel();       
+            int newInt = model.getPreviousValue();
+            Object valueObj = (Integer)newInt;        
+            digit.setValue(valueObj); // Method sets the label text.
+        }
+    }
+}   
