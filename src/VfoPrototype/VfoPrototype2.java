@@ -57,7 +57,7 @@ import javax.swing.JRadioButtonMenuItem;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemListener , ActionListener {
-    public static String version = "Version 2.1.6";
+    public static String version = "Version 2.1.7";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
     JMenuBar menuBar;
