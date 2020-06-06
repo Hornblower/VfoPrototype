@@ -160,6 +160,7 @@ final public class VfoDisplayControl extends GroupBox
             Component label = freqDigits.get(iii);
             // Every label has unique accessible info based on decade. 
             ((DecadeDigit)label).setAccessibleInfo();
+
             order.add(label);
         } 
         insertDigitsIntoPanels();
@@ -571,6 +572,10 @@ final public class VfoDisplayControl extends GroupBox
             // We are in the contruction process. Too early.
             return;
         }
+        if(order.size() < QUANTITY_DIGITS) {
+            // We are in the contruction process. Too early.
+            return;            
+        }
         // Change the field description so voiceOver will announce it.
         long freq = digitsToFrequency();
         aFrame.vfoState.writeFrequencyToRadioSelectedVfo(freq);
@@ -582,7 +587,12 @@ final public class VfoDisplayControl extends GroupBox
             freqString.append(vfoString+" Frequency ");
             freqString.append(Double.toString(((double)freq)/1000000.)+" Mhz; ");
             Component comp = order.get(iii);
-            JLabel label = (JLabel)comp;
+            DecadeDigit label = (DecadeDigit)comp;
+                        
+            int powerOfTen  = iii;
+            String name = DecadeDigit.getName(powerOfTen);
+                       
+            label.getAccessibleContext().setAccessibleName(name);
             freqString.append(label.getAccessibleContext().getAccessibleName());
             label.getAccessibleContext().setAccessibleDescription(freqString.toString());
         }

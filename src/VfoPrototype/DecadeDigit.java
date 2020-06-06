@@ -17,11 +17,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.border.Border;
 
 
 /**
@@ -37,16 +40,19 @@ import javax.swing.JLabel;
  */
 public class DecadeDigit extends JLabel
         implements Accessible, FocusListener, MouseWheelListener, 
-        MouseListener, KeyListener  {
+        MouseListener, KeyListener , PropertyChangeListener {
     
     DecadeModel model;
     VfoDisplayControl frameGroup;
+    final Border WHITE_BORDER = BorderFactory.createLineBorder(Color.WHITE);
+    final Border BLACK_BORDER = BorderFactory.createLineBorder(Color.BLACK);
+
     final static Font DIGITS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 30);
     final static Color NON_ZERO_COLOR = new Color(0,192,0);
     final static Color ZERO_COLOR = new Color(0,64,0);
     protected float fontScale = 0.0f;
     final static String VALUE_CHANGE = "valueChange";
-    private long value = 0;
+    private int value = 0;
     final private int digitDecade; // Used only for automatic testing.
    
     public DecadeDigit(VfoDisplayControl group, int decade, float scale) {
@@ -60,7 +66,6 @@ public class DecadeDigit extends JLabel
         // Set foreground numeral color Green. Set background transparent.        
         setFocusable(true);
         setForeground(Color.GREEN);
-        setBorder(BorderFactory.createLineBorder(Color.red));
 
         Color backTransparent = new Color(0,0,0,0);
         setBackground(backTransparent);   
@@ -77,7 +82,8 @@ public class DecadeDigit extends JLabel
         addMouseListener(this);
         addKeyListener(this);
         addFocusListener(this);
-        addPropertyChangeListener(VALUE_CHANGE, frameGroup);                                 
+        addPropertyChangeListener(VALUE_CHANGE, this);
+        addPropertyChangeListener(VALUE_CHANGE, frameGroup);
         setValue(this.getModel().getValue());
         requestFocus();
     }
@@ -131,9 +137,9 @@ public class DecadeDigit extends JLabel
         DecadeModel myModel = (DecadeModel)getModel();
         int powerOfTen = myModel.getDecade();
         AccessibleContext ftfContext = this.getAccessibleContext();
-        String name = getName(powerOfTen)+" Decade digit";
+        String name = getName(powerOfTen);
         ftfContext.setAccessibleName(name);
-        this.setName(name);
+        setName(name);  // Technically, this is not accessible info.
         ftfContext.setAccessibleDescription(
             "Up and down arrows change value; Left and right arrows traverse digits.");
     }
@@ -168,11 +174,10 @@ public class DecadeDigit extends JLabel
      * @param obj Object representing the numeric value.
      */    
     public void setValue(Object obj) {
-        int oldValue = (Integer)getValue();
+        int oldValue = (int)value;
         int newValue = (Integer) obj;
-        if (oldValue == newValue) return;
         value = newValue;
-        setText(""+value);
+        setText(Integer.toString(value));
         this.getModel().setValue((int) value);
         this.firePropertyChange(VALUE_CHANGE, oldValue, value);
     }
@@ -200,12 +205,13 @@ public class DecadeDigit extends JLabel
 
     @Override
     public void focusGained(FocusEvent e) {
-        System.out.println("DecadeDigit :"+ getName() + " received focus.");
+        setBorder(WHITE_BORDER);
+        //System.out.println("DecadeDigit :"+ getName() + " received focus.");
     }
 
     @Override
     public void focusLost(FocusEvent e) {
-        
+        setBorder(BLACK_BORDER);        
     }
     
     @Override
@@ -220,7 +226,7 @@ public class DecadeDigit extends JLabel
             newInt = model.getNextValue();
         }
         this.setValue((Integer)newInt);
-        //firePropertyChange(VALUE_CHANGE, oldInt, newInt);
+        firePropertyChange(VALUE_CHANGE, oldInt, newInt);
     }
 
     @Override
@@ -237,7 +243,7 @@ public class DecadeDigit extends JLabel
                 newInt = model.getPreviousValue();
             }
             this.setValue((Integer)newInt);
-            //firePropertyChange(VALUE_CHANGE, oldInt, newInt);       
+            firePropertyChange(VALUE_CHANGE, oldInt, newInt);       
         }
     }
 
@@ -269,19 +275,53 @@ public class DecadeDigit extends JLabel
         if (key == KeyEvent.VK_UP) {
             int newInt = model.getNextValue();
             Object obj = (Integer)newInt;
-            this.setValue(obj);
-            //firePropertyChange(VALUE_CHANGE, oldInt, newInt);
+            this.setValue(obj); // Method sets the label text.
+            // The JLabel text has changed, but is not read aloud by voiceOver. BUG????
+//            int currentValue = newInt;
+//            AccessibleContext context = getAccessibleContext();
+//            int powerOfTen  = ((DecadeModel)getModel()).getDecade();           
+//            String name = getName(powerOfTen)+" "+Integer.toString(currentValue);
+//            context.setAccessibleDescription(name);
+//            System.out.println("DecadeDigit accessibleName changed to :"+ name );
+//            //setName(name);
+
+            //firePropertyChange(VALUE_CHANGE, oldInt, newInt);    
         }
         if (key == KeyEvent.VK_DOWN) {
             int newInt = model.getPreviousValue();
             Object obj = (Integer)newInt;
-            this.setValue(obj);
-            //firePropertyChange(VALUE_CHANGE, oldInt, newInt);
+            this.setValue(obj);  // Method sets the label text.
+            // The JLabel text has changed, but is not read aloud by voiceOver. BUG????
+//            int currentValue = newInt;
+//            AccessibleContext context = getAccessibleContext();
+//            int powerOfTen  = ((DecadeModel)getModel()).getDecade();           
+//            String name = getName(powerOfTen)+" "+Integer.toString(currentValue);
+//            context.setAccessibleDescription(name);
+//            System.out.println("DecadeDigit accessibleName changed to :"+ name );
+//            //setName(name);
+ 
+            //firePropertyChange(VALUE_CHANGE, oldInt, newInt);    
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        String propertyName = evt.getPropertyName();
+//        if (propertyName == VALUE_CHANGE) {
+//            int currentValue = (Integer) getValue();
+//            AccessibleContext context = getAccessibleContext();
+//            int powerOfTen  = ((DecadeModel)getModel()).getDecade();           
+//            String name = getName(powerOfTen)+" "+Integer.toString(currentValue);
+//            //context.setAccessibleName(name);
+//            //setName(name);
+//            
+//            
+//            
+//        }       
     }
 
 }
