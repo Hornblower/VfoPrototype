@@ -25,15 +25,17 @@ public class DownwardOutlineTriangle extends Geometry {
     @Override
     public void draw(Graphics g) {
         g.setColor(usedColor);
+        Rectangle scaledBounds = getScaledBounds();
         // Equilateral triangle with point at the bottom.
-        x[0] = bounds.x + bounds.width/2; // rock-bottom
-        y[0] = bounds.y + bounds.height;
-        x[1] = bounds.x + bounds.width;
-        y[1] = bounds.y;
-        x[2] = bounds.x;
+        x[0] = scaledBounds.x + scaledBounds.width/2; // rock-bottom
+        y[0] = scaledBounds.y + scaledBounds.height;
+        x[1] = scaledBounds.x + scaledBounds.width;
+        y[1] = scaledBounds.y;
+        x[2] = scaledBounds.x;
         y[2] = y[1];
         Polygon p = new Polygon(x,y,3);
         g.drawPolygon(p);
-    }                
+    } 
+
 }
 

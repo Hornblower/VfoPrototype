@@ -5,10 +5,8 @@
  */
 package VfoPrototype;
 
-import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 
 /**
@@ -18,14 +16,23 @@ import java.util.ArrayList;
  * @author Coz
  */
 public class GeometryCollection {
+    protected Dimension dims;
     private ArrayList<Geometry> shapes;
 
     public GeometryCollection() {
         this.shapes = new ArrayList<Geometry>();
     }
     
+    public void clear() {
+        shapes.clear();
+    }
+
     public void addGeometry( Geometry geo) {
         shapes.add(geo);
+    }
+
+    public void setDims(Dimension dim) {
+        dims = dim;
     }
 
     /**
@@ -33,7 +40,8 @@ public class GeometryCollection {
      * @param g is Graphics g from Component to be drawn on.
     */
     public void draw(Graphics g) {
-         for(Geometry geo:shapes){  
+         for(Geometry geo:shapes){
+            geo.setDims(dims);
             geo.draw(g);         
         }
     }

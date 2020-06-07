@@ -6,6 +6,7 @@
 package VfoPrototype;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -29,6 +30,8 @@ public abstract class Geometry {
     boolean doFill;
     int sides;
     String name;
+    protected Dimension dims;
+
     public Geometry(Rectangle rbounds, Color color, boolean isFilled, int qtySides, String geoName) {
         bounds = rbounds;           
         usedColor = color;
@@ -36,8 +39,24 @@ public abstract class Geometry {
         sides = qtySides;
         name = geoName;
     }
-    public abstract void draw(Graphics g);
+    public abstract void draw(Graphics g);    
+
+    public void setDims(Dimension dim) {dims = dim;}
     
+    public Rectangle getScaledBounds() {
+        if (dims == null) {
+            dims = new Dimension(bounds.width, bounds.height);
+        }
+        Rectangle scaledBounds = 
+                new Rectangle(  (int)(bounds.x),
+                                (int)(bounds.y),
+                                (int)(dims.width),
+                                (int)(dims.height));
+        return scaledBounds;
+    }
+
+ 
+   
     /**
      * For the given JLabel, use the label dimensions and font metrics to 
      * determine the maximum font size that will fit.

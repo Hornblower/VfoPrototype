@@ -20,8 +20,9 @@ public class OutlineRectangle extends Geometry {
     }
     @Override
     public void draw(Graphics g) {
+        Rectangle scaledBounds = getScaledBounds();
         g.setColor(usedColor);
-        g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);            
+        g.drawRect(scaledBounds.x, scaledBounds.y, scaledBounds.width, scaledBounds.height);            
     }
 }
 

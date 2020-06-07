@@ -24,6 +24,7 @@ import static VfoPrototype.VfoDisplayControl.LAST_VFO;
 import static VfoPrototype.VfoDisplayControl.VFO_SELECT_A_TEXT;
 import static VfoPrototype.VfoDisplayControl.VFO_SELECT_B_TEXT;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JFormattedTextField;
@@ -51,7 +52,7 @@ import javax.swing.JRadioButtonMenuItem;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemListener , ActionListener {
-    public static String version = "Version 2.1.8";
+    public static String version = "Version 2.2.0";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
     JMenuBar menuBar;
@@ -78,6 +79,8 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         prefs = Preferences.userNodeForPackage(this.getClass());
         setBounds(0,0,648,320);
         setResizable(true);
+        Dimension minSize = new Dimension(500,300);
+        this.setMinimumSize(minSize);
         // Use the Mac OSX menuBar at the top of the screen.
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         addMenuBar(); // Need to have menu created before setupPanes();       

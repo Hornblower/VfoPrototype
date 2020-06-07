@@ -81,6 +81,7 @@ final public class VfoDisplayControl extends GroupBox
     static String LAST_VFO = "LAST_VFO";
     
     protected ArrayList<DecadeDigit> freqDigits = null;
+    protected ArrayList<BarnDoor> barnDoors = null;
     public final static int QUANTITY_DIGITS = 10;
     VfoPrototype2 aFrame;
     long sv_freq;
@@ -100,8 +101,8 @@ final public class VfoDisplayControl extends GroupBox
     Rectangle megaBounds;                
     Rectangle kiloBounds; 
     Rectangle unnoBounds;
-    final float LITTLE_FONT_FUDGE = 0.60f;
-    final float BIG_FONT_FUDGE = 0.60f;
+    final float LITTLE_FONT_FUDGE = 1.0f;
+    final float BIG_FONT_FUDGE = 0.90f;
 
 
 
@@ -112,6 +113,8 @@ final public class VfoDisplayControl extends GroupBox
         setFocusCycleRoot(true);
         setFocusable(true);
         setResizable(true);
+        Dimension minSize = new Dimension(300,200);
+        setMinimumSize(minSize);
         AccessibleContext contextVfoControl = getAccessibleContext();
         contextVfoControl.setAccessibleName("V F O Display Control");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE); //not a user operation.       
@@ -123,14 +126,6 @@ final public class VfoDisplayControl extends GroupBox
      * We are drawing the DecadeDigits on the glass pane.
      * We are drawing the BarnDoors  on the content pane.
      * 
-     * THESE ARE APPROXIMATE SIZES... THE ACTUAL SIZES HAVE CHANGED.
-     * frameBounds    =   6,132,664,151
-     * rootPaneBounds =   6, 25,652,120
-     * contentBounds  =   0,  0,652,120
-     * megaBounds     =   0, 23,273,120
-     * kiloBounds     = 278, 23,205,120
-     * unnoBounds     = 488, 23,143,120
-     * menuBarBounds  = 
      */
     public void setupPanes() {
         VfoDisplayControl display = this;
@@ -144,7 +139,9 @@ final public class VfoDisplayControl extends GroupBox
         Rectangle frameBounds = display.getBounds();
         Dimension frameSize = display.getSize();
         setupGlassPane(display);
-        setupContentPane(display);        
+        setupContentPane(display);
+        adjustSize(display);     
+        
     }
     /**
      * Create all ten DecadeDigits, initialize them ,store them in an ordered 
@@ -201,7 +198,7 @@ final public class VfoDisplayControl extends GroupBox
         
         JLayeredPane pane = layeredPaneMegahertz;
         pane.removeAll();
-        ((FlowLayout) pane.getLayout()).setHgap(5); //snuggle horizontally
+        ((FlowLayout) pane.getLayout()).setHgap(1); //snuggle horizontally
         pane.add(freqDigits.get(9));
         pane.add(freqDigits.get(8));
         pane.add(freqDigits.get(7));
@@ -209,20 +206,19 @@ final public class VfoDisplayControl extends GroupBox
         
         pane = layeredPaneKilohertz;
         pane.removeAll();
-        ((FlowLayout) pane.getLayout()).setHgap(5);
+        ((FlowLayout) pane.getLayout()).setHgap(1);
         pane.add(freqDigits.get(5));
         pane.add(freqDigits.get(4));
         pane.add(freqDigits.get(3));
         
         pane = layeredPaneHertz;
         pane.removeAll();
-        ((FlowLayout) pane.getLayout()).setHgap(5);
+        ((FlowLayout) pane.getLayout()).setHgap(1);
         pane.add(freqDigits.get(2));
         pane.add(freqDigits.get(1));
         pane.add(freqDigits.get(0));
     }
-    
-    
+       
     /**
      * Create the glass pane panel and configure the layered panes that hold the
      * DecadeDigits.
@@ -242,65 +238,11 @@ final public class VfoDisplayControl extends GroupBox
         // We have the bounds for each component, do away with layout manager.
         glassPane.setLayout(null);        
         //MUST HAVE THE FOLLOWING LINE FOR GLASS PANE TO BE TRANSPARENT!
-        glassPane.setOpaque(false);
-        
+        glassPane.setOpaque(false);       
         //Insets gInsets = glassPane.getInsets(); // insets are zero       
-        //Insets mgInsets = layeredPaneMegahertz.getInsets(); // insets are zero
-        
-        //////////////////////////////////////////////////////////////////
-        // Compute component widths.  Some subtle math here....
-        int digitGap = 10; // hgap=5 for FlowLayout.
-        int offsetY = 5; //  Moves digits down.
-        int panelGap = 5; // Gap between panels and left and right ends
-        int offsetX = panelGap; // Leave a border on the left.
-        int titleBorderWidth = 5;
-        int titleHeight = 23;
-        int panelHeight = 130;
-        int digitHeight = panelHeight - titleHeight - titleBorderWidth;
-        double digitWidth = 
-                (double)(contentBounds.width - 7*digitGap - 6*titleBorderWidth - 4*panelGap)/
-                ((7.*DIGIT_RELATIVE_SIZE)+(3*ONES_RELATIVE_SIZE));
-        int onesWide = 
-                (int)(digitWidth * ONES_RELATIVE_SIZE * 3.0)+2*titleBorderWidth;
-        int megaWide = (int)(4*digitWidth)+2*titleBorderWidth;
-        int kiloWide = (int)(3*digitWidth)+2*titleBorderWidth;
-        int kiloOffsetX = offsetX+megaWide+panelGap;
-        int onesOffsetX = offsetX+megaWide+panelGap+kiloWide+panelGap;
-        
-        int bigFontSize = computeFontSize((int) digitWidth,  digitHeight, "0", freqDigits.get(9).getFont());
-        int littleFontSize = computeFontSize ((int)(digitWidth*.7), (int)(digitHeight*0.7), "0", freqDigits.get(9).getFont());
-        System.out.println("digitWidth : "+digitWidth);
-        System.out.println("digitHeight : "+digitHeight);
-        
-        for (int index=0; index<QUANTITY_DIGITS; index++) {
-            DecadeDigit digit = freqDigits.get(index);
-            double fs = digit.fontScale;
-            if (index <3) {
-                Font font = new Font("Monospace", Font.PLAIN, (int) (littleFontSize * fs * LITTLE_FONT_FUDGE));
-                digit.setFont(font);
-            } else {
-                Font font = new Font("Monospace", Font.PLAIN, (int) (bigFontSize * fs * BIG_FONT_FUDGE));
-                digit.setFont(font);               
-            } 
-            Dimension prefSize = digit.getPreferredSize();
-            System.out.println("Digit "+index+" preferredSize :"+prefSize);
-        }
-                
-        ////////////////////////////////////////////////////////////////////
-                
-        megaBounds = new Rectangle( offsetX,  offsetY, megaWide, panelHeight);                   
-        kiloBounds = new Rectangle(kiloOffsetX,  offsetY, kiloWide, panelHeight);
-        unnoBounds = new Rectangle(onesOffsetX,  offsetY, onesWide, panelHeight);
-        
-        System.out.println("megaBounds :" + megaBounds);
-        System.out.println("kiloBounds :" + kiloBounds);
-        System.out.println("unnoBounds :" + unnoBounds);
-        
-        layeredPaneMegahertz.setBounds(megaBounds);
-        layeredPaneMegahertz.setOpaque(false);
-        layeredPaneKilohertz.setBounds(kiloBounds);
+        //Insets mgInsets = layeredPaneMegahertz.getInsets(); // insets are zero        
+        layeredPaneMegahertz.setOpaque(false);       
         layeredPaneKilohertz.setOpaque(false);    
-        layeredPaneHertz.setBounds(unnoBounds);
         layeredPaneHertz.setOpaque(false);
     
         glassPane.add(layeredPaneMegahertz);
@@ -308,7 +250,7 @@ final public class VfoDisplayControl extends GroupBox
         glassPane.add(layeredPaneHertz);  
         
         layeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        layeredPaneMegahertz.setToolTipText("");
+        layeredPaneMegahertz.setToolTipText("VFO Megahertz digits");
         layeredPaneMegahertz.setOpaque(false);
         layeredPaneMegahertz.setBorder(javax.swing.BorderFactory.createTitledBorder(
                 javax.swing.BorderFactory.createTitledBorder(""),
@@ -317,9 +259,9 @@ final public class VfoDisplayControl extends GroupBox
                 new java.awt.Font("Lucida Grande", 0, 13), 
                 new java.awt.Color(0, 255, 0))); 
         layeredPaneMegahertz.setForeground(new java.awt.Color(0, 255, 0));
-        layeredPaneMegahertz.setPreferredSize(new java.awt.Dimension(megaBounds.width, megaBounds.height));
 
         layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        layeredPaneKilohertz.setToolTipText("VFO Kilohertz digits");
         layeredPaneKilohertz.setOpaque(false);
         layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createTitledBorder(
                 javax.swing.BorderFactory.createTitledBorder(""), 
@@ -328,7 +270,6 @@ final public class VfoDisplayControl extends GroupBox
                 new java.awt.Font("Lucida Grande", 0, 13), 
                 new java.awt.Color(0, 255, 0))); 
         layeredPaneKilohertz.setForeground(new java.awt.Color(0, 255, 0));
-        layeredPaneKilohertz.setPreferredSize(new java.awt.Dimension(kiloBounds.width, kiloBounds.height));
 
         layeredPaneHertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneHertz.setToolTipText("VFO Hertz digits");
@@ -341,17 +282,11 @@ final public class VfoDisplayControl extends GroupBox
                 new java.awt.Font("Lucida Grande", 0, 13), 
                 new java.awt.Color(0, 255, 0))); 
         layeredPaneHertz.setForeground(new java.awt.Color(0, 255, 0));
-        layeredPaneHertz.setPreferredSize(new java.awt.Dimension(unnoBounds.width, unnoBounds.height));
-//        // At this point, all the digits have been resized and inserted into 
-//        // the fixed size layered panes. Get some measurements.
-//        Dimension megaPref = layeredPaneMegahertz.getPreferredSize();
-//        Dimension kiloPref = layeredPaneKilohertz.getPreferredSize();
-//        Dimension unnoPref = layeredPaneHertz.getPreferredSize();
-//        //System.out.println("megaPref :" + megaPref);
-//        //System.out.println("kiloPref :" + kiloPref);
-//        //System.out.println("unnoPref :" + unnoPref);               
     }
-   
+    /**
+     * Calculate Vfo Display component sizes.
+     * @param resizedDisplay 
+     */
     protected void adjustSize(VfoDisplayControl resizedDisplay) {
         Rectangle displayRect = resizedDisplay.getBounds();
         int displayWidth = displayRect.width;
@@ -368,7 +303,10 @@ final public class VfoDisplayControl extends GroupBox
             newBounds = displayRect;
             newBounds.height = (int)((float)displayRect.width * desiredAspectRatio);
         }
-        int digitGap = 10; // hgap=5 for FlowLayout.
+
+        
+        int invisibleFill = 30; // each end of layeredPanel restricts size.
+        int digitGap = 2; // hgap=1 for FlowLayout.
         int offsetY = 5; //  Moves digits down.
         int panelGap = 5; // Gap between panels and left and right ends
         int offsetX = panelGap; // Leave a border on the left.
@@ -377,19 +315,17 @@ final public class VfoDisplayControl extends GroupBox
         int panelHeight = newBounds.height;
         int digitHeight = panelHeight - titleHeight - titleBorderWidth;
         double digitWidth = 
-                (double)(newBounds.width - 7*digitGap - 6*titleBorderWidth - 4*panelGap)/
-                ((7.*DIGIT_RELATIVE_SIZE)+(3*ONES_RELATIVE_SIZE));
+                (double)(newBounds.width - 7*digitGap - 6*titleBorderWidth - 4*panelGap - 6*invisibleFill)/
+                ((7.*DIGIT_RELATIVE_SIZE)+(3.*ONES_RELATIVE_SIZE));
         int onesWide = 
-                (int)(digitWidth * ONES_RELATIVE_SIZE * 3.0)+2*titleBorderWidth;
-        int megaWide = (int)(4*digitWidth)+2*titleBorderWidth;
-        int kiloWide = (int)(3*digitWidth)+2*titleBorderWidth;
+                (int)(digitWidth * ONES_RELATIVE_SIZE * 3.0)+2*titleBorderWidth+2*invisibleFill;
+        int megaWide = (int)(4*digitWidth)+2*titleBorderWidth+2*invisibleFill;
+        int kiloWide = (int)(3*digitWidth)+2*titleBorderWidth+2*invisibleFill;
         int kiloOffsetX = offsetX+megaWide+panelGap;
         int onesOffsetX = offsetX+megaWide+panelGap+kiloWide+panelGap;
         
         int bigFontSize = computeFontSize((int) digitWidth,  digitHeight, "0", freqDigits.get(9).getFont());
-        int littleFontSize = computeFontSize ((int)(digitWidth*.7), (int)(digitHeight*0.7), "0", freqDigits.get(9).getFont());
-        System.out.println("digitWidth : "+digitWidth);
-        System.out.println("digitHeight : "+digitHeight);
+        int littleFontSize = computeFontSize ((int)(digitWidth*.7), (int)(digitHeight), "0", freqDigits.get(9).getFont());
         
         for (int index=0; index<QUANTITY_DIGITS; index++) {
             DecadeDigit digit = freqDigits.get(index);
@@ -402,10 +338,7 @@ final public class VfoDisplayControl extends GroupBox
                 digit.setFont(font);               
             } 
             Dimension prefSize = digit.getPreferredSize();
-            System.out.println("Digit "+index+" preferredSize :"+prefSize);
         }
-                
-        ////////////////////////////////////////////////////////////////////
                 
         megaBounds = new Rectangle( offsetX,  offsetY, megaWide, panelHeight);                   
         kiloBounds = new Rectangle(kiloOffsetX,  offsetY, kiloWide, panelHeight);
@@ -419,45 +352,27 @@ final public class VfoDisplayControl extends GroupBox
         aFrame.jLayeredPaneKilohertz.setBounds(kiloBounds);
         aFrame.jLayeredPaneMegahertz.setBounds(megaBounds);
         
+        Dimension bigDigitDim = freqDigits.get(9).getSize();
+        Dimension littleDigitDim = freqDigits.get(0).getSize();
+        for (int iii=0; iii<QUANTITY_DIGITS; iii++) {
+            if ( iii<3)
+                barnDoors.get(iii).addShapes(littleDigitDim);
+            else
+                barnDoors.get(iii).addShapes(bigDigitDim);
+        }
+        
+        //@todo Coz, going from min size to full screen has timing issue. BUG.        
+        aFrame.jLayeredPaneHertz.repaint();
+        aFrame.jLayeredPaneKilohertz.repaint();
+        aFrame.jLayeredPaneMegahertz.repaint();
+        getContentPane().repaint();        
     }
      
     
-    /**
-     * Adjust the size of the DecadeDigit fonts (and thus the DecadeDigit dims).
-     * 
-     * @deprecated 
-     * @param resizedComponent is a layered pane.
-     */
-    protected void DadjustSize(JLayeredPane resizedComponent) {
-        for (Component comp : resizedComponent.getComponentsInLayer(JLayeredPane.DEFAULT_LAYER)) {
-            DecadeDigit digit = (DecadeDigit) comp;
-            double fs = digit.fontScale;
-            if ( fs < .99) {
-                // Small digits are size limited by width.  fs = 0.7
-                double handPickedDivisor = 2.1;
-                int titleBorderWidth = 20;
-                int fontSize = (int) ((resizedComponent.getWidth()-titleBorderWidth*2) / handPickedDivisor);
-                Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
-                comp.setFont(font);
-            } else { 
-                // Large digits are limited by layered pane height.  fs = 1.0
-                double handPickedDivisor = 1.7;
-                int hertzTitleHeight = 23;
-                int fontSize = (int) ((resizedComponent.getHeight()-hertzTitleHeight) / handPickedDivisor);
-                Font font = new Font("Monospace", Font.PLAIN, (int) (fontSize * fs));
-                comp.setFont(font);
-            }
-            Dimension prefSize = digit.getPreferredSize();
-            int decade = digit.getDecade();
-            //System.out.println("DecadeDigit : "+decade+" preferredSize : "+prefSize);
-        }
-    }
 
     /**
      * Given the label dimensions, the text, and the font, what is the font size 
-     * that will fit?
-     * 
-     * Note: method computes font sizes that are about 20 percent too big.
+     * that will fit?  Found something like this method on the internet.  Very nice.
      * 
      * @param fieldWidth
      * @param fieldHeight
@@ -470,12 +385,10 @@ final public class VfoDisplayControl extends GroupBox
         int componentWidth = fieldWidth;
         // Find out how much the font can grow in width.
         double widthRatio = (double)componentWidth / (double)stringWidth;
-        System.out.println("widthRatio of "+font.getName()+" is " + String.valueOf(widthRatio) );
         int newFontSize = (int)(font.getSize() * widthRatio);
         int componentHeight = fieldHeight;
         // Pick a new font size so it will not be larger than the height of label.
         int fontSizeToUse = Math.min(newFontSize, componentHeight);
-        System.out.println("Font size to use is "+ String.valueOf(fontSizeToUse));
         return fontSizeToUse;
     }
     
@@ -485,33 +398,43 @@ final public class VfoDisplayControl extends GroupBox
      * @param display 
      */
     public void setupContentPane(VfoDisplayControl display) {
+        barnDoors = new ArrayList<BarnDoor>(); 
+
+        Dimension bigDigitDim = freqDigits.get(9).getSize();
+        Dimension littleDigitDim = freqDigits.get(0).getSize();
         
         // Get the dims of the small Hertz digits.               
-        Dimension smallDims = new Dimension(34,56);
-        aFrame.jLayeredPaneHertz.setBounds(unnoBounds);
-        aFrame.jLayeredPaneHertz.setBackground(Color.BLACK);
+        //Dimension smallDims = new Dimension(34,56);
+        JLayeredPane pane = aFrame.jLayeredPaneHertz;
+        pane.setBackground(Color.BLACK);
+        ((FlowLayout) pane.getLayout()).setHgap(1);
         for (int iii=0; iii<3; iii++) {
-            BarnDoor door = new BarnDoor(smallDims);
-            door.addShapes();           
-            aFrame.jLayeredPaneHertz.add(door);
+            BarnDoor door = new BarnDoor(littleDigitDim);
+            door.addShapes(littleDigitDim); 
+            barnDoors.add(door);
+            pane.add(door);
             door.setVisible(true);
         }
         // Get the dims of the tall Hertz digits.               
-        Dimension tallDims = new Dimension(51,89);
-        aFrame.jLayeredPaneKilohertz.setBounds(kiloBounds);
-        aFrame.jLayeredPaneKilohertz.setBackground(Color.BLACK);
+        //Dimension tallDims = new Dimension(51,89);
+        pane = aFrame.jLayeredPaneKilohertz;
+        pane.setBackground(Color.BLACK);
+        ((FlowLayout) pane.getLayout()).setHgap(1);
         for (int iii=3; iii<6; iii++) {
-            BarnDoor door = new BarnDoor(tallDims);
-            door.addShapes();           
+            BarnDoor door = new BarnDoor(bigDigitDim);
+            door.addShapes(bigDigitDim);
+            barnDoors.add(door);
             aFrame.jLayeredPaneKilohertz.add(door);
             door.setVisible(true);
         }
-        aFrame.jLayeredPaneMegahertz.setBounds(megaBounds);
-        aFrame.jLayeredPaneMegahertz.setBackground(Color.BLACK);
+        pane = aFrame.jLayeredPaneMegahertz;
+        pane.setBackground(Color.BLACK);
+        ((FlowLayout) pane.getLayout()).setHgap(1);
         for (int iii=6; iii<10; iii++) {
-            BarnDoor door = new BarnDoor(tallDims);
-            door.addShapes();           
-            aFrame.jLayeredPaneMegahertz.add(door);
+            BarnDoor door = new BarnDoor(bigDigitDim);
+            door.addShapes(bigDigitDim);
+            barnDoors.add(door);
+            pane.add(door);
             door.setVisible(true);
         }        
         // Add an exclusive interface to the Vfo selector so that only one thread
