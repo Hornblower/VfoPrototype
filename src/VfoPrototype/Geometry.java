@@ -71,10 +71,11 @@ public abstract class Geometry {
  
     
     /**
-     * For the given JLabel, use the label dimensions and font metrics to 
-     * determine the maximum font size that will fit.
+     * For the given formatted text field, use the field dimensions and font 
+     * metrics to determine the maximum font size that will fit.
+     * Note: from experience, the font size returned is about 20 percent too big.
      * 
-     * @param label the JLabel text field 
+     * @param ftf the formatted text field 
      * 
      * @return The maximum font size in font points
      */
