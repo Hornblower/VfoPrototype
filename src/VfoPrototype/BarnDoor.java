@@ -13,13 +13,13 @@ import javax.swing.*;
 
 /**
  * Class is used to create a background on the JFrame content pane which depicts
- * a black background and white two fake buttons, top and bottom, that show click 
- * area for a DecadeDigit and are drawn behind a dynamic JTextField used by 
- * DecadeDigit which is contained by the same JFrame's glassPane.
+ * a black background and two fake white buttons, top and bottom, that show click 
+ * area for a DecadeDigit and are drawn on the contentPane behind a dynamic 
+ * JFormattedTextField extended by DecadeDigit, drawn on the JFrame's glassPane.
  * 
  * This class depends on classes GeometryModel and Geometry.
  * 
- * Default color of line drawing is white.
+ * Default color of line drawing is gray.
  * Default color of fill is black.
  * 
  * @author Coz

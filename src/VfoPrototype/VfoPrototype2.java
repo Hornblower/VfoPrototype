@@ -23,21 +23,15 @@ package VfoPrototype;
 import static VfoPrototype.VfoDisplayControl.LAST_VFO;
 import static VfoPrototype.VfoDisplayControl.VFO_SELECT_A_TEXT;
 import static VfoPrototype.VfoDisplayControl.VFO_SELECT_B_TEXT;
-import java.awt.AWTKeyStroke;
 import java.awt.Component;
-import java.awt.ContainerOrderFocusTraversalPolicy;
-import java.awt.DefaultFocusTraversalPolicy;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JFormattedTextField;
-import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 import javax.swing.KeyStroke;
 import java.util.prefs.*;
@@ -57,7 +51,7 @@ import javax.swing.JRadioButtonMenuItem;
  * @author Coz
  */
 final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemListener , ActionListener {
-    public static String version = "Version 2.1.6";
+    public static String version = "Version 2.1.8";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
     JMenuBar menuBar;
@@ -86,9 +80,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         setResizable(true);
         // Use the Mac OSX menuBar at the top of the screen.
         System.setProperty("apple.laf.useScreenMenuBar", "true");
-
-        addMenuBar(); // Need to have menu created before setupPanes();
-        
+        addMenuBar(); // Need to have menu created before setupPanes();       
         // Add an exclusive interface to the Vfo selector so that only one thread
         // at a time gains access.
         vfoState = new VfoSelectionInterface(menuItemA, menuItemB,
@@ -112,16 +104,12 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
             // Do no recognize the entry.
             System.out.println("Unrecognized preference :"+lastVfo);
             vfoState.setVfoASelected();
-        }
-
-        
+        }        
         // Must instantiate components before initialization of VfoDisplayControl.
         vfoGroup = (VfoDisplayControl) digitsParent;
         vfoGroup.initDigits();       
-        vfoGroup.setupPanes();        
-              
-        vfoGroup.makeVisible();
-        
+        vfoGroup.setupPanes();                      
+        vfoGroup.makeVisible();        
         // Cause the ones digit ftf to get the focus when the JFrame gets focus.                              
         JFormattedTextField textField;
         Vector<Component> order = vfoGroup.getTraversalOrder();
@@ -131,9 +119,9 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
                 textField.requestFocusInWindow();
             }
         });
-        // Set up TestInfo GroupBox.
-        jInternalFrame1.setFocusable(true);
-        
+        // Set up TestInfo GroupBox.  This is an example of grouping accessible
+        // controls to make an accessibility tree that uses few key strokes.
+        jInternalFrame1.setFocusable(true);       
         String infoStr  = "<html>VFO Display Digits can be <br>"+
                                 "adjusted using up/down <br>"+
                                 "arrows, left click and the<br>"+
@@ -143,8 +131,7 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         keysInfo.setText(infoStr);
         // Associate labels with fields for accessibility.
         jLabel1.setLabelFor(frequencyVfoA);
-        jLabel2.setLabelFor(frequencyVfoB);
-        
+        jLabel2.setLabelFor(frequencyVfoB);        
     }
     
     /**

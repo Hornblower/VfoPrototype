@@ -45,13 +45,16 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
  * is given a new description upon focus which includes the decade of the 
  * digit and the current VFO frequency in Mhz.  VoiceOver announces that new
  * description.  There are shortcut keys ALT-A and ALT-B to select either
- * VFO A or VFO B.  These "radio buttons" choose which radio VFO is controlled
+ * VFO A or VFO B.  These "radio menu buttons" choose which radio VFO is controlled
  * by manipulating the VFO Display Control digits.  VoiceOver DOES NOT announce
  * at all upon reaching the JInternalFrame menu and menu items.  That is a bug
  * and am submitting it to Oracle with a simple example called JInternalFrameBug.
  * To overcome this voiceOver problem, a dialog is opened when the VFO is changed.
  * Blind users can use the OPT-A and OPT-B to choose VfoA and VfoB respectively
  * without having to navigate the menu items that have no audio feedback.
+ * 
+ * A recent revelation is that the aspect ratio of the vfo display is pretty much 
+ * constant.  All the component sizes are calculated.  
  * 
  * Sighted users can click on the upper half of a digit to increment or lower
  * half to decrement.  The mouseWheel is a faster way to increment/decrement.
@@ -109,9 +112,7 @@ final public class VfoDisplayControl extends GroupBox
         setResizable(true);
         AccessibleContext contextVfoControl = getAccessibleContext();
         contextVfoControl.setAccessibleName("V F O Display Control");
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE); //not a user operation.
-        
-        
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE); //not a user operation.       
     }
     /**
      * Method to use glass pane as the dynamic content pane for the frame and
@@ -133,15 +134,18 @@ final public class VfoDisplayControl extends GroupBox
         VfoDisplayControl display = this;
         Rectangle frameBounds = display.getBounds();
         Dimension frameSize = display.getSize();
-
         setupGlassPane(display);
-        setupContentPane(display);
-        
+        setupContentPane(display);        
     }
     /**
      * Create all ten DecadeDigits, initialize them ,store them in an ordered 
      * collection which is used to traverse the digits, then insert them into
      * three panels indicating scientific notation grouping.
+     * 
+     * These digits are stored in ascending decade order.  JRX code uses descending
+     * order which makes the carry calculations much more efficient.  Chose to
+     * use ascending order because that is the traversal order, but since there
+     * are two collections of digits, may go back and copy JRX algorithm.
      * 
      * The one hertz digits are usually smaller on radio displays.  Use the
      * JRX proportions.
@@ -214,7 +218,7 @@ final public class VfoDisplayControl extends GroupBox
      * Create the glass pane panel and configure the layered panes that hold the
      * DecadeDigits.
      * 
-     * The glass pane contains all the dynamic components.
+     * The glass pane contains all the dynamic components, the DecadeDigits.
      * 
      * @param display 
      */
@@ -224,14 +228,10 @@ final public class VfoDisplayControl extends GroupBox
         Rectangle contentBounds = contentPane.getBounds();
         
         contentPane.setLayout(null);
-
         display.setGlassPane(new JPanel());
-        glassPane = (JPanel) display.getGlassPane();
-        
+        glassPane = (JPanel) display.getGlassPane();       
         // We have the bounds for each component, do away with layout manager.
-        glassPane.setLayout(null);
-                
-        
+        glassPane.setLayout(null);        
         //MUST HAVE THE FOLLOWING LINE FOR GLASS PANE TO BE TRANSPARENT!
         glassPane.setOpaque(false);
         
@@ -256,7 +256,6 @@ final public class VfoDisplayControl extends GroupBox
         int megaWide = (int)(4*digitWidth)+2*titleBorderWidth;
         int kiloWide = (int)(3*digitWidth)+2*titleBorderWidth;
         int onesOffsetX = offsetX+megaWide+panelGap+kiloWide+panelGap;
-        //layeredPaneMegahertz.setAlignmentY(1.0f);
         
         int bigFontSize = computeFontSize((int) digitWidth,  digitHeight, "0", freqDigits.get(9).getFont());
         int littleFontSize = computeFontSize ((int)(digitWidth*.7), (int)(digitHeight*0.7), "0", freqDigits.get(9).getFont());
@@ -271,8 +270,7 @@ final public class VfoDisplayControl extends GroupBox
                 digit.setFont(font);
             } else {
                 Font font = new Font("Monospace", Font.PLAIN, (int) (bigFontSize * fs * 0.65));
-                digit.setFont(font);
-               
+                digit.setFont(font);               
             } 
             Dimension prefSize = digit.getPreferredSize();
             System.out.println("Digit "+index+" preferredSize :"+prefSize);
@@ -317,7 +315,6 @@ final public class VfoDisplayControl extends GroupBox
                 digitsPanelAncestorResized(evt);
             }
         });
-        //adjustSize(layeredPaneMegahertz);
 
         layeredPaneKilohertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneKilohertz.setOpaque(false);
@@ -337,7 +334,6 @@ final public class VfoDisplayControl extends GroupBox
                 digitsPanelAncestorResized(evt);
             }
         });
-        //adjustSize(layeredPaneKilohertz);
 
         layeredPaneHertz.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         layeredPaneHertz.setToolTipText("VFO Hertz digits");
@@ -358,8 +354,6 @@ final public class VfoDisplayControl extends GroupBox
                 digitsPanelAncestorResized(evt);
             }
         });
-        //adjustSize(layeredPaneHertz);
-        
 //        // At this point, all the digits have been resized and inserted into 
 //        // the fixed size layered panes. Get some measurements.
 //        Dimension megaPref = layeredPaneMegahertz.getPreferredSize();
@@ -374,9 +368,10 @@ final public class VfoDisplayControl extends GroupBox
     /**
      * Adjust the size of the DecadeDigit fonts (and thus the DecadeDigit dims).
      * 
+     * @deprecated 
      * @param resizedComponent is a layered pane.
      */
-    protected void oldAdjustSize(JLayeredPane resizedComponent) {
+    protected void adjustSize(JLayeredPane resizedComponent) {
         for (Component comp : resizedComponent.getComponentsInLayer(JLayeredPane.DEFAULT_LAYER)) {
             DecadeDigit digit = (DecadeDigit) comp;
             double fs = digit.fontScale;
@@ -405,6 +400,8 @@ final public class VfoDisplayControl extends GroupBox
      * Given the label dimensions, the text, and the font, what is the font size 
      * that will fit?
      * 
+     * Note: method computes font sizes that are about 20 percent too big.
+     * 
      * @param fieldWidth
      * @param fieldHeight
      * @param text
@@ -412,31 +409,18 @@ final public class VfoDisplayControl extends GroupBox
      * @return fontSize integer
      */
     protected int computeFontSize( int fieldWidth, int fieldHeight, String text, Font font) {
-        
-        //Font font = ftf.getFont();
-        //String text = ftf.getText();
-
         int stringWidth = getFontMetrics(font).stringWidth(text);
         int componentWidth = fieldWidth;
-
         // Find out how much the font can grow in width.
         double widthRatio = (double)componentWidth / (double)stringWidth;
         System.out.println("widthRatio of "+font.getName()+" is " + String.valueOf(widthRatio) );
         int newFontSize = (int)(font.getSize() * widthRatio);
         int componentHeight = fieldHeight;
-
         // Pick a new font size so it will not be larger than the height of label.
         int fontSizeToUse = Math.min(newFontSize, componentHeight);
         System.out.println("Font size to use is "+ String.valueOf(fontSizeToUse));
         return fontSizeToUse;
-        
-
     }
-
-
-
-
-
     
     /**
      * All the dynamic components are added to the glass pane so the context
@@ -472,9 +456,8 @@ final public class VfoDisplayControl extends GroupBox
             door.addShapes();           
             aFrame.jLayeredPaneMegahertz.add(door);
             door.setVisible(true);
-        }
-        
-            // Add an exclusive interface to the Vfo selector so that only one thread
+        }        
+        // Add an exclusive interface to the Vfo selector so that only one thread
         // at a time gains access.
         vfoState = new VfoSelectionInterface(aFrame.menuItemA, aFrame.menuItemB,
             aFrame.frequencyVfoA, aFrame.frequencyVfoB );
@@ -502,8 +485,7 @@ final public class VfoDisplayControl extends GroupBox
     }
     
     
-    public void makeVisible() {
-        
+    public void makeVisible() {        
         long selectedFreq = vfoState.getSelectedVfoFrequency();
         frequencyToDigits(selectedFreq);        
 
@@ -512,7 +494,7 @@ final public class VfoDisplayControl extends GroupBox
         
         getContentPane().repaint();
 
-        //Rectangle menuBarBounds = menuBar.getBounds(); //Does not work.  Bug.
+        //Rectangle menuBarBounds = menuBar.getBounds(); //Does not work. Oracle Bug.
     }
 
     
@@ -632,7 +614,7 @@ final public class VfoDisplayControl extends GroupBox
     
     @SuppressWarnings("unchecked")
     public void setUpFocusManager() {
-        // Make sure that the JFrame is focus manager.
+        // Make sure that the VfoDisplayControl is focus manager.
         // It appears that voiceOver StepInto is ignoring focus manager.
         setFocusCycleRoot(true);
         VfoDigitTraversalPolicy policy; 
@@ -668,8 +650,7 @@ final public class VfoDisplayControl extends GroupBox
         
         assert( getFocusTraversalPolicy() != null);
         assert( isFocusCycleRoot());
-        setEnabled(true);
-             
+        setEnabled(true);             
     }       
 
     /**
