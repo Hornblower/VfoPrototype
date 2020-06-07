@@ -140,7 +140,7 @@ final public class VfoDisplayControl extends GroupBox
         Dimension frameSize = display.getSize();
         setupGlassPane(display);
         setupContentPane(display);
-        adjustSize(display);     
+        //adjustSize(display);     
         
     }
     /**
@@ -343,15 +343,7 @@ final public class VfoDisplayControl extends GroupBox
         megaBounds = new Rectangle( offsetX,  offsetY, megaWide, panelHeight);                   
         kiloBounds = new Rectangle(kiloOffsetX,  offsetY, kiloWide, panelHeight);
         unnoBounds = new Rectangle(onesOffsetX,  offsetY, onesWide, panelHeight);
-         
-        layeredPaneMegahertz.setBounds(megaBounds);
-        layeredPaneKilohertz.setBounds(kiloBounds);
-        layeredPaneHertz.setBounds(unnoBounds);
-        
-        aFrame.jLayeredPaneHertz.setBounds(unnoBounds);
-        aFrame.jLayeredPaneKilohertz.setBounds(kiloBounds);
-        aFrame.jLayeredPaneMegahertz.setBounds(megaBounds);
-        
+
         Dimension bigDigitDim = freqDigits.get(9).getSize();
         Dimension littleDigitDim = freqDigits.get(0).getSize();
         for (int iii=0; iii<QUANTITY_DIGITS; iii++) {
@@ -361,11 +353,21 @@ final public class VfoDisplayControl extends GroupBox
                 barnDoors.get(iii).addShapes(bigDigitDim);
         }
         
+        
+        layeredPaneMegahertz.setBounds(megaBounds);
+        layeredPaneKilohertz.setBounds(kiloBounds);
+        layeredPaneHertz.setBounds(unnoBounds);
+        
+        aFrame.jLayeredPaneHertz.setBounds(unnoBounds);
+        aFrame.jLayeredPaneKilohertz.setBounds(kiloBounds);
+        aFrame.jLayeredPaneMegahertz.setBounds(megaBounds);
+        
+        
         //@todo Coz, going from min size to full screen has timing issue. BUG.        
-        aFrame.jLayeredPaneHertz.repaint();
-        aFrame.jLayeredPaneKilohertz.repaint();
-        aFrame.jLayeredPaneMegahertz.repaint();
-        getContentPane().repaint();        
+        //aFrame.jLayeredPaneHertz.repaint();
+        //aFrame.jLayeredPaneKilohertz.repaint();
+        //aFrame.jLayeredPaneMegahertz.repaint();
+        //getContentPane().repaint();        
     }
      
     
@@ -679,8 +681,8 @@ final public class VfoDisplayControl extends GroupBox
         // Print out just this field's name and description.
         //String ftfName = ftf.getAccessibleContext().getAccessibleName();
         //System.out.println("ftf accessible name :"+ftfName);
-        String ftfDesc = ftf.getAccessibleContext().getAccessibleDescription();
-        System.out.println("ftf accessible description :"+ftfDesc);               
+        //String ftfDesc = ftf.getAccessibleContext().getAccessibleDescription();
+        //System.out.println("ftf accessible description :"+ftfDesc);               
     }       
 
     
