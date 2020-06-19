@@ -20,9 +20,9 @@
 package VfoPrototype;
 
 
-import static VfoPrototype.VfoDisplayControl.LAST_VFO;
-import static VfoPrototype.VfoDisplayControl.VFO_SELECT_A_TEXT;
-import static VfoPrototype.VfoDisplayControl.VFO_SELECT_B_TEXT;
+import vfoDisplayControl.VfoDisplayControl;
+import vfoDisplayControl.VfoSelectionInterface;
+import vfoDisplayControl.GroupBox;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -52,8 +52,9 @@ import javax.swing.JRadioButtonMenuItem;
  * 
  * @author Coz
  */
-final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemListener , ActionListener {
-    public static String version = "Version 2.2.1";
+final public class VfoPrototype2 extends javax.swing.JFrame  
+        implements ItemListener , ActionListener {
+    public static String version = "Version 2.2.2";
     VfoDisplayControl vfoGroup;
     protected Preferences prefs;
     JMenuBar menuBar;
@@ -61,6 +62,13 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
     public JRadioButtonMenuItem menuItemB;
     VfoSelectionInterface vfoState;
     protected boolean inhibit = true;
+    static String VFO_SELECT_A_TEXT = "Select radio VFO A";
+    static String VFO_SELECT_B_TEXT = "Select radio VFO B";
+    static String LAST_VFO = "LAST_VFO";
+    final long MSN_FREQ = 3563000;   // MSN 80meter CW
+    final long SHAWSVILLE_REPEATER_OUTPUT_FREQ = 145330000; // Shawsville Repeater
+
+
 
     /**
      * Creates new form VfoPrototype which is used as a testbed for the multi-
@@ -73,12 +81,13 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
                 Rectangle b = getBounds();
                 setUpVfoComponents();
                 vfoGroup.setUpFocusManager();
+                
             
         } catch(Exception e) {
             e.printStackTrace();
         }      
     }
-    
+        
     public void setUpVfoComponents() {
         setTitle("VFO Prototype "+version);
         // Create an Prefernces object for access to this user's preferences.
@@ -114,10 +123,10 @@ final public class VfoPrototype2 extends javax.swing.JFrame  implements ItemList
         // Must instantiate components before initialization of VfoDisplayControl.
         vfoGroup = (VfoDisplayControl) digitsParent;       
         vfoGroup.setupPanes();                      
-        vfoGroup.makeVisible(); 
         // @todo Later we will get these from Preferences.  When do we save a freq?
-        vfoState.writeFrequencyToRadioVfoA(vfoGroup.MSN_FREQ);
-        vfoState.writeFrequencyToRadioVfoB(vfoGroup.SHAWSVILLE_REPEATER_OUTPUT_FREQ);
+        vfoState.writeFrequencyToRadioVfoA(MSN_FREQ);
+        vfoState.writeFrequencyToRadioVfoB(SHAWSVILLE_REPEATER_OUTPUT_FREQ);
+        vfoGroup.makeVisible(vfoState); 
         
         
         // Cause the ones digit ftf to get the focus when the JFrame gets focus.                              

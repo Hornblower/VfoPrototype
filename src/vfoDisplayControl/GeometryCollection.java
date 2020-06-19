@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package VfoPrototype;
+package vfoDisplayControl;
 
-import java.awt.Color;
+import vfoDisplayControl.Geometry;
+import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 
 /**
@@ -17,15 +16,24 @@ import java.util.ArrayList;
  * 
  * @author Coz
  */
-public class GeometryModel {
+public class GeometryCollection {
+    protected Dimension dims;
     private ArrayList<Geometry> shapes;
 
-    public GeometryModel() {
+    public GeometryCollection() {
         this.shapes = new ArrayList<Geometry>();
     }
     
+    public void clear() {
+        shapes.clear();
+    }
+
     public void addGeometry( Geometry geo) {
         shapes.add(geo);
+    }
+
+    public void setDims(Dimension dim) {
+        dims = dim;
     }
 
     /**
@@ -33,7 +41,8 @@ public class GeometryModel {
      * @param g is Graphics g from Component to be drawn on.
     */
     public void draw(Graphics g) {
-         for(Geometry geo:shapes){  
+         for(Geometry geo:shapes){
+            geo.setDims(dims);
             geo.draw(g);         
         }
     }

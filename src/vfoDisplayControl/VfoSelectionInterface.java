@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package VfoPrototype;
+package vfoDisplayControl;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.text.DecimalFormat;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.swing.ButtonGroup;
@@ -13,30 +14,33 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextField;
 
 /**
- * The idea here is to make a re-entrant state machine that can give results to
- * any thread as to the selected VFO and its frequency.  The state machine is 
- * the interface to change the selected JRadioButtonMenuItem state
- * programmatically.
+ * This class is a re-entrant interface using locks to give results to
+ * any thread as to the selected VFO and its frequency and is 
+ * the interface to change the selected JRadioButtonMenuItem state via software.
+ * 
+ * The actual state machine is in the JRadioButtonGroup which enforces selection
+ * of only one of the group's button at a time.
  * 
  * @author Coz
  */
-public class VfoSelectStateMachine {
+public class VfoSelectionInterface {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();    
     JRadioButtonMenuItem vfoA;
     JRadioButtonMenuItem vfoB;
     JTextField frequencyVfoA;
     JTextField frequencyVfoB;
-    static Color selectedColor = Color.WHITE; //new Color(200,255,200); // LightGreen
-    static Color unselectedColor = Color.LIGHT_GRAY;
+    static Color SELECTED_COLOR = Color.WHITE; 
+    static Color UNSELECTED_COLOR = Color.LIGHT_GRAY;
  
-    public VfoSelectStateMachine(JRadioButtonMenuItem a, JRadioButtonMenuItem b, 
+    public VfoSelectionInterface(JRadioButtonMenuItem a, JRadioButtonMenuItem b, 
             JTextField freqA, JTextField freqB) {
         
         frequencyVfoA = freqA;
         frequencyVfoB = freqB;
         vfoA =  a;
         vfoB =  b;
-        // Make the item selection exclusive.
+        // Make the vfo item selection exclusive.
+        Container container = a.getParent();
         ButtonGroup group = new ButtonGroup();
         group.add(a);
         group.add(b);
@@ -116,9 +120,9 @@ public class VfoSelectStateMachine {
         lock.writeLock().lock();  //blocks until lock is available.
         System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
         vfoA.setSelected(true);
-        frequencyVfoA.setBackground(selectedColor);
-        frequencyVfoB.setBackground(unselectedColor);
-       lock.writeLock().unlock();            
+        frequencyVfoA.setBackground(SELECTED_COLOR);
+        frequencyVfoB.setBackground(UNSELECTED_COLOR);
+        lock.writeLock().unlock();            
         
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
@@ -133,9 +137,9 @@ public class VfoSelectStateMachine {
         lock.writeLock().lock();  //blocks until lock is available.       
         System.out.println("obtained lock. Vfo A is selected :" + isSelectedA);
         vfoB.setSelected(true);
-        frequencyVfoB.setBackground(selectedColor);
-        frequencyVfoA.setBackground(unselectedColor);
-       lock.writeLock().unlock();            
+        frequencyVfoB.setBackground(SELECTED_COLOR);
+        frequencyVfoA.setBackground(UNSELECTED_COLOR);
+        lock.writeLock().unlock();            
         
         isSelectedA = vfoA_IsSelected();
         System.out.println("Released the lock. Vfo A is selected :"+ isSelectedA);
@@ -199,6 +203,22 @@ public class VfoSelectStateMachine {
 
     public boolean writeFrequencyToRadioVfoB(long frequencyHertz) {
         return writeFrequencyToRadio(frequencyHertz, false);
+    }
+    
+    public boolean copyAtoB() {
+        boolean success = true;
+        long freqA = getVfoAFrequency();
+        success = writeFrequencyToRadioVfoB(freqA);       
+        return success;       
+    }
+    
+    public boolean swapAwithB() {
+        boolean success = true;
+        long oldFreqA = getVfoAFrequency();
+        long oldFreqB = getVfoBFrequency();
+        writeFrequencyToRadioVfoA(oldFreqB);
+        writeFrequencyToRadioVfoB(oldFreqA);           
+        return success;
     }
 }
 
